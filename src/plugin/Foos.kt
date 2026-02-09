@@ -11,6 +11,8 @@ import mindustry.net.Administration.Config
 import plugin.PVars.clientCommands
 import plugin.commands.CustomHandler
 
+import arc.util.*
+
 class Foos {
     companion object {
         private val sb = StringBuilder()
@@ -25,7 +27,7 @@ class Foos {
 
         /** Called after command creation */
         fun init() {
-
+            Log.info("Loading foos integration")
             /** @since v1 Plugin presence check */
             Vars.netServer.addPacketHandler("fooCheck") { player, _ ->
                 Call.clientPacketReliable(player.con, "fooCheck", version)

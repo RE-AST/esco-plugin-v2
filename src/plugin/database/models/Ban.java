@@ -13,14 +13,15 @@ import java.util.Optional;
 import arc.util.Time;
 
 import static plugin.PVars.discordLink;
+import static plugin.PVars.serverId;
 import static plugin.utils.Utils.formatTime;
 import plugin.PVars;
 
 public class Ban {
-    int id, playerId, adminId;
-    boolean active;
-    Instant banTime, unbanTime;
-    String reason;
+    public int id, playerId, adminId;
+    public boolean active;
+    public Instant banTime, unbanTime;
+    public String reason;
 
     Ban(int id, int playerId, int adminId, boolean active, Instant banTime, Instant unbanTime, String reason) {
         this.id = id;
@@ -135,7 +136,7 @@ public class Ban {
                     stmt.setString(1, player.uuid());
                     stmt.setString(2, player.ip());
                     stmt.setString(3, player.usid());
-                    stmt.setString(4, PVars.gamemode.simpleName);
+                    stmt.setInt(4, serverId);
                 },
                 Ban::getBan
         );

@@ -3,7 +3,8 @@ package plugin.utils;
 public enum Gamemode {
     idk(),
     survival(false, "survival", "srv!"),
-    sandbox(true, "sandbox", "snd!");
+    sandbox(true, "sandbox", "snd!"),
+    attack(false, "attack", "atk!");
 
     public boolean optimized;
     public String simpleName, botPrefix;

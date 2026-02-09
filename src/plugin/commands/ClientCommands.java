@@ -12,19 +12,28 @@ import mindustry.game.Team;
 import mindustry.gen.Call;
 import mindustry.gen.Groups;
 import mindustry.gen.Player;
+import mindustry.graphics.Pal;
 import mindustry.net.Administration;
 import plugin.utils.Permission;
 import plugin.Bundle;
 import java.util.Optional;
 
 import plugin.database.models.*;
+import plugin.utils.Utils;
+import plugin.utils.VoteMap;
 import plugin.utils.VotekickSession;
 
+import static plugin.Bundle.infoMessage;
 import static plugin.Bundle.sendMessage;
 import static plugin.PVars.*;
+import static plugin.database.models.Admin.getAdmin;
+import static plugin.database.models.Admin.updateHidden;
 import static plugin.database.models.Ban.*;
 import static plugin.database.models.PlayerData.*;
+import static plugin.utils.Gamemode.sandbox;
+import static plugin.utils.Permission.admin;
 import static plugin.utils.Permission.getPerms;
+import static plugin.utils.Utils.parseBool;
 import static plugin.utils.Utils.parseTime;
 import static plugin.database.models.Ban.ban;
 
@@ -34,7 +43,6 @@ public class ClientCommands {
     public static int voteCooldown = 60 * 5;
 
     public static void register(CustomHandler handler) {
-        clientCommands = handler;
         handler.registerCommand("help", "[page]", (args, player)->{
             if (args.length > 0 && !Strings.canParseInt(args[0])) {
                 player.sendMessage("[scarlet]\"page\" must be a integer.");
@@ -61,7 +69,7 @@ public class ClientCommands {
                 }
 
                 String req = "commands." + c.name + ".description";
-                String desc = Bundle.get(req);
+                String desc = Bundle.get(req, player.locale);
                 if(desc.equals(req))
                     desc = Bundle.get("commands.nodesc");
 
@@ -89,14 +97,26 @@ public class ClientCommands {
             p.sendMessage("[green]Ok!");
         });
 
-        handler.registerCommand("rtv", "", (a, p)->{
-            if(rtvVotes.contains(p)) {
+        handler.registerCommand("rtv", "[y/n]", (a, p)->{
+            if(mapVote == null) {
+                mapVote = new VoteMap(p);
+                mapVote.vote(p, 1);
+                return;
+            }
+            if(mapVote.voted.containsKey(p.ip())) {
                 sendMessage("rtv.error.voted", p);
                 return;
             }
-            rtvVotes.add(p);
-            sendMessage("rtv.playervoted", p.coloredName(), rtvVotes.size+"/"+Math.max(1, (int) Math.ceil(Groups.player.size() * 0.8)));
-            updateRtvVotes();
+            int i;
+            if(a.length == 0)
+                i = 1;
+            else
+                i = parseBool(a[0]);
+            if(i == 0) {
+                sendMessage("vote.unknownvote", p);
+                return;
+            }
+            mapVote.vote(p, i);
         });
 
         handler.registerCommand("ban", "<id> <time> <reason...>", Permission.punish, (a, p)->{
@@ -104,14 +124,16 @@ public class ClientCommands {
                 int id = Strings.parseInt(a[0]);
                 boolean banned = ban(id, p, a[2], parseTime(a[1]));
                 if(banned) {
+                    p.sendMessage("[green]Player banned!");
                     getPlayerById(id).ifPresent(player->{
                         Optional<Ban> ban = getBan(player);
                         if(ban.isPresent()) {
                             ban.get().kickPlayer(player);
                         }
                     });
+                } else {
+                    p.sendMessage("[scarlet]Failed to ban player");
                 }
-                p.sendMessage(String.valueOf(banned));
             } else {
                 p.sendMessage("[scarlet]ID must be int!");
             }
@@ -121,12 +143,68 @@ public class ClientCommands {
             Call.openURI(p.con, discordLink);
         });
 
+        handler.registerCommand("link", (a, p)->{
+            Optional<PlayerData> pdOpt = getPlayerData(p);
+            if(pdOpt.isPresent() && pdOpt.get().discordId != null) {
+                p.sendMessage("Account already linked!");
+                return;
+            }
+            String code = Utils.getRandomString(5);
+
+            linkCodes.put(code, p);
+            infoMessage("discord.link", p, gamemode.botPrefix, code, discordLink);
+        });
+
+        handler.registerCommand("hidden", "<bool>", (a, p)->{
+            int i = parseBool(a[0]);
+            Optional<Integer> idOpt = getPlayerId(p);
+            int id;
+            if(idOpt.isEmpty()) {
+                return;
+            }
+            id = idOpt.get();
+            if(i == 1) {
+                updateHidden(id, true);
+                p.admin(false);
+                p.sendMessage("[green]Ok!");
+            } else if(i == -1) {
+                updateHidden(id, false);
+                p.admin(true);
+                p.sendMessage("[green]Ok!");
+            } else {
+                p.sendMessage("[scarlet]Unknown bool! Use y/yes/д/да/t or n/no/н/нет/f");
+            }
+        });
+
+        if(gamemode == sandbox)
+            handler.registerCommand("team", "<team>", (arg, player)->{
+                if(Strings.canParseInt(arg[0])) {
+                    sendMessage("args.mustbeint", player, "<team>");
+                    return;
+                }
+                int id = Strings.parseInt(arg[0]);
+                if(id > 255) {
+                    sendMessage("args.lessthan", player, "<team>", 256);
+                    return;
+                }
+                player.team(Team.get(id));
+            });
+
+        handler.registerCommand("artv", "", admin, (a, p)->{
+            Events.fire(new EventType.GameOverEvent(Team.derelict));
+        });
+
+        handler.registerCommand("a", "<message...>", admin, (arg, p)->{
+            String raw = "[#" + Pal.adminChat.toString() + "]<A> " + Vars.netServer.chatFormatter.format(p, arg[0]);
+            Groups.player.each(pl->pl.admin || getPerms(pl).contains(admin), a -> a.sendMessage(raw, p, arg[0]));
+        });
+
         handler.registerCommand("vote", "<y/n/c>", (arg, player) -> {
             if(currentlyKicking == null){
                 // player.sendMessage("[scarlet]Nobody is being voted on.");
                 sendMessage("novoteinprogress", player);
             }else{
-                if(player.admin && arg[0].equalsIgnoreCase("c")){
+                if(getPerms(player).contains(admin) && arg[0].equalsIgnoreCase("c")){
                     // Call.sendMessage(Strings.format("[lightgray]Vote canceled by admin[orange] @[lightgray].", player.name));
                     sendMessage("vote.canceledbyadmin", player.coloredName());
                     currentlyKicking.task.cancel();
@@ -225,7 +303,7 @@ public class ClientCommands {
                     if(found == player){
                         // player.sendMessage("[scarlet]You can't vote to kick yourself.");
                         sendMessage("votekick.kickyouself", player);
-                    }else if(found.admin){
+                    }else if(found.admin || getPerms(found).contains(admin)){
                         // player.sendMessage("[scarlet]Did you really expect to be able to kick an admin?");
                         sendMessage("votekick.admin", player);
                     }else if(found.isLocal()){
@@ -243,7 +321,7 @@ public class ClientCommands {
                             return;
                         }
 
-                        VotekickSession session = new VotekickSession(found, player);
+                        VotekickSession session = new VotekickSession(found, player, args[1]);
                         session.vote(player, 1);
                         // Call.sendMessage(Strings.format("[lightgray]Reason:[orange] @[lightgray].", args[1]));
                         sendMessage("votekick.start", args[1]);
@@ -259,7 +337,7 @@ public class ClientCommands {
     }
 
     public static void updateRtvVotes() {
-        if (rtvVotes.size >= Math.max(1, (int) Math.ceil(Groups.player.size() * 0.8))) {
+        if (rtvVotes.size >= Math.max(1, (int) Math.round(Groups.player.size() * 0.8))) {
             Events.fire(new EventType.GameOverEvent(Team.derelict));
             rtvVotes.clear();
             sendMessage("rtv.pass");

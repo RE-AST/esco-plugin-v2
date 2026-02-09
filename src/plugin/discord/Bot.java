@@ -33,6 +33,7 @@ public class Bot {
             if(serverGuild != null) {
                 serverChannel = serverGuild.getChannelById(TextChannel.class, serverChannelStr);
                 logsChannel = serverGuild.getChannelById(TextChannel.class, logsChannelStr);
+                votekicksChannel = serverGuild.getChannelById(TextChannel.class, votekicksChannelStr);
             } else {
                 Log.err("Failed to get server guild!");
             }
@@ -48,7 +49,7 @@ public class Bot {
 
     public static void sendLog(String message) {
         if(logsChannel != null)
-            logsChannel.sendMessage("["+gamemode.simpleName+"]"+message).queue();
+            logsChannel.sendMessage("["+gamemode.simpleName+"] "+message).queue();
     }
 
     public static void sendServerMessage(String message) {

@@ -8,9 +8,16 @@ import mindustry.mod.Plugin;
 import plugin.commands.ClientCommands;
 import plugin.commands.CustomHandler;
 import plugin.commands.ServerCommands;
+import plugin.database.models.Server;
 import plugin.discord.Bot;
+import plugin.utils.Loader;
 import plugin.utils.Patches;
-import plugin.Foos;
+import plugin.utils.MapPreview;
+
+import java.util.Optional;
+
+import static plugin.PVars.*;
+import static plugin.database.models.Server.getOrCreateServer;
 
 public class PPlugin extends Plugin {
     @Override
@@ -19,8 +26,10 @@ public class PPlugin extends Plugin {
         Bundle.load();
         Patches.load();
         PEvents.load();
-
-        Foos.Companion.init();
+        MapPreview.loadColors();
+        Loader.loadServerId();
+        Loader.loadLogging();
+        // Foos.Companion.init();
 
         Threads.daemon(Bot::load);
 
@@ -34,6 +43,8 @@ public class PPlugin extends Plugin {
 
     @Override
     public void registerClientCommands(CommandHandler handler){
-        ClientCommands.register(new CustomHandler(handler));
+        clientCommands = new CustomHandler(handler);
+        Foos.Companion.init();
+        ClientCommands.register(clientCommands);
     }
 }

@@ -14,9 +14,11 @@ public enum Permission {
     none,
     test,
     admin,
-    punish;
+    punish,
+    editMaps;
 
     public static final ObjectMap<Player, Seq<Permission>> cache = new ObjectMap<>();
+    public static final Permission[] all = values();
 
     public static Seq<Permission> parsePerms(String[] perms) {
         Seq<Permission> rperms = new Seq<>();
@@ -49,6 +51,24 @@ public enum Permission {
         if(!seq.contains(none))
             seq.add(none);
         cache.put(p, seq);
+
+        return seq;
+    }
+
+    public static Seq<Permission> getPermsByDiscordId(Long discordId) {
+        Optional<Seq<Permission>> r = Database.executeQueryAsync(
+                "SELECT ar.permissions\n" +
+                        "        FROM players p\n" +
+                        "        LEFT JOIN admins a ON a.player_id = p.id\n" +
+                        "        LEFT JOIN admin_ranks ar ON ar.id = a.rank_id\n" +
+                        "        WHERE p.discord_id = ?",
+                stmt->stmt.setLong(1, discordId),
+                Permission::getPerms
+        );
+
+        Seq<Permission> seq = r.orElseGet(() -> Seq.with(none));
+        if(!seq.contains(none))
+            seq.add(none);
 
         return seq;
     }

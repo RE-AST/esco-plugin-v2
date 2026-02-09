@@ -6,11 +6,13 @@ import arc.struct.StringMap;
 import arc.util.Http;
 import arc.util.Log;
 
+import mindustry.gen.Call;
 import mindustry.gen.Groups;
 import mindustry.gen.Player;
 
 import java.text.MessageFormat;
 
+import static java.text.MessageFormat.format;
 import static plugin.PVars.bundleApi;
 
 public class Bundle {
@@ -86,6 +88,10 @@ public class Bundle {
         return key;
     }
 
+    public static String get(String key, String locale, Object... args) {
+        return MessageFormat.format(get(key, locale), args);
+    }
+
     public static String get(String key) {
         return get(key, defaultLocale);
     }
@@ -101,14 +107,22 @@ public class Bundle {
     }
 
     public static void sendMessage(String req, Object... params) {
-        Groups.player.each(p->p.sendMessage(MessageFormat.format(get(req, p.locale), params)));
+        Groups.player.each(p->p.sendMessage(format(get(req, p.locale), params)));
     }
 
     public static void sendMessage(String req, Player player, Object... params) {
-        player.sendMessage(MessageFormat.format(get(req, player.locale), params));
+        player.sendMessage(format(get(req, player.locale), params));
     }
 
     public static void sendMessage(String req, Player player) {
         player.sendMessage(get(req, player.locale));
+    }
+
+    public static void infoMessage(String req, Player player) {
+        Call.infoMessage(player.con, Bundle.get(req));
+    }
+
+    public static void infoMessage(String req, Player player, Object... params) {
+        Call.infoMessage(player.con, format(Bundle.get(req), params));
     }
 }

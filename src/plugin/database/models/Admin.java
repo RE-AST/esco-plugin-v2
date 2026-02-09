@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
+import static plugin.database.Database.executeUpdate;
 import static plugin.utils.Permission.getPerms;
 
 public class Admin {
@@ -26,6 +27,37 @@ public class Admin {
         this.rankName = rankName;
         this.perms = perms;
         this.hidden = hidden;
+    }
+
+    public boolean updateHidden(boolean hidden) {
+        boolean updated = executeUpdate(
+                """
+                        UPDATE ADMINS SET
+                        hidden = ?
+                        WHERE id = ?
+                        """,
+                stmt->{
+                    stmt.setBoolean(1, hidden);
+                    stmt.setInt(2, id);
+                }
+        );
+        if(updated)
+            this.hidden = hidden;
+        return updated;
+    }
+
+    public static boolean updateHidden(int pid, boolean hidden) {
+        return executeUpdate(
+                """
+                        UPDATE ADMINS SET
+                        hidden = ?
+                        WHERE player_id = ?
+                        """,
+                stmt->{
+                    stmt.setBoolean(1, hidden);
+                    stmt.setInt(2, pid);
+                }
+        );
     }
 
     public static Optional<Admin> getAdmin(Player player) {

@@ -1,18 +1,23 @@
 package plugin.utils;
 
+import arc.files.Fi;
+import arc.func.Cons;
 import arc.util.Http;
 import arc.util.Log;
 import arc.util.Strings;
+import mindustry.Vars;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Random;
 import java.util.zip.InflaterInputStream;
 
 import static mindustry.Vars.charset;
 import static plugin.PVars.vpnApi;
 
 public class Utils {
+    public static final String characters = "qwertyuiopasdfghjklzxcvbnm123456789=";
     public static void isAnon(String ip, Runnable callback) {
         Http.get(
                 vpnApi + ip,
@@ -24,6 +29,29 @@ public class Utils {
                     Log.err("Failed to check ip", err);
                 }
         );
+    }
+
+    public static int parseBool(String bool) {
+        return switch(bool.toLowerCase()) {
+            case "y", "yes", "д", "да", "+", "t", "true" -> 1;
+            case "n", "no", "н", "нет", "-", "f", "false" -> -1;
+            default -> 0;
+        };
+    }
+
+    public static String getRandomString(int len) {
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+
+        for(int i = 0;i < len;i++) {
+            sb.append(characters.charAt(random.nextInt(characters.length())));
+        }
+
+        return sb.toString();
+    }
+
+    public static Fi getResource(String name) {
+        return Vars.mods.locateMod("plugin").root.child(name);
     }
 
     public static String stripFoo(String string) {

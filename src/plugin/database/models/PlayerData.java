@@ -10,14 +10,51 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
+import static plugin.PVars.gamemode;
+import static plugin.PVars.serverId;
+import static plugin.database.Database.executeQueryAsync;
+import static plugin.database.Database.executeUpdate;
+
 public class PlayerData {
     public static ObjectMap<Player, PlayerData> cache = new ObjectMap<>();
     public int id;
     public String uuid;
+    public Long discordId;
 
-    PlayerData(int id, String uuid) {
+    PlayerData(int id, String uuid, Long discordId) {
         this.id = id;
         this.uuid = uuid;
+        this.discordId = discordId;
+    }
+
+    public boolean updateDiscordId(Long dsid) {
+        boolean updated = executeUpdate(
+        """
+                UPDATE players SET discord_id = ?
+                WHERE id = ?
+                """,
+                stmt->{
+                    stmt.setLong(1, dsid);
+                    stmt.setInt(2, id);
+                }
+        );
+        if(updated)
+            this.discordId = discordId;
+        return updated;
+    }
+
+    public Optional<String> getUsid() {
+        return executeQueryAsync(
+                """
+                SELECT usid FROM usid_list
+                WHERE player_id = ? AND server = ?
+                """,
+                stmt->{
+                    stmt.setInt(1, id);
+                    stmt.setInt(2, serverId);
+                },
+                rs->rs.getString("usid")
+        );
     }
 
     public static Optional<Player> getPlayerById(int id) {
@@ -36,24 +73,27 @@ public class PlayerData {
         }
 
         Optional<PlayerData> pd = Database.executeQueryAsync(
-                "WITH update_players AS (\n" +
-                        "    INSERT INTO players (uuid, last_name, last_ip, locale, color)\n" +
-                        "    VALUES (?, ?, ?, ?, ?)\n" +
-                        "    ON CONFLICT (uuid) DO UPDATE SET\n" +
-                        "        last_name = EXCLUDED.last_name,\n" +
-                        "        last_ip   = EXCLUDED.last_ip,\n" +
-                        "        color     = EXCLUDED.color,\n" +
-                        "        locale    = EXCLUDED.locale\n" +
-                        "    RETURNING id, uuid, last_name, last_ip, locale, color\n" +
-                        "),\n" +
-                        "insert_usid AS (\n" +
-                        "    INSERT INTO usid_list (player_id, usid, server)\n" +
-                        "    SELECT id, ?, ?\n" +
-                        "    FROM update_players\n" +
-                        "    ON CONFLICT (usid, server) DO NOTHING\n" +
-                        ")\n" +
-                        "SELECT *\n" +
-                        "FROM update_players;\n",
+                """
+                        WITH update_players AS (
+                            INSERT INTO players (uuid, last_name, last_ip, locale, color)
+                            VALUES (?, ?, ?, ?, ?)
+                            ON CONFLICT (uuid) DO UPDATE SET
+                                last_name = EXCLUDED.last_name,
+                                last_ip   = EXCLUDED.last_ip,
+                                color     = EXCLUDED.color,
+                                locale    = EXCLUDED.locale,
+                                last_seen = NOW()
+                            RETURNING id, uuid, last_name, last_ip, locale, color, discord_id
+                        ),
+                        insert_usid AS (
+                            INSERT INTO usid_list (player_id, usid, server)
+                            SELECT id, ?, ?
+                            FROM update_players
+                            ON CONFLICT (usid, server) DO NOTHING
+                        )
+                        SELECT *
+                        FROM update_players;
+                        """,
                 stmt->{
                     stmt.setString(1, p.uuid());
                     stmt.setString(2, p.name());
@@ -61,7 +101,7 @@ public class PlayerData {
                     stmt.setString(4, p.locale);
                     stmt.setString(5, p.color.toString());
                     stmt.setString(6, p.usid());
-                    stmt.setString(7, PVars.gamemode.simpleName);
+                    stmt.setInt(7, serverId);
                 },
                 PlayerData::getPlayerData
         );
@@ -89,7 +129,18 @@ public class PlayerData {
         );
     }
 
+    public static Optional<Integer> getPlayerId(Player player) {
+        if(cache.containsKey(player))
+            return Optional.of(cache.get(player).id);
+
+        return Database.executeQueryAsync(
+                "SELECT id FROM players WHERE uuid = ?",
+                stmt->stmt.setString(1, player.uuid()),
+                rs->rs.getInt("id")
+        );
+    }
+
     public static PlayerData getPlayerData(ResultSet rs) throws SQLException {
-        return new PlayerData(rs.getInt("id"), rs.getString("uuid"));
+        return new PlayerData(rs.getInt("id"), rs.getString("uuid"), rs.getObject("discord_id", Long.class));
     }
 }

@@ -48,7 +48,7 @@ public class MessageListener extends ListenerAdapter {
             Call.sendMessage(mindustryMessage);
         }
         if(discordCommands != null) {
-            CommandResponse response = discordCommands.handleMessage(content, message);
+            CommandResponse response = discordCommands.handleMessage(content, new Context(message, channel, author));
             if(response.type == ResponseType.fewArguments) {
                 reply(message, MessageFormat.format("Too few arguments!\nUsage **{0}{1}** {2}", gamemode.botPrefix, response.command.text, response.command.paramText));
             } else if (response.type == ResponseType.manyArguments) {

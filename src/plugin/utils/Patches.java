@@ -1,27 +1,67 @@
 package plugin.utils;
 
-import arc.util.Log;
+import arc.*;
+import arc.files.*;
+import arc.func.*;
+import arc.struct.*;
+import arc.util.*;
 import arc.util.Timer;
-import mindustry.Vars;
-import mindustry.gen.Groups;
+import arc.util.CommandHandler.*;
+import arc.util.Timer.*;
+import arc.util.serialization.*;
+import arc.util.serialization.JsonValue.*;
+import arc.util.serialization.Jval.*;
+import mindustry.*;
+import mindustry.core.GameState.*;
+import mindustry.core.*;
+import mindustry.game.EventType.*;
+import mindustry.game.*;
+import mindustry.gen.*;
+import mindustry.io.*;
+import mindustry.maps.Map;
+import mindustry.maps.*;
+import mindustry.maps.Maps.*;
+import mindustry.mod.Mods.*;
+import mindustry.net.Administration.*;
+import mindustry.net.Packets.*;
+import mindustry.net.*;
+import mindustry.type.*;
+
+import java.io.*;
+import java.net.*;
+import java.time.*;
+import java.time.format.*;
+import java.util.*;
+import java.util.regex.*;
+
+import static arc.util.ColorCodes.*;
+import static arc.util.Log.*;
+import static mindustry.Vars.*;
+
 import plugin.Bundle;
 import plugin.ai.DumbAI;
-
 import static plugin.PVars.gamemode;
 
 public class Patches {
+    protected static String[] tags = {"&lc&fb[DEBUG]&fr", "&lb&fb[INFO]&fr", "&ly&fb[WARN]&fr", "&lr&fb[ERROR]", ""};
+    protected static DateTimeFormatter dateTime = DateTimeFormatter.ofPattern("MM-dd-yyyy HH:mm:ss");
+    public static final Fi logFolder = Core.settings.getDataDirectory().child("logs/");
+    public static Fi currentLogFile;
+
     public static void load() {
         if(gamemode.optimized) {
             patchUnits();
             Timer.schedule(()->{
                 despawnUnits();
-            }, 360, 360);
+            }, 30*60, 30*60);
         }
+        loadLogger();
     }
 
     private static void patchUnits() {
         Vars.content.units().each(u->{
-            u.controller = (un) -> new DumbAI();
+            if(!u.hidden)
+                u.controller = (un) -> new DumbAI();
         });
     }
 
@@ -32,5 +72,49 @@ public class Patches {
             if(!u.controller().toString().toLowerCase().startsWith("player"))
                 u.kill();
         });
+    }
+
+    public static void loadLogger() {
+        Log.logger = (level1, text) -> {
+            //err has red text instead of reset.
+            if(level1 == LogLevel.err) text = text.replace(reset, lightRed + bold);
+
+            String result = bold + lightBlack + "[" + dateTime.format(LocalDateTime.now()) + "] " + reset + format(tags[level1.ordinal()] + " " + text + "&fr");
+            System.out.println(result);
+
+            if(Administration.Config.logging.bool()){
+                logToFile("[" + dateTime.format(LocalDateTime.now()) + "] " + formatColors(tags[level1.ordinal()] + " " + text + "&fr", false));
+            }
+
+            /*if(socketOutput != null){
+                try{
+                    socketOutput.println(formatColors(text + "&fr", false));
+                }catch(Throwable e1){
+                    err("Error occurred logging to socket: @", e1.getClass().getSimpleName());
+                }
+            }*/
+        };
+    }
+
+    public static void logToFile(String text){
+        if(currentLogFile != null && currentLogFile.length() > Administration.Config.maxLogLength.num()){
+            currentLogFile.writeString("[End of log file. Date: " + dateTime.format(LocalDateTime.now()) + "]\n", true);
+            currentLogFile = null;
+        }
+
+        for(String value : values){
+            text = text.replace(value, "");
+        }
+
+        if(currentLogFile == null){
+            int i = 0;
+            while(logFolder.child("log-" + i + ".txt").length() >= Administration.Config.maxLogLength.num()){
+                i++;
+            }
+
+            currentLogFile = logFolder.child("log-" + i + ".txt");
+        }
+
+        currentLogFile.writeString(text + "\n", true);
     }
 }
