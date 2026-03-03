@@ -13,6 +13,8 @@ import java.util.Optional;
 import static plugin.database.Database.executeQueryAsync;
 import static plugin.database.Database.executeUpdate;
 
+import static plugin.PVars.*;
+
 public class PlayerStats {
     public int id, playerId;
     public long playtime;
@@ -71,7 +73,7 @@ public class PlayerStats {
     public PlayerStats adjBlocksBuild() {
         this.blocksBuild += 1;
         if(blocksBuild % 50 == 0)
-            adjBalance();
+            adjBalance(gamemode.blockCost);
         return this;
     }
 
@@ -82,8 +84,7 @@ public class PlayerStats {
 
     public PlayerStats adjWavesSurvived() {
         this.wavesSurvived += 1;
-        if(wavesSurvived % 5 == 0)
-            adjBalance();
+        adjBalance(gamemode.waveCost);
         return this;
     }
 

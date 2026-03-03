@@ -40,6 +40,14 @@ public class Patches {
             }, 60*60*2, 60*60*2);
         }
         loadLogger();
+        replaceNetServer();
+    }
+
+    private static void replaceNetServer() {
+        Core.app.removeListener(Vars.netServer);
+        Vars.netServer.dispose();
+        Vars.netServer = new NetServerPatched();
+        Core.app.addListener(Vars.netServer);
     }
 
     private static void patchUnits() {

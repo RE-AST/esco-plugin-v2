@@ -25,6 +25,13 @@ public class PlayerData {
     public Long discordId;
     public PlayerPrefs prefs;
 
+    public transient String originalName = "frog"; // set when player join
+
+    public PlayerData setOriginalName(String s) {
+        this.originalName = s;
+        return this;
+    }
+
     PlayerData(int id, String uuid, Long discordId, PlayerPrefs prefs) {
         this.id = id;
         this.uuid = uuid;

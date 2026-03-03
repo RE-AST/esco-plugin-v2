@@ -45,6 +45,9 @@ public class ClientCommands {
     public static int voteCooldown = 60 * 5;
 
     public static void register(CustomHandler handler) {
+        handler.registerCommand("economy", "", (a, p)->{
+
+        });
         handler.registerCommand("slot", "<bet>", (a, p)->{
             if(!Strings.canParseInt(a[0])) {
                 sendMessage("args.mustbeint", p, "<bet>");

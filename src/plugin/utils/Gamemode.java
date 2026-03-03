@@ -2,11 +2,11 @@ package plugin.utils;
 
 public enum Gamemode {
     idk(),
-    survival(false, "survival", "srv!", 3, 3),
+    survival(false, "survival", "srv!", 5, 3),
     sandbox(true, "sandbox", "snd!", 0, 1),
     attack(false, "attack", "atk!", 0, 1),
     pvp(false, "pvp", "pvp!", 0, 1),
-    campaign(false, "campaign", "cmp!", 2, 2);
+    campaign(false, "campaign", "cmp!", 3, 2);
 
     public boolean optimized;
     public String simpleName, botPrefix;

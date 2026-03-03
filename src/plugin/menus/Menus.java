@@ -18,6 +18,7 @@ import plugin.utils.Permission;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static plugin.Bundle.label;
 import static plugin.Bundle.sendMessage;
 import static plugin.PVars.discordLink;
 import static plugin.database.models.Ban.ban;
@@ -164,7 +165,8 @@ public class Menus {
                 }
                type.spawn(pl.team(), pl.x, pl.y);
                stats.subBalance(cost);
-               sendMessage("menu.shop.unitbuy", pl.coloredName(), type.emoji(), cost);
+               //sendMessage("menu.shop.unitbuy", pl.coloredName(), type.emoji(), cost);
+                label("menu.shop.unitbuy", 1, pl.x, pl.y, pl.coloredName(), type.emoji(), cost);
             });
         });
         menu.row();
@@ -173,7 +175,8 @@ public class Menus {
                 sendMessage("menu.shop.nomoney", pl);
                 return;
             }
-            sendMessage("menu.shop.advertise.healcores", pl.coloredName(), pl.team().emoji);
+            // sendMessage("menu.shop.advertise.healcores", pl.coloredName(), pl.team().emoji);
+            label("menu.shop.advertise.healcores", 1, pl.x, pl.y, pl.coloredName(), pl.team().emoji);
             pl.team().cores().each(Building::heal);
         });
         menu.add(Bundle.get("menus.close", p.locale), Menus::empty);

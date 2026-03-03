@@ -36,9 +36,9 @@ import static plugin.PVars.*;
 import static plugin.database.models.Ban.ban;
 import static plugin.database.models.Log.putLog;
 import static plugin.database.models.PlayerData.getPlayerId;
+import static plugin.database.models.PlayerStats.getPlayerStats;
 import static plugin.discord.Bot.*;
-import static plugin.utils.Gamemode.campaign;
-import static plugin.utils.Gamemode.sandbox;
+import static plugin.utils.Gamemode.*;
 import static plugin.utils.Permission.getPerms;
 import static plugin.utils.Permission.seqToString;
 import static plugin.utils.Utils.*;
@@ -108,7 +108,8 @@ public class PEvents {
             PlayerData pd = pdOpt.get();
 
             PlayerStats.setJoinTime(player);
-            PlayerStats.getPlayerStats(player);
+            pd.setOriginalName(player.coloredName());
+            getPlayerStats(player);
 
             sendMessage("messages.join", String.valueOf(pd.id), player.coloredName());
             putLog(pd.id, "event", "Player joined!");
@@ -127,7 +128,8 @@ public class PEvents {
                     player.kick("[scarlet]Try reconnect\nDiscord " + discordLink, 0);
                 }
             }, 2);
-
+            if(gamemode == pvp)
+                player.name = "<" + player.team().emoji + "> " + player.coloredName();
         });
 
         Events.on(EventType.PlayerLeave.class, (e)->{
@@ -221,7 +223,7 @@ public class PEvents {
             Player player = e.unit.getPlayer();
 
             if(player != null)
-                PlayerStats.getPlayerStats(player).ifPresent(s->{
+                getPlayerStats(player).ifPresent(s->{
                     if(e.breaking)
                         s.adjBlocksBroken();
                     else
@@ -309,6 +311,10 @@ public class PEvents {
                     items.add(Items.lead, 350);
                     for(int i = 0;i<5;i++)
                         UnitTypes.mono.spawn(core.team(), core.x, core.y);
+                } else if(gamemode == pvp) {
+                    Groups.player.each(p->getPlayerData(p).ifPresent(d->{
+                        p.name = "<" + p.team().emoji + "> " + d.originalName;
+                    }));
                 }
             }, 1);
         });
@@ -320,7 +326,7 @@ public class PEvents {
         });
 
         Events.on(EventType.WaveEvent.class, (e)->{
-            Groups.player.each(p->PlayerStats.getPlayerStats(p).ifPresent(s->s.adjWavesSurvived()));
+            Groups.player.each(p-> getPlayerStats(p).ifPresent(s->s.adjWavesSurvived()));
         });
     }
 

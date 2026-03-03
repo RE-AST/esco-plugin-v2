@@ -125,4 +125,8 @@ public class Bundle {
     public static void infoMessage(String req, Player player, Object... params) {
         Call.infoMessage(player.con, format(Bundle.get(req, player.locale), params));
     }
+
+    public static void label(String req, float dur, float x, float y, Object... params) {
+        Groups.player.each(p->Call.label(p.con, MessageFormat.format(Bundle.get(req, p.locale), params), dur, x, y));
+    }
 }
