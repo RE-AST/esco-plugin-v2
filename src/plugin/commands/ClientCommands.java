@@ -45,8 +45,18 @@ public class ClientCommands {
     public static int voteCooldown = 60 * 5;
 
     public static void register(CustomHandler handler) {
+        handler.registerCommand("vanish", "", vanish, (a, p)->{
+            if(vanishedPlayers.contains(p)) {
+                vanishedPlayers.remove(p);
+                p.sendMessage("unvanished");
+                return;
+            }
+            p.sendMessage("vanished");
+            vanishedPlayers.add(p);
+            Call.playerDisconnect(p.id);
+        });
         handler.registerCommand("economy", "", (a, p)->{
-
+            infoMessage("infomessage.economyguide", p);
         });
         handler.registerCommand("slot", "<bet>", (a, p)->{
             if(!Strings.canParseInt(a[0])) {

@@ -88,6 +88,10 @@ public class PlayerStats {
         return this;
     }
 
+    public PlayerStats adjWins() {
+        return adjBalance(gamemode.winCost);
+    }
+
     public PlayerStats adjBalance() {
         return adjBalance(1);
     }

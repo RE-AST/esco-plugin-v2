@@ -40,7 +40,7 @@ public class PVars {
     public static Random random = new Random();
 
     public static ObjectMap<String, Player> linkCodes = new ObjectMap<>();
-    public static Seq<Player> historyPlayers = new Seq<>();
+    public static Seq<Player> historyPlayers = new Seq<>(), vanishedPlayers = new Seq<>();
 
     public static boolean needRestart = false;
 

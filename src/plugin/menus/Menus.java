@@ -18,11 +18,14 @@ import plugin.utils.Permission;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static mindustry.content.Items.copper;
 import static plugin.Bundle.label;
 import static plugin.Bundle.sendMessage;
 import static plugin.PVars.discordLink;
+import static plugin.PVars.gamemode;
 import static plugin.database.models.Ban.ban;
 import static plugin.database.models.PlayerData.getPlayerData;
+import static plugin.utils.Gamemode.pvp;
 import static plugin.utils.Utils.parseTime;
 
 public class Menus {
@@ -38,14 +41,14 @@ public class Menus {
     static {
         unitCosts.putAll(
                 UnitTypes.crawler, 50,
-                UnitTypes.dagger, 150,
-                UnitTypes.flare, 150,
-                UnitTypes.mono, 150,
-                UnitTypes.poly, 350,
-                UnitTypes.renale, 500,
+                UnitTypes.dagger, 100,
+                UnitTypes.flare, 100,
+                UnitTypes.mono, 100,
+                UnitTypes.renale, 700,
+                UnitTypes.poly, 700,
+                UnitTypes.mace, 700,
                 UnitTypes.mega, 1550,
-                UnitTypes.mace, 1550,
-                UnitTypes.fortress, 3000
+                UnitTypes.fortress, 1550
         );
     }
 
@@ -103,11 +106,11 @@ public class Menus {
 
         if(s1.equals(s2) && s2.equals(s3)){
             switch(s1){
-                case "\uF82D": multiplier = 3f; break;
-                case "\uF82C": multiplier = 2.5f; break; // surge
-                case "\uF82F": multiplier = 2f; break; // sili
-                case "\uF837": multiplier = 1.5f; break; // lead
-                default: multiplier = 1.2f;
+                case "\uF82D": multiplier = 5f; break;
+                case "\uF82C": multiplier = 4f; break; // surge
+                case "\uF82F": multiplier = 3f; break; // sili
+                case "\uF837": multiplier = 2f; break; // lead
+                default: multiplier = 1.5f;
             }
         }
         else if(s1.equals(s2) || s2.equals(s3) || s1.equals(s3)){
@@ -157,7 +160,8 @@ public class Menus {
             }
             i.addAndGet(1);
             UnitType type = en.key;
-            int cost = en.value;
+            int cost = gamemode == pvp ? en.value * 3 : en.value;
+
             menu.add(type.emoji()+"\n[green]$[lightgray]"+cost, pl->{
                 if(cost > stats.balance) {
                     sendMessage("menu.shop.nomoney", pl);
@@ -170,15 +174,16 @@ public class Menus {
             });
         });
         menu.row();
-        menu.add(Bundle.get("menu.shop.healcores", p.locale)+"\n[green]$[lightgray]2500", pl->{
-            if(2500 > stats.balance) {
-                sendMessage("menu.shop.nomoney", pl);
-                return;
-            }
-            // sendMessage("menu.shop.advertise.healcores", pl.coloredName(), pl.team().emoji);
-            label("menu.shop.advertise.healcores", 1, pl.x, pl.y, pl.coloredName(), pl.team().emoji);
-            pl.team().cores().each(Building::heal);
-        });
+        if(gamemode != pvp)
+            menu.add(Bundle.get("menu.shop.healcores", p.locale)+"\n[green]$[lightgray]2500", pl->{
+                if(2500 > stats.balance) {
+                    sendMessage("menu.shop.nomoney", pl);
+                    return;
+                }
+                // sendMessage("menu.shop.advertise.healcores", pl.coloredName(), pl.team().emoji);
+                label("menu.shop.advertise.healcores", 1, pl.x, pl.y, pl.coloredName(), pl.team().emoji);
+                pl.team().cores().each(Building::heal);
+            });
         menu.add(Bundle.get("menus.close", p.locale), Menus::empty);
 
         menu.show(p);

@@ -8,6 +8,7 @@ import mindustry.content.Items;
 import mindustry.content.UnitTypes;
 import mindustry.game.EventType;
 import arc.Events;
+import mindustry.game.Team;
 import mindustry.gen.*;
 import mindustry.net.Administration;
 import mindustry.type.Item;
@@ -129,7 +130,7 @@ public class PEvents {
                 }
             }, 2);
             if(gamemode == pvp)
-                player.name = "<" + player.team().emoji + "> " + player.coloredName();
+                player.name = "[white]<" + player.team().coloredName() + "[white]> " + player.coloredName();
         });
 
         Events.on(EventType.PlayerLeave.class, (e)->{
@@ -158,7 +159,11 @@ public class PEvents {
                 Bundle.sendMessage("rtv.playerleft", rtvVotes.size+"/"+Math.max(1, (int) Math.round(Groups.player.size() * 0.8)));
             }*/
             if(mapVote != null)
+                Timer.schedule(()->mapVote.checkPass(), 0.2f);
+            /*
+            if(mapVote != null)
                 mapVote.checkPass();
+             */
 
             if(Groups.player.isEmpty() && needRestart) {
                 Loader.exit();
@@ -290,6 +295,11 @@ public class PEvents {
                 mapVote.cancel();
             History.clear();
             sendRoundMessage("Game Over! Team "+e.winner.name+" wins!\nTotal players: "+Groups.player.size());
+            if(e.winner != Team.derelict)
+                Groups.player.each(p->{
+                   if(p.team() == e.winner)
+                       PlayerStats.getPlayerStats(p).ifPresent(PlayerStats::adjWins);
+                });
         });
 
         Events.on(EventType.WorldLoadEvent.class, (e)->{
@@ -313,7 +323,7 @@ public class PEvents {
                         UnitTypes.mono.spawn(core.team(), core.x, core.y);
                 } else if(gamemode == pvp) {
                     Groups.player.each(p->getPlayerData(p).ifPresent(d->{
-                        p.name = "<" + p.team().emoji + "> " + d.originalName;
+                        p.name = "[white]<" + p.team().coloredName() + "[white]> " + d.originalName;
                     }));
                 }
             }, 1);
@@ -336,6 +346,7 @@ public class PEvents {
         Admin.cache.remove(p);
         PlayerStats.purge(p);
         historyPlayers.remove(p);
+	vanishedPlayers.remove(p);
 
         if(linkCodes.containsValue(p, false))
             linkCodes.forEach(e->{
