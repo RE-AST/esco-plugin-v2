@@ -55,13 +55,13 @@ public class ClientCommands {
             vanishedPlayers.add(p);
             Call.playerDisconnect(p.id);
         });
-        handler.registerCommand("pay", "<playername> <amount>", (args, player)->{
-            Player target = Groups.player.find(p->p.plainName().equalsIgnoreCase(args[0]));
+        handler.registerCommand("pay", "<amount> <playername...>", (args, player)->{
+            Player target = Groups.player.find(p->p.plainName().equalsIgnoreCase(args[1]));
             if(target == null || target == player) {
                 player.sendMessage("[scarlet]Player with that name not found!");
                 return;
             }
-            if(!Strings.canParseInt(args[1])) {
+            if(!Strings.canParseInt(args[0])) {
                 sendMessage("args.mustbeint", player, "<amount>");
                 return;
             }
@@ -73,7 +73,7 @@ public class ClientCommands {
             }
             var targetStats = targetStatsOpt.get();
             var playerStats = playerStatsOpt.get();
-            int amount = Strings.parseInt(args[1]);
+            int amount = Strings.parseInt(args[0]);
             if(amount < 1) {
                 player.sendMessage("Amount must be > 0");
                 return;

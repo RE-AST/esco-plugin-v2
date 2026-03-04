@@ -9,6 +9,7 @@ import plugin.antigrief.ClientCrasher;
 import plugin.database.models.Log;
 import plugin.database.models.PlayerStats;
 import plugin.database.models.Server;
+import plugin.gamemodes.TDGamemode;
 import plugin.packets.Packets;
 
 import java.util.Optional;
@@ -28,6 +29,11 @@ public class Loader {
         // AntiFimoz.load();
         Administration.Config.showConnectMessages.set(false);
         Packets.load();
+    }
+
+    public static void loadGamemode() {
+        if(gamemode == Gamemode.tdefense)
+            TDGamemode.load();
     }
 
     public static void loadTimers() {

@@ -29,6 +29,7 @@ public class PPlugin extends Plugin {
         Loader.loadServerId();
         Loader.loadLogging();
         Loader.loadTimers();
+        Loader.loadGamemode();
         BanListener.load();
         Menu.load();
         TextMenu.load();

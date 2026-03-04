@@ -6,7 +6,8 @@ public enum Gamemode {
     sandbox(true, "sandbox", "snd!", 0, 1, 0),
     attack(false, "attack", "atk!", 0, 1, 200),
     pvp(false, "pvp", "pvp!", 0, 1, 300),
-    campaign(false, "campaign", "cmp!", 3, 2, 100);
+    campaign(false, "campaign", "cmp!", 3, 2, 100),
+    tdefense(false, "tower defense", "td!", 5, 1, 150);
 
     public boolean optimized;
     public String simpleName, botPrefix;

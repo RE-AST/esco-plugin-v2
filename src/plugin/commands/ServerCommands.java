@@ -6,6 +6,7 @@ import mindustry.gen.Call;
 import mindustry.gen.Groups;
 import plugin.Bundle;
 import plugin.discord.Bot;
+import plugin.gamemodes.TDGamemode;
 import plugin.history.History;
 import plugin.utils.Loader;
 import plugin.patches.Patches;
@@ -44,6 +45,16 @@ public class ServerCommands {
             Log.info("Server: @", a[0]);
             Call.sendMessage("[scarlet][Server]:[white] "+a[0]);
             Bot.sendServerMessage("Server: "+a[0]);
+        });
+
+        handler.register("loadgm", "<name>", "", (a)->{
+            switch(a[0]) {
+                case "tdf":
+                    TDGamemode.load();
+                    break;
+                default:
+                    Log.err("Unknown gamemode!");
+            }
         });
     }
 }
