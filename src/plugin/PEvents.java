@@ -11,13 +11,12 @@ import arc.Events;
 import mindustry.game.Team;
 import mindustry.gen.*;
 import mindustry.net.Administration;
-import mindustry.type.Item;
 import mindustry.world.Tile;
 import mindustry.world.blocks.logic.LogicBlock;
 import mindustry.world.blocks.storage.CoreBlock;
 import mindustry.world.modules.ItemModule;
 import plugin.antigrief.AntiFimoz;
-import plugin.antigrief.Graylist;
+import plugin.antigrief.GraylistKt;
 import plugin.database.models.Admin;
 import plugin.database.models.Ban;
 import plugin.database.models.PlayerData;
@@ -73,7 +72,7 @@ public class PEvents {
                 }
                 //AntiFimoz.apply(resp.isp, player);
                 //if(player.con.isConnected())
-                    Graylist.apply(player, resp.isp, pd);
+                    GraylistKt.apply(player, resp.isp, pd);
             });
 
             Optional<Ban> banOpt = getBan(player);
