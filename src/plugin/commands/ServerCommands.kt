@@ -7,6 +7,7 @@ import mindustry.gen.Call
 import mindustry.gen.Groups
 import plugin.Bundle
 import plugin.PVars
+import plugin.discord.*
 import plugin.gamemodes.load
 import plugin.history.History
 import plugin.patches.Patches
@@ -27,7 +28,7 @@ fun register(handler: CommandHandler) {
             return@Cons
         }
         PVars.needRestart = true
-        BotKt.sendLog("Now server needs a restart!")
+        sendLog("Now server needs a restart!")
         Log.info("Ok!")
     })
 
@@ -42,7 +43,7 @@ fun register(handler: CommandHandler) {
     handler.register("say", "<text...>", "") { a: Array<String?>? ->
         Log.info("Server: @", a!![0])
         Call.sendMessage("[scarlet][Server]:[white] " + a[0])
-        BotKt.sendServerMessage("Server: " + a[0])
+        sendServerMessage("Server: " + a[0])
     }
 
     handler.register("loadgm", "<name>", "") { a: Array<String?>? ->

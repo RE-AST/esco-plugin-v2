@@ -66,8 +66,11 @@ class Foos {
                             add(command.name, command.args)
                     }*/
                     if(clientCommands != null)
-                        clientCommands.commands.each{ command: CustomHandler.CommandData ->
+                        /*clientCommands.commands.each{ command: CustomHandler.CommandData ->
                             add(command.name, command.args)
+                        }*/
+                        clientCommands.commands.each { command: CustomHandler.CommandData? ->
+                            if(command != null) add(command.name, command.args)
                         }
                     // yep, commands with spec. permissions included in public command list, lol.
                 })

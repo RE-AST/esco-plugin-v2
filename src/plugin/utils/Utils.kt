@@ -2,7 +2,6 @@ package plugin.utils
 
 import arc.files.Fi
 import arc.func.Cons
-import arc.func.ConsT
 import arc.net.Connection
 import arc.util.Http
 import arc.util.Log
@@ -41,8 +40,8 @@ fun isAnon(ip: String?, callback: Cons<ApiResponse?>) {
     )
 }
 
-fun parseBool(bool: String): Int {
-    return when (bool.lowercase(Locale.getDefault())) {
+fun parseBool(bool: String?): Int {
+    return when (bool?.lowercase(Locale.getDefault())) {
         "y", "yes", "д", "да", "+", "t", "true" -> 1
         "n", "no", "н", "нет", "-", "f", "false" -> -1
         else -> 0
@@ -86,7 +85,7 @@ fun formatTime(time: Long): String {
     return sb.toString().trim { it <= ' ' }
 }
 
-fun parseTime(time: String): Long {
+fun parseTime(time: String?): Long {
     var time = time
     if (time.isEmpty() || !Character.isDigit(time[0])) return -1
     val timeMod = time[time.length - 1].lowercaseChar() // last char

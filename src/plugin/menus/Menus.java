@@ -6,7 +6,6 @@ import arc.struct.Seq;
 import arc.util.Timekeeper;
 import mindustry.Vars;
 import mindustry.content.UnitTypes;
-import mindustry.game.Team;
 import mindustry.gen.Building;
 import mindustry.gen.Call;
 import mindustry.gen.Player;
@@ -18,7 +17,6 @@ import plugin.utils.Permission;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static mindustry.content.Items.copper;
 import static plugin.Bundle.label;
 import static plugin.Bundle.sendMessage;
 import static plugin.PVars.discordLink;

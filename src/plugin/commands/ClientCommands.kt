@@ -113,7 +113,7 @@ fun register(handler: CustomHandler) {
         val pages = Seq<String?>()
 
         for (i in 0..<handler.commands.size) {
-            val c = handler.commands.get(i)
+            val c = handler.commands.get(i) ?: continue
 
             if (!perms.contains(c.permission)) continue
 
