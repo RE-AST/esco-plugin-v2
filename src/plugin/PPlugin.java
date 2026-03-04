@@ -6,6 +6,7 @@ import arc.util.Threads;
 import mindustry.mod.Plugin;
 
 import plugin.commands.ClientCommands;
+import plugin.commands.ClientCommandsKt;
 import plugin.commands.CustomHandler;
 import plugin.commands.ServerCommands;
 import plugin.database.BanListener;
@@ -49,6 +50,7 @@ public class PPlugin extends Plugin {
     public void registerClientCommands(CommandHandler handler){
         clientCommands = new CustomHandler(handler);
         Foos.Companion.init();
-        ClientCommands.register(clientCommands);
+        //ClientCommands.register(clientCommands);
+        ClientCommandsKt.register(clientCommands);
     }
 }
