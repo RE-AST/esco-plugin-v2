@@ -13,12 +13,15 @@ import mindustry.content.Items.*
 import mindustry.content.UnitTypes.*
 import mindustry.game.EventType.*
 import mindustry.gen.Call
+import mindustry.net.Administration
 import mindustry.net.Administration.ActionFilter
+import mindustry.net.Administration.ActionType
 import mindustry.net.Administration.PlayerAction
 import mindustry.type.Item
 import mindustry.type.UnitType
 import mindustry.world.blocks.environment.Floor
 import kotlin.math.roundToInt
+import mindustry.gen.Groups
 
 val items = ObjectMap<UnitType?, Seq<Item>?>()
 
@@ -84,6 +87,7 @@ fun loadRes() {
 }
 
 var floors: Seq<Floor> = with(Blocks.darkPanel2.asFloor(), Blocks.darkPanel3.asFloor())
+var actions : Seq<Administration.ActionType> = with(ActionType.breakBlock, ActionType.buildSelect, ActionType.pickupBlock, ActionType.placeBlock, ActionType.dropPayload)
 var healthMod = 1f
 var resMod = 1f
 const val baseRes = 40
@@ -93,7 +97,7 @@ fun load() {
     loadRes()
     Events.on(ServerLoadEvent::class.java) { _: ServerLoadEvent? ->
         Vars.netServer.admins.addActionFilter(ActionFilter { action: PlayerAction? ->
-            if (action!!.tile != null && action.block !== Blocks.shockMine && floors.contains(action.tile.floor())) {
+            if (action != null && action.tile != null && actions.contains(action.type) && action.block !== Blocks.shockMine && floors.contains(action.tile.floor())) {
                 return@ActionFilter false
             }
             true
@@ -114,11 +118,13 @@ fun load() {
         Call.label(sb.toString(), 1.5f, unit.x, unit.y)
     })
     Events.on(UnitSpawnEvent::class.java) { e: UnitSpawnEvent? ->
-        Timer.schedule({
-            e!!.unit.healthMultiplier(healthMod)
-            e.unit.heal()
-            e.unit.controller(TDAI())
-        }, 0.2f)
+        if(e!!.unit.team() != Vars.state.rules.defaultTeam) {
+            Timer.schedule({
+                e.unit.healthMultiplier(healthMod)
+                e.unit.heal()
+                e.unit.controller(TDGroundAI())
+            }, 0.5f)
+        }
     }
     Events.on(WorldLoadEvent::class.java) { _: WorldLoadEvent? ->
         reload()
