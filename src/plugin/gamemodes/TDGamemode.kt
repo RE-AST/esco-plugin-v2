@@ -26,7 +26,7 @@ fun loadRes() {
     // region ground attack
     items.putAll(
         dagger, with(copper, lead, graphite),
-        mace, with(copper, lead, graphite, silicon, sand),
+        mace, with(copper, lead, graphite, silicon, sand, titanium),
         fortress, with(copper, lead, silicon, graphite, metaglass, sand, thorium),
         scepter, with(copper, lead, titanium, silicon, graphite, sand, metaglass, thorium, surgeAlloy),
         reign, with(copper, lead, titanium, metaglass, sand, thorium, surgeAlloy, silicon, graphite)
@@ -86,7 +86,7 @@ fun loadRes() {
 var floors: Seq<Floor> = with(Blocks.darkPanel2.asFloor(), Blocks.darkPanel3.asFloor())
 var healthMod = 1f
 var resMod = 1f
-const val baseRes = 20
+const val baseRes = 40
 
 fun load() {
     Log.info("Loading Tower Defense gamemode")
@@ -117,6 +117,7 @@ fun load() {
         Timer.schedule({
             e!!.unit.healthMultiplier(healthMod)
             e.unit.heal()
+            e.unit.controller(TDAI())
         }, 0.2f)
     }
     Events.on(WorldLoadEvent::class.java) { _: WorldLoadEvent? ->
