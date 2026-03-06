@@ -26,7 +26,7 @@ public class Context {
         this.attachments = this.message.getAttachments();
     }
 
-    public boolean hasAccess(Permission perm) {
+    public boolean hasPerm(Permission perm) {
         boolean has = getPermsByDiscordId(author.getIdLong()).contains(perm);
         if(!has) {
             reply("No access! You need "+perm.name());

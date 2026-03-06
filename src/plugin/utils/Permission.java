@@ -18,7 +18,8 @@ public enum Permission {
     editMaps,
     votekickImmune,
     editServer,
-    vanish;
+    vanish,
+    artv;
 
     public static final ObjectMap<Player, Seq<Permission>> cache = new ObjectMap<>();
     // public static final Permission[] all = values();

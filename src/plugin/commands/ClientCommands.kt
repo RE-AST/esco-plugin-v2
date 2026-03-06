@@ -1,5 +1,6 @@
 package plugin.commands
 
+import arc.Events
 import arc.struct.ObjectMap
 import arc.struct.Seq
 import arc.util.CommandHandler.CommandRunner
@@ -7,6 +8,7 @@ import arc.util.Strings
 import arc.util.Time
 import arc.util.Timekeeper
 import mindustry.Vars
+import mindustry.game.EventType
 import mindustry.gen.Call
 import mindustry.gen.Groups
 import mindustry.gen.Player
@@ -275,7 +277,9 @@ fun register(handler: CustomHandler) {
                 }
                 player.team(Team.get(id));
             });*/
-    //handler.registerCommand("artv", "", Permission.admin) { a: Array<String?>?, p: Player? -> }
+    handler.registerCommand("artv", "", Permission.artv) { a: Array<String?>?, p: Player? ->
+        Events.fire(EventType.GameOverEvent(Team.derelict));
+    }
 
     handler.registerCommand("a", "<message...>", Permission.admin) { arg: Array<String?>?, p: Player? ->
         val raw = "[#" + Pal.adminChat.toString() + "]<A> " + Vars.netServer.chatFormatter.format(p, arg!![0])

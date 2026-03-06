@@ -4,6 +4,7 @@ import arc.Core;
 import arc.math.Mathf;
 import arc.util.CommandHandler;
 import arc.util.Strings;
+import com.zaxxer.hikari.HikariPoolMXBean;
 import mindustry.Vars;
 import mindustry.gen.Player;
 import mindustry.maps.Map;
@@ -16,12 +17,15 @@ import java.awt.*;
 import java.util.Comparator;
 
 import static plugin.PVars.linkCodes;
+import static plugin.PVars.needRestart;
+import static plugin.database.Database.dataSource;
 import static plugin.discord.BotKt.*;
 import static plugin.utils.MapPreview.parseMap;
 import static plugin.utils.Permission.editMaps;
 import static plugin.utils.Permission.getPermsByDiscordId;
 
 import mindustry.gen.Groups;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.utils.FileUpload;
 import plugin.database.models.PlayerData;
 import plugin.utils.MapPreview;
@@ -30,6 +34,7 @@ import arc.util.CommandHandler.CommandRunner;
 import mindustry.Vars;
 import mindustry.io.SaveIO;
 import net.dv8tion.jda.api.entities.Message.Attachment;
+import plugin.utils.Permission;
 
 public class Commands {
     public static void register(CommandHandler handler) {
@@ -143,6 +148,17 @@ public class Commands {
             msg.addFiles(FileUpload.fromData(map.file.file(), map.file.name()));
             //msg.addFiles(FileUpload.fromData(parseMap(map), "minimap.png"))
             msg.queue();
+        });
+        handler.<Context>register("restart", "SS", (a, ctx)->{
+            if(!ctx.hasPerm(Permission.editServer)) return;
+            sendLog("Restart scheduled by <@"+ctx.message.getAuthor().getId()+">");
+            ctx.message.addReaction(Emoji.fromUnicode("✅")).queue();
+            needRestart = true;
+        });
+        handler.<Context>register("debug", "SS", (a, ctx)->{
+            if(!ctx.hasPerm(Permission.editServer)) return;
+            HikariPoolMXBean pool = dataSource.getHikariPoolMXBean();
+            ctx.reply("Restart: "+needRestart+"\nFPS: "+Core.graphics.getFramesPerSecond()+"\nHeap: "+Core.app.getJavaHeap()/1024/1024+"\nVersion: "+Core.app.getVersion()+"\n\nDatabase\nTotal: "+pool.getTotalConnections()+"\nActive: "+pool.getActiveConnections()+"\nIdle: "+pool.getIdleConnections());
         });
     }
 }
