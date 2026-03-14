@@ -21,7 +21,8 @@ import plugin.database.models.Log;
 public class PVars {
     public static int serverId;
     public static Gamemode gamemode = Gamemode.idk;
-    public static String bundleApi, vpnApi;
+    public static String bundleApi, vpnApi, apiAuth, lokiApi;
+    public static boolean lokiLoggingEnabled;
 
     public static final String discordLink = "https://discord.gg/KfusjwYFDx";
 

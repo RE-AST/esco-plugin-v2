@@ -33,7 +33,37 @@ public class Bundle {
     }
 
     private static void loadLocale(String locale) {
-        Http.get(bundleApi + locale,
+        Http.get(bundleApi+locale)
+                .header("Authorization", "Basic $apiAuth")
+                .error(err->Log.err("Failed to load bundle locale '@'", locale, err))
+                .submit(resp -> {
+                    String content = resp.getResultAsString();
+
+                    if (content == null || content.isEmpty()) {
+                        Log.warn("Bundle locale '@' returned empty response", locale);
+                        return;
+                    }
+
+                    StringMap map = new StringMap();
+
+                    for (String line : content.split(";")) {
+                        line = line.trim();
+
+                        if (line.isEmpty() || line.startsWith("#")) continue;
+
+                        int eq = line.indexOf('=');
+                        if (eq <= 0) continue;
+
+                        String key = line.substring(0, eq).trim();
+                        String value = line.substring(eq + 1).trim();
+
+                        map.put(key, value);
+                    }
+
+                    bundles.put(locale, map);
+                    Log.info("Bundle locale '@' loaded (@ keys)", locale, map.size);
+                });
+        /*Http.get(bundleApi + locale,
                 resp -> {
                     String content = resp.getResultAsString();
 
@@ -63,7 +93,7 @@ public class Bundle {
 
                 },
                 err -> Log.err("Failed to load bundle locale '@'", locale, err)
-        );
+        );*/
     }
 
     public static String get(String key, String locale) {

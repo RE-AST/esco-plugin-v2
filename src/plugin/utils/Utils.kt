@@ -10,6 +10,7 @@ import arc.util.Strings
 import mindustry.Vars
 import mindustry.gen.Player
 import plugin.PVars
+import plugin.PVars.apiAuth
 import plugin.utils.Permission.getPerms
 import java.io.ByteArrayInputStream
 import java.io.DataInputStream
@@ -20,6 +21,24 @@ import java.util.zip.InflaterInputStream
 const val characters = "qwertyuiopasdfghjklzxcvbnm123456789="
 
 fun isAnon(ip: String?, callback: Cons<ApiResponse?>) {
+    Http.get(PVars.vpnApi + ip)
+        .header("Authorization", "Basic $apiAuth")
+        .error { th ->
+            Log.err("Failed to check ip $ip", th)
+        }
+        .submit { resp ->
+            try {
+                callback.get(
+                    PVars.objectMapper.readValue(
+                        resp!!.resultAsString,
+                        ApiResponse::class.java
+                    )
+                )
+            } catch (e: Exception) {
+                Log.err("Failed to parse api response", e)
+            }
+        }
+    /*
     Http.get(
         PVars.vpnApi + ip,
         { resp: Http.HttpResponse? ->
@@ -37,7 +56,7 @@ fun isAnon(ip: String?, callback: Cons<ApiResponse?>) {
         { err: Throwable? ->
             Log.err("Failed to check ip", err)
         }
-    )
+    )*/
 }
 
 fun parseBool(bool: String?): Int {

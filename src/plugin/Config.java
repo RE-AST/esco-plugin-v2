@@ -4,6 +4,8 @@ import arc.util.Log;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
+import java.util.Base64;
+
 import static plugin.utils.Gamemode.parseGamemode;
 import static plugin.utils.Gamemode.pvp;
 
@@ -20,6 +22,9 @@ public class Config {
         // API
         PVars.bundleApi = getEnv("BUNDLE_API", "http://localhost:8080/bundles/");
         PVars.vpnApi = getEnv("VPN_API", "http://localhost:3000/ip/");
+        PVars.lokiApi = Config.getEnv("LOKI_API");
+        PVars.lokiLoggingEnabled = !PVars.lokiApi.isEmpty();
+        PVars.apiAuth = Base64.getEncoder().encodeToString(Config.getEnv("API_AUTH").getBytes());
 
         // DB
         PVars.db = getEnv("DB", "mindustry");
