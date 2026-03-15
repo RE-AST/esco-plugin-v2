@@ -1,4 +1,4 @@
-package plugin;
+package plugin.events;
 
 import arc.Core;
 import arc.util.Log;
@@ -32,6 +32,7 @@ import java.util.Optional;
 
 import static plugin.Bundle.sendMessage;
 import static plugin.PVars.*;
+import static plugin.database.GettersKt.adminsCache;
 import static plugin.database.models.Ban.ban;
 import static plugin.database.models.Log.putLog;
 import static plugin.database.models.PlayerData.getPlayerId;
@@ -42,7 +43,7 @@ import static plugin.utils.Gamemode.*;
 import static plugin.utils.Permission.getPerms;
 import static plugin.utils.Permission.seqToString;
 import static plugin.utils.UtilsKt.*;
-import static plugin.database.models.Admin.getAdmin;
+import static plugin.database.GettersKt.getAdmin;
 import static plugin.database.models.Ban.getBan;
 import static plugin.database.models.PlayerData.getPlayerData;
 
@@ -226,9 +227,9 @@ public class PEvents {
                 getPlayerStats(player).ifPresent(s->{
                     if(e.breaking) {
                         s.adjBlocksBroken();
-                        if(s.blocksBroken > 300 && s.blocksBuild < 50) {
+                        if(s.blocksBroken >= 300 && s.blocksBuild < 50) {
                             Ban.ban(player, player, "AutoBan: Possible Griefer", parseTime("31d"));
-			    player.kick("Possible Griefer", 0);
+			                player.kick("Possible Griefer", 0);
                         }
                     }else
                         s.adjBlocksBuild();
@@ -342,7 +343,7 @@ public class PEvents {
     public static void purgeData(Player p) {
         Permission.cache.remove(p);
         PlayerData.cache.remove(p);
-        Admin.cache.remove(p);
+        adminsCache.remove(p);
         PlayerStats.purge(p);
         historyPlayers.remove(p);
 	vanishedPlayers.remove(p);
