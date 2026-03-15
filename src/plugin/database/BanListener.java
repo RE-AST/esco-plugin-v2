@@ -13,6 +13,9 @@ import java.sql.Statement;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static plugin.Bundle.sendMessage;
+import static plugin.database.GettersKt.getBan;
+import static plugin.database.GettersKt.getPlayerById;
 import static plugin.discord.BotKt.sendLog;
 import static plugin.utils.UtilsKt.formatTime;
 
@@ -36,8 +39,8 @@ public class BanListener {
                             String payload = notify.getParameter();
                             if (!Strings.canParseInt(payload)) continue;
                             int i = Strings.parseInt(payload);
-                            Ban.getBan(i).ifPresent(ban ->
-                                    PlayerData.getPlayerById(ban.playerId).ifPresent(p -> {
+                            getBan(i).ifPresent(ban ->
+                                    getPlayerById(ban.playerId).ifPresent(p -> {
                                         sendMessage("advertise.banned", ban.playerId, p.coloredName(), ban.unbanTime == null ? "never" : formatTime((ban.unbanTime.toEpochMilli() - Time.millis()) / 1000), ban.reason);
                                         ban.kickPlayer(p);
                                     })
