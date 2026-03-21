@@ -13,6 +13,8 @@ import mindustry.net.Packets;
 import plugin.Bundle;
 import plugin.utils.Permission;
 
+import plugin.menus.MenusKt;
+
 import static plugin.utils.Permission.getPerms;
 
 public class AdminRequest {
