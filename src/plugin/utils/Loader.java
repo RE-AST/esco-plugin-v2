@@ -3,10 +3,18 @@ package plugin.utils;
 import arc.util.Timer;
 import mindustry.gen.Groups;
 import mindustry.net.Administration;
+import plugin.Bundle;
+import plugin.Config;
+import plugin.database.BanListener;
 import plugin.database.models.Log;
 import plugin.database.models.Server;
+import plugin.events.PEvents;
 import plugin.gamemodes.TDGamemodeKt;
+import plugin.menus.Menu;
+import plugin.menus.MenusKt;
+import plugin.menus.TextMenu;
 import plugin.packets.Packets;
+import plugin.patches.Patches;
 
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -20,6 +28,23 @@ import static plugin.database.models.Server.getOrCreateServer;
 
 public class Loader {
     private static final ExecutorService logsExecutor = Executors.newSingleThreadExecutor();
+
+    public static void load() {
+        Config.load();
+        Bundle.load();
+        Patches.load();
+        PEvents.load();
+        MapPreview.loadColors();
+        loadServerId();
+        loadLogging();
+        loadTimers();
+        loadGamemode();
+        BanListener.load();
+        Menu.load();
+        TextMenu.load();
+
+        MenusKt.loadMenus();
+    }
 
     public static void loadAfterStart() {
         // ClientCrasher.load();

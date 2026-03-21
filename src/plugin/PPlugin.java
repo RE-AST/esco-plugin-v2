@@ -21,19 +21,7 @@ import static plugin.PVars.clientCommands;
 public class PPlugin extends Plugin {
     @Override
     public void init() {
-        Config.load();
-        Bundle.load();
-        Patches.load();
-        PEvents.load();
-        MapPreview.loadColors();
-        Loader.loadServerId();
-        Loader.loadLogging();
-        Loader.loadTimers();
-        Loader.loadGamemode();
-        BanListener.load();
-        Menu.load();
-        TextMenu.load();
-        // Foos.Companion.init();
+        Loader.load();
 
         Threads.daemon(BotKt::load);
 
