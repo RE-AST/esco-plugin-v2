@@ -18,13 +18,11 @@ import mindustry.world.blocks.logic.LogicBlock;
 import mindustry.world.blocks.storage.CoreBlock;
 import mindustry.world.modules.ItemModule;
 import plugin.antigrief.AntiFimoz;
-import plugin.antigrief.GraylistKt;
-import plugin.database.models.Ban;
 import plugin.database.models.PlayerData;
 import plugin.database.models.PlayerStats;
 import plugin.discord.BotKt;
 import plugin.history.History;
-import plugin.menus.Menus;
+import plugin.menus.MenusKt;
 import plugin.utils.Loader;
 import plugin.utils.Permission;
 
@@ -36,7 +34,6 @@ import static plugin.database.GettersKt.*;
 import static plugin.discord.BotKt.*;
 import static plugin.events.PEventsKt.loadEvents;
 import static plugin.utils.Gamemode.*;
-import static plugin.utils.Permission.seqToString;
 import static plugin.utils.UtilsKt.*;
 
 public class PEvents {
@@ -65,7 +62,7 @@ public class PEvents {
 
             Call.clientPacketReliable(player.con, "SendMeSubtitle", player == null ? null : String.valueOf(player.id));
             if (pd.prefs.showWelcomeMenu)
-                Menus.showWelcome(player);
+                MenusKt.showWelcome(player);
 
             // simple bot check
             Timer.schedule(() -> {

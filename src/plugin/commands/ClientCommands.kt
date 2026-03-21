@@ -1,5 +1,6 @@
 package plugin.commands
 
+import arc.Core
 import arc.Events
 import arc.struct.ObjectMap
 import arc.struct.Seq
@@ -7,6 +8,7 @@ import arc.util.CommandHandler.CommandRunner
 import arc.util.Strings
 import arc.util.Time
 import arc.util.Timekeeper
+import kotlinx.coroutines.launch
 import mindustry.Vars
 import mindustry.game.EventType
 import mindustry.game.Team
@@ -19,7 +21,8 @@ import plugin.Bundle
 import plugin.PVars
 import plugin.database.*
 import plugin.database.models.PlayerStats
-import plugin.menus.Menus
+import plugin.menus.showShop
+import plugin.menus.slot
 import plugin.utils.*
 import plugin.votes.VoteMap
 import plugin.votes.VoteWave
@@ -27,6 +30,8 @@ import plugin.votes.VotekickSession
 import java.util.*
 import java.util.function.Consumer
 import kotlin.math.roundToInt
+
+import plugin.KVars.globalScope
 
 const val commandsPerPage = 10
 var voteCooldown = 60 * 5
@@ -83,12 +88,16 @@ fun register(handler: CustomHandler) {
             Bundle.sendMessage("args.mustbeint", p, "<bet>")
             return@CommandRunner
         }
-        getPlayerStats(p)
-            .ifPresent(Consumer { s: PlayerStats? -> Menus.slot(p, s, Strings.parseInt(a[0])) })
+        globalScope.launch {
+            getPlayerStats(p)
+                .ifPresent(Consumer { s: PlayerStats -> Core.app.post { slot(p, s, Strings.parseInt(a[0])) } })
+        }
     })
     handler.registerCommand("shop", CommandRunner { _: Array<String>, p: Player ->
-        getPlayerStats(p).ifPresent(
-            Consumer { s: PlayerStats? -> Menus.showShop(s, p) })
+        globalScope.launch {
+            getPlayerStats(p).ifPresent(
+                Consumer { s: PlayerStats -> Core.app.post { showShop(s, p) } })
+        }
     })
     handler.registerCommand("sync", CommandRunner { _: Array<String>, player: Player ->
         if (Time.timeSinceMillis(player.info.lastSyncTime) < 1000 * 5) {

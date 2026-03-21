@@ -11,7 +11,6 @@ import mindustry.gen.Player;
 import mindustry.net.NetConnection;
 import mindustry.net.Packets;
 import plugin.Bundle;
-import plugin.menus.Menus;
 import plugin.utils.Permission;
 
 import static plugin.utils.Permission.getPerms;
@@ -74,7 +73,7 @@ public class AdminRequest {
                 }else{
                     NetClient.traceInfo(other, info);
                 }*/
-                Menus.showTrace(player, other, perms);
+                MenusKt.showTrace(player, other, perms);
             }
             case switchTeam -> {
                 if (!perms.contains(Permission.admin)) {
