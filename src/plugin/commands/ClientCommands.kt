@@ -39,6 +39,11 @@ const val commandsPerPage = 10
 var voteCooldown = 60 * 5
 
 fun register(handler: CustomHandler) {
+    handler.registerCommand("maps", "", CommandRunner { _: Array<String>, p: Player ->
+        Vars.maps.customMaps().each { m: Map ->
+            p.sendMessage("${m.name()} : ${m.author()}")
+        }
+    })
     handler.registerCommand("vanish", "", Permission.vanish, CommandRunner { _: Array<String>, p: Player ->
         if (PVars.vanishedPlayers.contains(p)) {
             PVars.vanishedPlayers.remove(p)
