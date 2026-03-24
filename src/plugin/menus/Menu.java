@@ -83,7 +83,7 @@ public class Menu {
             Player player = e.player;
             Menu menu = menus.get(e.menuId);
             if (menu == null || menu.player != player) {
-                player.sendMessage("[scarlet]Unknown menu.");
+                player.sendMessage("[scarlet]Invalid menu.");
                 return;
             }
 
@@ -93,7 +93,7 @@ public class Menu {
                 return;
             }
             if (option > menu.handlers.size) {
-                player.sendMessage("[scarlet]Unknown option.");
+                player.sendMessage("[scarlet]Invalid option.");
                 return;
             }
             menus.remove(e.menuId);

@@ -169,7 +169,7 @@ public class PEvents {
                 getPlayerStats(player).ifPresent(s -> {
                     if (e.breaking) {
                         s.adjBlocksBroken();
-                        if (s.blocksBroken >= 300 && s.blocksBuild < 15 && s.playtime < 600) {
+                        if (s.blocksBroken >= 350 && s.blocksBuild < 15 && s.playtime < 600) {
                             ban(player, player, "AutoBan: Possible Griefer", parseTime("3d"));
                             player.kick("AutoBan: Possible Griefer", 0);
                         }
@@ -199,6 +199,7 @@ public class PEvents {
             Tile tile = e.tile;
             String name = null;
             Optional<Integer> pid = Optional.empty();
+
             if (player != null) {
                 name = player.coloredName();
                 pid = getPlayerId(player);
