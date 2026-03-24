@@ -151,7 +151,7 @@ fun showSlot(p: Player, stats: PlayerStats, bet: Int) {
     val win = (bet * multiplier).roundToInt()
 
     if (stats.lastGambling == null) {
-        stats.setLastGambling(Timekeeper(0.5f))
+        stats.setLastGambling(Timekeeper.ofSeconds(0.5f))
     } else {
         stats.lastGambling.reset()
     }
