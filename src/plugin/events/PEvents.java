@@ -51,7 +51,7 @@ public class PEvents {
             PlayerData pd = pdOpt.get();
 
             PlayerStats.setJoinTime(player);
-            pd.setOriginalName(player.coloredName());
+            //pd.setOriginalName(player.coloredName());
             getPlayerStats(player);
 
             sendMessage("messages.join", String.valueOf(pd.id), player.coloredName());
@@ -71,8 +71,8 @@ public class PEvents {
                     player.kick("[scarlet]Try reconnect\nDiscord " + discordLink, 0);
                 }
             }, 2);
-            if (gamemode == pvp)
-                player.name = "[white]<" + player.team().coloredName() + "[white]> " + player.coloredName();
+            /*if (gamemode == pvp)
+                player.name = "[white]<" + player.team().coloredName() + "[white]> " + player.coloredName();*/
         });
 
         Events.on(EventType.PlayerLeave.class, (e) -> {

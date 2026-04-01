@@ -42,7 +42,7 @@ public class Patches {
             }, 60 * 60 * 2, 60 * 60 * 2);
         }
         loadLogger();
-        // replaceNetServer();
+        replaceNetServer();
     }
 
     private static void replaceNetServer() {

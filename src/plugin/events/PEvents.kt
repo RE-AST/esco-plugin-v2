@@ -49,14 +49,14 @@ fun loadEvents() {
                 if (resp.anon && pd.discordId == null) {
                     putLog(pd.id, "system", "Detected using vpn or proxy.")
                     app.post {
-                        player.kick("You detected by [pink]AntiVPN[] system\nTry re-connect and disable vpn/proxy\nOr try linking your discord by /link\nDiscord: " + PVars.discordLink)
+                        player.kick("You detected by [pink]AntiVPN[] system\nTry re-connect and disable vpn/proxy\nOr try linking your discord by /link\nDiscord: " + PVars.discordLink, 0)
                     }
                 }
                 //AntiFimoz.apply(resp.isp, player);
                 //if(player.con.isConnected())
                 app.post {
-			apply(player, resp.isp, pd)
-		}
+			        apply(player, resp.isp, pd)
+		        }
             }
 
             val banOpt = getBan(player)
