@@ -264,11 +264,11 @@ public class PEvents {
                     items.add(Items.lead, 350);
                     for (int i = 0; i < 5; i++)
                         UnitTypes.mono.spawn(core.team(), core.x, core.y);
-                } else if (gamemode == pvp) {
+                }/* else if (gamemode == pvp) {
                     Groups.player.each(p -> getPlayerData(p).ifPresent(d -> {
                         p.name = "[white]<" + p.team().coloredName() + "[white]> " + d.originalName;
                     }));
-                }
+                }*/
             }, 1);
         });
 
