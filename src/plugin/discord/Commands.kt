@@ -16,6 +16,8 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Message.Attachment
 import net.dv8tion.jda.api.entities.emoji.Emoji
 import net.dv8tion.jda.api.utils.FileUpload
+import plugin.KVars.buildsBaseUrl
+import plugin.KVars.buildsLatestTxtUrl
 import plugin.PVars
 import plugin.PVars.globalExecutor
 import plugin.PVars.version
@@ -34,9 +36,6 @@ import java.util.function.Function
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import kotlin.math.min
-
-private const val BUILDS_BASE_URL = "https://builds.larzed.icu"
-private const val BUILDS_LATEST_TXT_URL = "$BUILDS_BASE_URL/latest.txt"
 
 fun register(handler: CommandHandler) {
     handler.register("help", "What a dog doing?") { _: Array<String>, ctx: Context ->
@@ -232,14 +231,14 @@ fun register(handler: CommandHandler) {
         globalExecutor.submit {
             try {
                 val ver = arr.firstOrNull()?.takeIf { it.isNotBlank() }?.trim()
-                    ?: httpGetString(BUILDS_LATEST_TXT_URL)
+                    ?: httpGetString(buildsLatestTxtUrl)
                 if(version.equals(ver)) {
                     ctx.reply("No new updates! But ok.")
                 }
                 val modFi = Vars.mods.getMod("plugin").file
                 val tmpFi = modFi.parent().child(modFi.name() + ".part")
                 download(
-                    "$BUILDS_BASE_URL/$ver/plugin.jar",
+                    "$buildsBaseUrl/$ver/plugin.jar",
                     tmpFi.file().toPath()
                 )
                 modFi.delete()

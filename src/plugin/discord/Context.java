@@ -9,6 +9,7 @@ import plugin.utils.Permission;
 
 import java.util.List;
 
+import static plugin.PVars.gamemode;
 import static plugin.utils.Permission.getPermsByDiscordId;
 
 public class Context {
@@ -34,6 +35,10 @@ public class Context {
 
     public void reply(String content) {
         message.reply(content).queue();
+    }
+
+    public void replyServer(String content) {
+        message.reply("["+gamemode.simpleName+"] "+content).queue();;
     }
 
     public void replyEmbed(MessageEmbed embed) {

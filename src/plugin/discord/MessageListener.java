@@ -11,11 +11,11 @@ import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import plugin.PVars;
+import plugin.utils.Permission;
 
 import java.text.MessageFormat;
 
-import static plugin.PVars.discordCommands;
-import static plugin.PVars.gamemode;
+import static plugin.PVars.*;
 import static plugin.discord.BotKt.reply;
 
 public class MessageListener extends ListenerAdapter {
@@ -51,6 +51,10 @@ public class MessageListener extends ListenerAdapter {
             } else if (response.type == ResponseType.manyArguments) {
                 reply(message, MessageFormat.format("Too many arguments!\nUsage **{0}{1}** {2}", gamemode.botPrefix, response.command.text, response.command.paramText));
             }
+        } else if(globalCommands != null && content.startsWith("gc.")) {
+            Context ctx = new Context(message, channel, author);
+            if(!ctx.hasPerm(Permission.editServer)) return;
+            globalCommands.handleMessage(content, ctx);
         }
     }
 }

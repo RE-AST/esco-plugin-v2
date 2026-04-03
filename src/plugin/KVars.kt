@@ -7,4 +7,7 @@ import kotlinx.coroutines.SupervisorJob
 object KVars {
     val globalScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     val eventsScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    const val buildsBaseUrl = "https://builds.larzed.icu"
+    const val buildsLatestTxtUrl = "$buildsBaseUrl/latest.txt"
 }

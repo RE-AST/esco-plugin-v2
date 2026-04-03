@@ -40,7 +40,7 @@ public class PVars {
     public static VoteWave waveVote;
 
     public static CustomHandler clientCommands;
-    public static CommandHandler discordCommands;
+    public static CommandHandler discordCommands, globalCommands;
 
     public static Random random = new Random();
 
