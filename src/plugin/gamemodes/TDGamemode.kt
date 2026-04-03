@@ -3,6 +3,7 @@ package plugin.gamemodes
 import arc.Events
 import arc.func.Cons
 import arc.struct.ObjectMap
+import arc.struct.ObjectSet
 import arc.struct.Seq
 import arc.struct.Seq.with
 import arc.util.Log
@@ -127,6 +128,9 @@ fun load() {
     Log.info("Loading Tower Defense gamemode")
     loadRes()
     Events.on(ServerLoadEvent::class.java) { _: ServerLoadEvent? ->
+        for(u in Vars.content.units()) {
+            u.payloadCapacity = 0f
+        }
         Vars.netServer.admins.addActionFilter(ActionFilter { action: PlayerAction? ->
             if (action != null && action.tile != null && actions.contains(action.type) && (action.block != Blocks.shockMine && action.tile.block() != Blocks.shockMine) && floors.contains(
                     action.tile.floor()
@@ -176,10 +180,11 @@ private fun reload() {
     resMod = 1f
     Timer.schedule({ ->
         val rules = Vars.state.rules
-        rules.defaultTeam.rules().blockDamageMultiplier = 1f;
-        rules.defaultTeam.rules().unitDamageMultiplier = 1f;
-        rules.waveTeam.rules().unitDamageMultiplier = 0f;
-        rules.waveTeam.rules().blockDamageMultiplier = 0f;
+        rules.defaultTeam.rules().blockDamageMultiplier = 1f
+        rules.defaultTeam.rules().unitDamageMultiplier = 1f
+        rules.waveTeam.rules().unitDamageMultiplier = 0f
+        rules.waveTeam.rules().blockDamageMultiplier = 0f
+        rules.bannedUnits.addAll(flare, dagger, nova, crawler, mace, fortress, scepter, reign, pulsar, quasar, vela, corvus, atrax, spiroct, arkyid, toxopid)
         Vars.state.rules = rules;
         Call.setRules(rules)
     }, 1f)
