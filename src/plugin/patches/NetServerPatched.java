@@ -3,20 +3,24 @@ package plugin.patches;
 import arc.Core;
 import arc.struct.IntSeq;
 import arc.struct.IntSet;
-import arc.util.Interval;
+import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.Time;
+import arc.util.Timekeeper;
 import arc.util.io.ReusableByteOutStream;
 import arc.util.io.Writes;
 import mindustry.core.GameState;
 import mindustry.core.NetServer;
+import mindustry.entities.units.BuildPlan;
 import mindustry.game.Teams;
 import mindustry.gen.Call;
 import mindustry.gen.Groups;
 import mindustry.gen.Player;
 import mindustry.gen.Syncc;
+import mindustry.io.TypeIO;
 import mindustry.logic.GlobalVars;
 import mindustry.net.Administration;
+import mindustry.world.blocks.storage.CoreBlock;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -27,21 +31,20 @@ import static plugin.PVars.vanishedPlayers;
 
 public class NetServerPatched extends NetServer {
 
+    private static final int maxSnapshotSize = 800;
+
+    private static final Timekeeper blockSyncTime = Timekeeper.ofSeconds(6f);
+    private static final Timekeeper healthSyncTime = Timekeeper.ofSeconds(0.5f);
+    private static final Timekeeper planPreviewSyncTime = Timekeeper.ofSeconds(0.5f);
+
+    private static final TypeIO.ClientBuildPlans plansOut = new TypeIO.ClientBuildPlans();
+
     private static final class F {
         static final Field closing;
         static final Field pvpAutoPaused;
 
-        static final Field timer;
-        static final Field timerBlockSync;
-        static final Field blockSyncTime;
-
-        static final Field timerHealthSync;
-        static final Field healthSyncTime;
-
         static final Field buildHealthChanged;
         static final Field healthSeq;
-
-        static final Field maxSnapshotSize;
 
         static final Field syncStream;
         static final Field dataStream;
@@ -56,17 +59,8 @@ public class NetServerPatched extends NetServer {
                 closing = field(c, "closing");
                 pvpAutoPaused = field(c, "pvpAutoPaused");
 
-                timer = field(c, "timer");
-                timerBlockSync = field(c, "timerBlockSync");
-                blockSyncTime = field(c, "blockSyncTime");
-
-                timerHealthSync = field(c, "timerHealthSync");
-                healthSyncTime = field(c, "healthSyncTime");
-
                 buildHealthChanged = field(c, "buildHealthChanged");
                 healthSeq = field(c, "healthSeq");
-
-                maxSnapshotSize = field(c, "maxSnapshotSize");
 
                 syncStream = field(c, "syncStream");
                 dataStream = field(c, "dataStream");
@@ -159,53 +153,82 @@ public class NetServerPatched extends NetServer {
                 }
             });
 
-            if (Groups.player.size() > 0 && Core.settings.getBool("blocksync")) {
-                Interval timer = (Interval) get(F.timer);
-                int timerBlockSync = (Integer) get(F.timerBlockSync);
-                float blockSyncTime = (Float) get(F.blockSyncTime);
-                if (timer.get(timerBlockSync, blockSyncTime)) {
-                    writeBlockSnapshots();
-                }
+            if (Groups.player.size() > 0 && Core.settings.getBool("blocksync") && blockSyncTime.poll()) {
+                writeBlockSnapshots();
             }
 
             if (Groups.player.size() > 0) {
                 IntSet buildHealthChanged = (IntSet) get(F.buildHealthChanged);
-                if (buildHealthChanged.size > 0) {
-                    Interval timer = (Interval) get(F.timer);
-                    int timerHealthSync = (Integer) get(F.timerHealthSync);
-                    float healthSyncTime = (Float) get(F.healthSyncTime);
-                    if (timer.get(timerHealthSync, healthSyncTime)) {
+                if (buildHealthChanged.size > 0 && healthSyncTime.poll()) {
 
-                        IntSeq healthSeq = (IntSeq) get(F.healthSeq);
-                        healthSeq.clear();
+                    IntSeq healthSeq = (IntSeq) get(F.healthSeq);
+                    healthSeq.clear();
 
-                        var iter = buildHealthChanged.iterator();
-                        while (iter.hasNext) {
-                            int next = iter.next();
-                            var build = world.build(next);
+                    var iter = buildHealthChanged.iterator();
+                    while (iter.hasNext) {
+                        int next = iter.next();
+                        var build = world.build(next);
 
-                            if (build != null) {
-                                healthSeq.add(next, Float.floatToRawIntBits(build.health));
-                            }
-
-                            int maxSnapshotSize = (Integer) get(F.maxSnapshotSize);
-                            if (healthSeq.size * 4 >= maxSnapshotSize) {
-                                Call.buildHealthUpdate(healthSeq);
-                                healthSeq.clear();
-                            }
+                        if (build != null) {
+                            healthSeq.add(next, Float.floatToRawIntBits(build.health));
                         }
 
-                        if (healthSeq.size > 0) {
+                        if (healthSeq.size * 4 >= maxSnapshotSize) {
                             Call.buildHealthUpdate(healthSeq);
+                            healthSeq.clear();
                         }
-
-                        buildHealthChanged.clear();
                     }
+
+                    if (healthSeq.size > 0) {
+                        Call.buildHealthUpdate(healthSeq);
+                    }
+
+                    buildHealthChanged.clear();
                 }
+            }
+
+            if (Groups.player.size() > 0 && planPreviewSyncTime.poll()) {
+                if (!headless) {
+                    player.previewPlansCurrent.clear();
+                    control.input.getSyncedPlans(player.previewPlansCurrent);
+                    player.previewPlansCurrent.truncate(1000);
+                }
+
+                Groups.player.each(pl -> {
+                    int id = ++pl.lastPreviewPlanGroupServer;
+                    plansOut.clear();
+                    Seq<BuildPlan> plans = pl.getPreviewPlans();
+                    if (plans.isEmpty()) {
+                        clientPlanSnapshotSend(pl, id, null);
+                    } else {
+                        BuildPlan[] items = plans.items;
+                        int size = plans.size;
+                        if (size < 75) {
+                            plansOut.set(plans);
+                            clientPlanSnapshotSend(pl, id, plansOut);
+                        } else {
+                            for (int i = 0; i < size; i += 75) {
+                                int len = Math.min(i + 75, size) - i;
+                                plansOut.ensureCapacity(len);
+                                System.arraycopy(items, i, plansOut.items, 0, len);
+                                plansOut.size = len;
+                                clientPlanSnapshotSend(pl, id, plansOut);
+                            }
+                        }
+                    }
+                });
             }
 
         } catch (IOException e) {
             Log.err(e);
+        }
+    }
+
+    private static void clientPlanSnapshotSend(Player player, int groupId, TypeIO.ClientBuildPlans plans) {
+        for (Player other : player.team().data().players) {
+            if (other != player && !other.isLocal() && other.con != null && other.con.isConnected()) {
+                Call.clientPlanSnapshotReceived(other.con, player, groupId, plans);
+            }
         }
     }
 
@@ -218,7 +241,6 @@ public class NetServerPatched extends NetServer {
         Writes dataWrites = (Writes) get(F.dataWrites);
         Writes dataStreamWrites = (Writes) get(F.dataStreamWrites);
         IntSeq hiddenIds = (IntSeq) get(F.hiddenIds);
-        int maxSnapshotSize = (Integer) get(F.maxSnapshotSize);
 
         syncStream.reset();
 
@@ -230,7 +252,7 @@ public class NetServerPatched extends NetServer {
         for (Teams.TeamData data : state.teams.present) {
             if (data.cores.size > 0) {
                 dataStream.writeByte(data.team.id);
-                data.cores.first().items.write(dataWrites);
+                ((CoreBlock.CoreBuild) data.cores.first()).items.write(dataWrites);
             }
         }
 

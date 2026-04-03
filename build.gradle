@@ -29,7 +29,7 @@ repositories{
 }
 
 ext {
-    mindustryVersion = 'v156'
+    mindustryVersion = 'v156.2'
     jabelVersion = "93fde537c7"
 }
 
