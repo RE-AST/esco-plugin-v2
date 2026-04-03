@@ -18,6 +18,11 @@ import java.io.IOException
 import java.util.*
 import java.util.zip.InflaterInputStream
 import mindustry.maps.Map
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
+import java.nio.file.Path
 
 const val characters = "qwertyuiopasdfghjklzxcvbnm123456789="
 
@@ -66,8 +71,17 @@ fun isAnon(ip: String?, callback: Cons<ApiResponse>) {
     )*/
 }
 
-fun parseBool(bool: String?): Int {
-    return when (bool?.lowercase(Locale.getDefault())) {
+fun download(url: String, dest: Path) {
+    val client = HttpClient.newBuilder()
+        .followRedirects(HttpClient.Redirect.NORMAL)
+        .build()
+    val req = HttpRequest.newBuilder(URI.create(url)).GET().build()
+    val resp = client.send(req, HttpResponse.BodyHandlers.ofFile(dest))
+    require(resp.statusCode() in 200..299) { "HTTP ${resp.statusCode()}" }
+}
+
+fun parseBool(bool: String): Int {
+    return when (bool.lowercase(Locale.getDefault())) {
         "y", "yes", "д", "да", "+", "t", "true" -> 1
         "n", "no", "н", "нет", "-", "f", "false" -> -1
         else -> 0
@@ -84,7 +98,7 @@ fun getRandomString(len: Int): String {
     return sb.toString()
 }
 
-fun getResource(name: String?): Fi? {
+fun getResource(name: String): Fi? {
     return Vars.mods.locateMod("plugin").root.child(name)
 }
 

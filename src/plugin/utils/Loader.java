@@ -25,6 +25,7 @@ import static arc.util.Log.info;
 import static plugin.Bundle.sendMessage;
 import static plugin.PVars.*;
 import static plugin.database.models.Server.getOrCreateServer;
+import static plugin.utils.UtilsKt.getResource;
 
 public class Loader {
     private static final ExecutorService logsExecutor = Executors.newSingleThreadExecutor();
@@ -42,6 +43,8 @@ public class Loader {
         BanListener.load();
         Menu.load();
         TextMenu.load();
+
+        version = getResource("version").readString();
 
         MenusKt.loadMenus();
     }

@@ -38,7 +38,7 @@ fun load() {
         }
 
         PVars.discordCommands = CommandHandler(PVars.gamemode.botPrefix)
-        Commands.register(PVars.discordCommands)
+        register(PVars.discordCommands)
 
         Log.info("Bot loaded")
     } catch (e: Exception) {

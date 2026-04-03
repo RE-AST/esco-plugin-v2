@@ -19,6 +19,7 @@ import java.util.Random;
 
 public class PVars {
     public static int serverId;
+    public static String version = "unknown";
     public static Gamemode gamemode = Gamemode.idk;
     public static String bundleApi, vpnApi, apiAuth, lokiApi;
     public static boolean lokiLoggingEnabled;
