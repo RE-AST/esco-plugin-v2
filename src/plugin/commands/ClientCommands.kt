@@ -16,8 +16,10 @@ import mindustry.gen.Call
 import mindustry.gen.Groups
 import mindustry.gen.Player
 import mindustry.graphics.Pal
+import mindustry.maps.Map
 import mindustry.net.Administration
 import plugin.Bundle
+import plugin.KVars.globalScope
 import plugin.PVars
 import plugin.database.*
 import plugin.database.models.PlayerStats
@@ -30,10 +32,6 @@ import plugin.votes.VotekickSession
 import java.util.*
 import java.util.function.Consumer
 import kotlin.math.roundToInt
-
-import mindustry.maps.Map
-
-import plugin.KVars.globalScope
 
 const val commandsPerPage = 10
 var voteCooldown = 60 * 5
@@ -202,9 +200,9 @@ fun register(handler: CustomHandler) {
 
     handler.registerCommand("rtv", "[y/n] [map...]", CommandRunner { a: Array<String>, p: Player ->
         var map: Map? = null
-        if(a.size == 2 && PVars.mapVote == null) {
+        if (a.size == 2 && PVars.mapVote == null) {
             map = findMap(a[1])
-            if(map == null) {
+            if (map == null) {
                 p.sendMessage("[scarlet]Not found")
                 return@CommandRunner
             }
@@ -278,7 +276,7 @@ fun register(handler: CustomHandler) {
         }
         var code: String? = PVars.linkCodes.findKey(p, false)
 
-        if(code == null) {
+        if (code == null) {
             code = getRandomString(6)
             PVars.linkCodes.put(code, p)
         }

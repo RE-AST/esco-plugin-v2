@@ -1,7 +1,7 @@
 package plugin.events
 
+import arc.Core.app
 import arc.Events
-import arc.func.Cons
 import kotlinx.coroutines.launch
 import mindustry.game.EventType.PlayerConnect
 import plugin.KVars.eventsScope
@@ -17,7 +17,6 @@ import plugin.utils.ApiResponse
 import plugin.utils.Permission
 import plugin.utils.isAnon
 import java.util.function.Consumer
-import arc.Core.app
 
 fun loadEvents() {
     Events.on(PlayerConnect::class.java) { e: PlayerConnect ->  // pre-connect
@@ -49,14 +48,17 @@ fun loadEvents() {
                 if (resp.anon && pd.discordId == null) {
                     putLog(pd.id, "system", "Detected using vpn or proxy.")
                     app.post {
-                        player.kick("You detected by [pink]AntiVPN[] system\nTry re-connect and disable vpn/proxy\nOr try linking your discord by /link\nDiscord: " + PVars.discordLink, 0)
+                        player.kick(
+                            "You detected by [pink]AntiVPN[] system\nTry re-connect and disable vpn/proxy\nOr try linking your discord by /link\nDiscord: " + PVars.discordLink,
+                            0
+                        )
                     }
                 }
                 //AntiFimoz.apply(resp.isp, player);
                 //if(player.con.isConnected())
                 app.post {
-			        apply(player, resp.isp, pd)
-		        }
+                    apply(player, resp.isp, pd)
+                }
             }
 
             val banOpt = getBan(player)

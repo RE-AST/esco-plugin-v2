@@ -31,9 +31,11 @@ import java.util.Optional;
 import static plugin.Bundle.sendMessage;
 import static plugin.PVars.*;
 import static plugin.database.GettersKt.*;
-import static plugin.discord.BotKt.*;
+import static plugin.discord.BotKt.sendParrotMessage;
+import static plugin.discord.BotKt.sendRoundMessage;
 import static plugin.events.PEventsKt.loadEvents;
-import static plugin.utils.Gamemode.*;
+import static plugin.utils.Gamemode.campaign;
+import static plugin.utils.Gamemode.sandbox;
 import static plugin.utils.UtilsKt.*;
 
 public class PEvents {

@@ -3,7 +3,6 @@ package plugin.gamemodes
 import arc.Events
 import arc.func.Cons
 import arc.struct.ObjectMap
-import arc.struct.ObjectSet
 import arc.struct.Seq
 import arc.struct.Seq.with
 import arc.util.Log
@@ -128,7 +127,7 @@ fun load() {
     Log.info("Loading Tower Defense gamemode")
     loadRes()
     Events.on(ServerLoadEvent::class.java) { _: ServerLoadEvent? ->
-        for(u in Vars.content.units()) {
+        for (u in Vars.content.units()) {
             u.payloadCapacity = 0f
         }
         Vars.netServer.admins.addActionFilter(ActionFilter { action: PlayerAction? ->
@@ -184,7 +183,24 @@ private fun reload() {
         rules.defaultTeam.rules().unitDamageMultiplier = 1f
         rules.waveTeam.rules().unitDamageMultiplier = 0f
         rules.waveTeam.rules().blockDamageMultiplier = 0f
-        rules.bannedUnits.addAll(flare, dagger, nova, crawler, mace, fortress, scepter, reign, pulsar, quasar, vela, corvus, atrax, spiroct, arkyid, toxopid)
+        rules.bannedUnits.addAll(
+            flare,
+            dagger,
+            nova,
+            crawler,
+            mace,
+            fortress,
+            scepter,
+            reign,
+            pulsar,
+            quasar,
+            vela,
+            corvus,
+            atrax,
+            spiroct,
+            arkyid,
+            toxopid
+        )
         Vars.state.rules = rules;
         Call.setRules(rules)
     }, 1f)

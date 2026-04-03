@@ -48,7 +48,7 @@ public class VoteMap {
         votes += d;
         //voted.put(player.uuid(), d);
         voted.put(Vars.netServer.admins.getInfo(player.uuid()).lastIP, d);
-        if(map == null) {
+        if (map == null) {
             if (d == 1)
                 sendMessage("rtv.votey", player.coloredName(), votes, votesRequired());
             else
@@ -64,7 +64,7 @@ public class VoteMap {
 
     public boolean checkPass() {
         if (votes >= votesRequired()) {
-            if(map != null)
+            if (map != null)
                 Vars.maps.setNextMapOverride(map);
             Events.fire(new EventType.GameOverEvent(Team.derelict));
             sendMessage("rtv.pass");

@@ -9,20 +9,20 @@ import arc.util.Reflect
 import arc.util.Strings
 import mindustry.Vars
 import mindustry.gen.Player
+import mindustry.maps.Map
 import plugin.PVars
 import plugin.PVars.apiAuth
 import plugin.utils.Permission.getPerms
 import java.io.ByteArrayInputStream
 import java.io.DataInputStream
 import java.io.IOException
-import java.util.*
-import java.util.zip.InflaterInputStream
-import mindustry.maps.Map
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.nio.file.Path
+import java.util.*
+import java.util.zip.InflaterInputStream
 
 const val characters = "qwertyuiopasdfghjklzxcvbnm123456789="
 
@@ -198,8 +198,8 @@ fun Player.hasPerms(perm: Permission): Boolean {
 
 fun findMap(name: String): Map? {
     val maps = Vars.maps.customMaps();
-    for(map in maps)
-        if(map.name().contains(name))
+    for (map in maps)
+        if (map.name().contains(name))
             return map
     return null
 }

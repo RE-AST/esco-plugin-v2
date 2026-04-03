@@ -6,7 +6,10 @@ import arc.struct.ObjectMap;
 import mindustry.game.EventType;
 import mindustry.gen.Call;
 import mindustry.gen.Player;
-/**Memory leak here btw.*/
+
+/**
+ * Memory leak here btw.
+ */
 public class TextMenu {
     static int lastId = 0;
     static ObjectMap<Integer, TextMenu> menus = new ObjectMap<>();

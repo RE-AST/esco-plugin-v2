@@ -11,9 +11,8 @@ import mindustry.gen.Player;
 import mindustry.net.NetConnection;
 import mindustry.net.Packets;
 import plugin.Bundle;
-import plugin.utils.Permission;
-
 import plugin.menus.MenusKt;
+import plugin.utils.Permission;
 
 import static plugin.utils.Permission.getPerms;
 

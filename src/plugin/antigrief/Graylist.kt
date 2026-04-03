@@ -4,7 +4,6 @@ import mindustry.gen.Player
 import plugin.Bundle
 import plugin.PVars
 import plugin.database.Database
-import plugin.database.models.Log
 import plugin.database.models.PlayerData
 import plugin.database.putLog
 import java.sql.PreparedStatement

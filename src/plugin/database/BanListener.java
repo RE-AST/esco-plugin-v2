@@ -5,8 +5,6 @@ import arc.util.Strings;
 import arc.util.Time;
 import org.postgresql.PGConnection;
 import org.postgresql.PGNotification;
-import plugin.database.models.Ban;
-import plugin.database.models.PlayerData;
 
 import java.sql.Connection;
 import java.sql.Statement;
