@@ -5,7 +5,7 @@ import mindustry.gen.Player
 
 class ScrollableMenu(
     private val title: String,
-    private val message: String,
+    private val message: String = "",
     private val itemsPerPage: Int = 9
 ) {
 
@@ -39,15 +39,14 @@ class ScrollableMenu(
         val end = minOf(start + itemsPerPage, items.size)
 
         for (i in start until end) {
-            val index = i
 
             menu.add(items[i]) { p ->
-                handlers[index](p)
+                handlers[i](p)
             }
 	    
-	    if((i - start + 1) % 3 == 0) {
-		menu.row();
-	    }
+	        if((i - start + 1) % 3 == 0) {
+	    	    menu.row();
+	        }
         }
 
         menu.row()

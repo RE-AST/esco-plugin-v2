@@ -209,24 +209,33 @@ fun register(handler: CustomHandler) {
         PVars.waveVote.vote(p, i)
     })
 
-    handler.registerCommand("rtv", "[y/n] [map...]", CommandRunner { a: Array<String>, p: Player ->
-        var map: Map? = null
-        if (a.size == 2 && PVars.mapVote == null) {
-            map = findMap(a[1])
-            if (map == null) {
-                p.sendMessage("[scarlet]Not found")
-                return@CommandRunner
-            }
-        }
+    handler.registerCommand("rtv", "[y/n]", CommandRunner { a: Array<String>, p: Player ->
         val i: Int = if (a.isEmpty()) 1
         else parseBool(a[0])
-        if (i == 0) {
-            Bundle.sendMessage("vote.unknownvote", p)
+
+        if (PVars.mapVote == null) {
+            val menu = ScrollableMenu("Choose map").add("[orange]Random") { pl: Player ->
+                if (PVars.mapVote == null) {
+                    PVars.mapVote = VoteMap(pl, null)
+                    PVars.mapVote.vote(pl, i)
+                    return@add
+                }
+            }
+            val maps = Vars.maps.customMaps()
+            for(map in maps) {
+                menu.add("${map.name()}\n${map.height}x${map.width}") { pl: Player ->
+                    if (PVars.mapVote == null) {
+                        PVars.mapVote = VoteMap(pl, map)
+                        PVars.mapVote.vote(pl, i)
+                        return@add
+                    }
+                }
+            }
             return@CommandRunner
         }
-        if (PVars.mapVote == null) {
-            PVars.mapVote = VoteMap(p, map)
-            PVars.mapVote.vote(p, i)
+
+        if (i == 0) {
+            Bundle.sendMessage("vote.unknownvote", p)
             return@CommandRunner
         }
         if (PVars.mapVote.voted.containsKey(p.ip())) {
