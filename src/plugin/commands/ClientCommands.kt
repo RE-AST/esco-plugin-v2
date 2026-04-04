@@ -223,7 +223,7 @@ fun register(handler: CustomHandler) {
             }
             val maps = Vars.maps.customMaps()
             for(map in maps) {
-                menu.add("${map.name()}\n${map.height}x${map.width}") { pl: Player ->
+                menu.add("${map.name()}\n[lightgray]${map.height}x${map.width}") { pl: Player ->
                     if (PVars.mapVote == null) {
                         PVars.mapVote = VoteMap(pl, map)
                         PVars.mapVote.vote(pl, i)
@@ -231,6 +231,7 @@ fun register(handler: CustomHandler) {
                     }
                 }
             }
+	    menu.show(p)
             return@CommandRunner
         }
 
