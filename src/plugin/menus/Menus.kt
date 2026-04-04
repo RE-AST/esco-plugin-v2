@@ -22,6 +22,7 @@ import plugin.database.models.PlayerStats
 import plugin.utils.Gamemode
 import plugin.utils.Permission
 import plugin.utils.parseTime
+import java.text.MessageFormat
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.function.Consumer
@@ -212,7 +213,7 @@ fun showTrace(p: Player, other: Player, perms: Seq<Permission?>) {
         .add("Times Kicked\n" + stats.timesKicked).row()
     if (perms.contains(Permission.punish) && pdOpt.isPresent) {
         menu.add("[scarlet]Ban") { pl2: Player? ->
-            showBanMenu(pl2!!, pdOpt.get().id)
+            showBanMenu(pl2!!, pdOpt.get().id, other)
         }
     }
     menu.add("DeepSearch") { pl2: Player ->
@@ -222,7 +223,7 @@ fun showTrace(p: Player, other: Player, perms: Seq<Permission?>) {
         .show(p)
 }
 
-fun showBanMenu(p: Player, playerId: Int) {
+fun showBanMenu(p: Player, playerId: Int, target: Player) {
     TextMenu(Cons2 { pl: Player, reason: String ->
         if (reason.isEmpty()) {
             pl.sendMessage("[scarlet]Reason is empty!")
@@ -240,6 +241,14 @@ fun showBanMenu(p: Player, playerId: Int) {
             }
             if (ban(playerId, pl2, reason, timeL)) {
                 pl2.sendMessage("[green]Player banned.")
+                target.kick(
+                    MessageFormat.format(
+                        Bundle.get("banned"),
+                        reason,
+                        time,
+                        PVars.discordLink,
+                        "unknown (re-join to see)"
+                    ), 0);
             } else {
                 pl2.sendMessage("[scarlet]Failed to ban player.")
             }
