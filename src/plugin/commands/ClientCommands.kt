@@ -124,7 +124,7 @@ fun register(handler: CustomHandler) {
         Call.worldDataBegin(player.con)
         Vars.netServer.sendWorldData(player)
     })
-    handler.registerCommand("mhelp", "[page]", CommandRunner { args: Array<String>, player: Player ->
+    handler.registerCommand("thelp", "[page]", CommandRunner { args: Array<String>, player: Player ->
         if (args.isNotEmpty() && !Strings.canParseInt(args[0])) {
             player.sendMessage("[scarlet]\"page\" must be a integer.")
             return@CommandRunner
@@ -171,11 +171,11 @@ fun register(handler: CustomHandler) {
 
     handler.registerCommand("help", "", CommandRunner { _: Array<String>, player: Player ->
         val perms = Permission.getPerms(player)
-        val menu = ScrollableMenu("help", rowPerItems = 2)
+        val menu = ScrollableMenu("Help", rowPerItems = 1)
         for (i in 0..<handler.commands.size) {
             val c = handler.commands.get(i) ?: continue
             if (!perms.contains(c.permission)) continue
-            menu.add("${c.name}${if(c.args.isEmpty()) "" else "\n${c.args}"}")
+            menu.add("[orange]${c.name}[lightgray]${if(c.args.isEmpty()) "" else "\n${c.args}"}")
         }
         menu.show(player)
     })
