@@ -451,13 +451,20 @@ fun getPlayerStats(rs: ResultSet): PlayerStats {
 
 // region mute
 
+fun getMute(player: Player): Optional<Mute> {
+    val idOpt = getPlayerId(player)
+    if(idOpt.isEmpty)
+        return Optional.empty<Mute>()
+    return getMute(idOpt.get())
+}
+
 fun getMute(pid: Int): Optional<Mute> {
     val cached: Mute? = mutesCache.get(pid)
     if(cached != null)
         return Optional.of(cached)
 
     val mute = Database.executeQueryAsync(
-        "SELECT * FROM mutes WHERE player_id = ?",
+        "SELECT * FROM mutes WHERE player_id = ? AND active = TRUE AND umute_time > NOW()",
         { stmt: PreparedStatement -> stmt.setInt(1, pid) },
         { rs: ResultSet -> getMute(rs) }
     )

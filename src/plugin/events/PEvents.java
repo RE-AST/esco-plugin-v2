@@ -4,6 +4,7 @@ import arc.Core;
 import arc.Events;
 import arc.util.Log;
 import arc.util.Strings;
+import arc.util.Time;
 import arc.util.Timer;
 import mindustry.Vars;
 import mindustry.content.Items;
@@ -17,7 +18,9 @@ import mindustry.world.Tile;
 import mindustry.world.blocks.logic.LogicBlock;
 import mindustry.world.blocks.storage.CoreBlock;
 import mindustry.world.modules.ItemModule;
+import plugin.Bundle;
 import plugin.antigrief.AntiFimoz;
+import plugin.database.models.Mute;
 import plugin.database.models.PlayerData;
 import plugin.database.models.PlayerStats;
 import plugin.discord.BotKt;
@@ -157,6 +160,16 @@ public class PEvents {
             Vars.netServer.admins.addChatFilter((player, message) -> {
                 if (AntiFimoz.applyMessage(message, player))
                     return null;
+
+                Optional<Mute> muteOpt = getMute(player);
+                if(muteOpt.isPresent()) {
+                    Mute mute = muteOpt.get();
+                    if(mute.unmuteIn == null)
+                        mute.unmuteIn = formatTime((mute.getUnmuteTime().toEpochMilli() - Time.millis()) / 1000);
+                    Bundle.sendMessage("muted", player, mute.getReason(), mute.unmuteIn);
+                    return null;
+                }
+
                 return message;
             });
         });
@@ -286,6 +299,9 @@ public class PEvents {
     }
 
     public static void purgeData(Player p) {
+        getPlayerId(p).ifPresent(id->{
+            mutesCache.remove(id);
+        });
         Permission.cache.remove(p);
         playerDataCache.remove(p);
         adminsCache.remove(p);

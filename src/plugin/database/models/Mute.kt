@@ -3,12 +3,14 @@ package plugin.database.models
 import java.time.Instant
 
 class Mute(
-    id: Int,
-    active: Boolean,
-    playerId: Int,
-    adminId: Int,
-    reason: String,
-    muteTime: Instant,
-    unmuteTime: Instant
+    val id: Int,
+    val active: Boolean,
+    val playerId: Int,
+    val adminId: Int,
+    val reason: String,
+    val muteTime: Instant,
+    val unmuteTime: Instant
     ) {
+    @JvmField
+    var unmuteIn: String? = null
 }
