@@ -46,7 +46,7 @@ public class AdminRequest {
                     Bundle.sendMessage("noperms", player);
                     return;
                 }
-                player.sendMessage("use /ban");
+                player.sendMessage("use /ban or ban by trace menu");
             }
             case kick -> {
                 if (!perms.contains(Permission.admin)) {

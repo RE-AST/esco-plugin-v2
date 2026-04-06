@@ -214,7 +214,10 @@ fun showTrace(p: Player, other: Player, perms: Seq<Permission?>) {
     if (perms.contains(Permission.punish) && pdOpt.isPresent) {
         menu.add("[scarlet]Ban") { pl2: Player? ->
             showBanMenu(pl2!!, pdOpt.get().id, other)
-        }
+        }.row()
+        menu.add("[yellow]Mute") { pl2: Player ->
+            pl2.sendMessage("WIP")
+        }.row()
     }
     menu.add("DeepSearch") { pl2: Player ->
         Call.infoMessage(pl2.con, deepSearchNames(other).joinToString { " " })
