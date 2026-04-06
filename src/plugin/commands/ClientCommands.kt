@@ -22,7 +22,7 @@ import plugin.Bundle
 import plugin.KVars.globalScope
 import plugin.PVars
 import plugin.database.*
-import plugin.database.models.PlayerStats
+import plugin.database.models.*
 import plugin.menus.showShop
 import plugin.menus.slot
 import plugin.utils.*
@@ -38,6 +38,21 @@ const val commandsPerPage = 10
 var voteCooldown = 60 * 5
 
 fun register(handler: CustomHandler) {
+    handler.registerCommand("name", "<name...>", CommandRunner { arg: Array<String>, p: Player ->
+        val name = arg[0].trim()
+        if(name.length > 100 || Strings.stripColors(name).length > 40) {
+            p.sendMessage("[scarlet]Too long!")
+            return@CommandRunner
+        }
+        globalScope.launch {
+            getPlayerData(p).ifPresent { pd: PlayerData ->
+                pd.prefs.setCustomName(name)
+                pd.updatePrefs()
+                Core.app.post { p.name(name) }
+            }
+        }
+    })
+
     handler.registerCommand("testmenus", "", Permission.test, CommandRunner { _: Array<String>, p: Player ->
         val menu = ScrollableMenu(p.coloredName(), "Hi!")
         for(i in 0..15) {
