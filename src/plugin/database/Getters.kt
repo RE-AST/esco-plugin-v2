@@ -19,6 +19,8 @@ import java.time.Instant
 import java.util.*
 import java.util.function.Consumer
 
+// GOVNOCODE
+
 @JvmField
 var adminsCache = ObjectMap<Player, Admin>()
 
@@ -27,6 +29,9 @@ var playerDataCache = ObjectMap<Player, PlayerData>()
 
 @JvmField
 var playerStatsCache = ObjectMap<String, PlayerStats>()
+
+@JvmField
+var mutesCache = ObjectMap<Int, Mute>()
 
 // region Admin
 
@@ -439,6 +444,40 @@ fun getPlayerStats(rs: ResultSet): PlayerStats {
         rs.getInt("blocks_broken"),
         rs.getInt("balance"),
         rs.getInt("waves_survived")
+    )
+}
+
+// endregion
+
+// region mute
+
+fun getMute(pid: Int): Optional<Mute> {
+    val cached: Mute? = mutesCache.get(pid)
+    if(cached != null)
+        return Optional.of(cached)
+
+    val mute = Database.executeQueryAsync(
+        "SELECT * FROM mutes WHERE player_id = ?",
+        { stmt: PreparedStatement -> stmt.setInt(1, pid) },
+        { rs: ResultSet -> getMute(rs) }
+    )
+
+    if(mute.isPresent)
+        mutesCache.put(pid, mute.get())
+
+    return mute
+}
+
+@Throws(SQLException::class)
+fun getMute(rs: ResultSet): Mute {
+    return Mute(
+        rs.getInt("id"),
+        rs.getBoolean("active"),
+        rs.getInt("player_id"),
+        rs.getInt("admin_id"),
+        rs.getString("reason"),
+        rs.getTimestamp("mute_time").toInstant(),
+        rs.getTimestamp("unmute_time").toInstant()
     )
 }
 
