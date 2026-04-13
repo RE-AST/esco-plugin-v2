@@ -8,6 +8,7 @@ import mindustry.net.Administration
 import mindustry.net.Administration.PlayerAction
 import plugin.PVars
 import plugin.database.Database.StatementSetter
+import plugin.database.Database.executeUpdate
 import plugin.database.models.*
 import plugin.utils.Permission
 import plugin.utils.getUDPAddress
@@ -473,6 +474,26 @@ fun getMute(pid: Int): Optional<Mute> {
         mutesCache.put(pid, mute.get())
 
     return mute
+}
+
+fun mutePlayer(target: Int, admin: Int, reason: String, unmute: Long): Boolean {
+    if(unmute <= 0) {
+        return false // no perm mutes
+    }
+    return executeUpdate(
+        """
+            INSERT INTO mutes VALUES (player_id, admin_id, reason, unmute_time)
+            VALUES (?, ?, ?, ?)
+            
+        """.trimIndent(),
+        { stmt: PreparedStatement ->
+            stmt.setInt(1, target)
+            stmt.setInt(2, admin)
+            stmt.setString(3, reason)
+            stmt.setTimestamp(4, getTimestamp(unmute))
+        }
+
+    )
 }
 
 @Throws(SQLException::class)

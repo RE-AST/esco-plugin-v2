@@ -109,5 +109,8 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
+kotlin {
+    jvmToolchain(17)
+}
 compileKotlin {
 }
