@@ -46,7 +46,7 @@ fun loadEvents() {
 
             isAnon(player.ip()) { resp: ApiResponse ->
                 if (resp.anon && pd.discordId == null) {
-                    putLog(pd.id, "system", "Detected using vpn or proxy.")
+                    putLog(pd.id, "system", "Detected using vpn or proxy. IP ${player.ip()}")
                     app.post {
                         player.kick(
                             "You detected by [pink]AntiVPN[] system\nTry re-connect and disable vpn/proxy\nOr try linking your discord by /link\nDiscord: " + PVars.discordLink,
