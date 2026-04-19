@@ -52,7 +52,8 @@ fun register(handler: CustomHandler) {
         }
         for (i in 1..count) {
             Timer.schedule({
-            }, 0.1f+(i/10))
+                Vars.logic.runWave()
+            }, 0.1f+(i/10f))
         }
     })
     handler.registerCommand("name", "<name...>", CommandRunner { arg: Array<String>, p: Player ->
