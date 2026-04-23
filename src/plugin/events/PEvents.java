@@ -161,6 +161,7 @@ public class PEvents {
                 if (AntiFimoz.applyMessage(message, player))
                     return null;
 
+                /* WIP
                 Optional<Mute> muteOpt = getMute(player);
                 if(muteOpt.isPresent()) {
                     Mute mute = muteOpt.get();
@@ -168,7 +169,7 @@ public class PEvents {
                         mute.unmuteIn = formatTime((mute.getUnmuteTime().toEpochMilli() - Time.millis()) / 1000);
                     Bundle.sendMessage("muted", player, mute.getReason(), mute.unmuteIn);
                     return null;
-                }
+                }*/
 
                 return message;
             });
