@@ -115,12 +115,22 @@ fun loadRes() {
     // region erekir - tank
     items.putAll(
         stell, with(beryllium),
-        locus, with(beryllium, graphite),
-        precept, with(beryllium, graphite, silicon),
-        vanquish, with(beryllium, graphite, silicon, thorium, phaseFabric),
-        conquer, with(beryllium, graphite, silicon, thorium, surgeAlloy, phaseFabric),
+        locus, with(beryllium, graphite, tungsten),
+        precept, with(beryllium, graphite, silicon, tungsten),
+        vanquish, with(beryllium, graphite, silicon, thorium, phaseFabric, tungsten),
+        conquer, with(beryllium, graphite, silicon, thorium, surgeAlloy, phaseFabric, tungsten),
     )
     // endregion
+
+    // region erekir - mech
+    items.putAll(
+        merui, with(beryllium, silicon),
+        cleroi, with(silicon, tungsten),
+        anthicus, with(thorium, silicon),
+        tecta, with(tungsten, beryllium, silicon),
+    )
+    // endregion
+
 
 }
 
