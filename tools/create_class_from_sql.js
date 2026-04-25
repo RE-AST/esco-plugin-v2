@@ -95,6 +95,8 @@ for (const match of tables) {
 
     const classCode = `
 import java.time.Instant
+import java.sql.ResultSet
+import java.sql.SQLException
 
 data class ${className}(
 ${fields.map(f => `    val ${f.name}: ${f.type}`).join(",\n")}
@@ -102,9 +104,6 @@ ${fields.map(f => `    val ${f.name}: ${f.type}`).join(",\n")}
 `.trim();
 
     const mapperCode = `
-import java.sql.ResultSet
-import java.sql.SQLException
-
 @Throws(SQLException::class)
 fun ${mapperName}(rs: ResultSet): ${className} {
     return ${className}(
@@ -116,7 +115,7 @@ ${fields.map(f => `        ${f.getter}`).join(",\n")}
     const generatedAt = new Date().toISOString();
 
     const full =
-        `// Auto-generated on ${generatedAt}\n\n` +
+        `// Auto-generated on ${generatedAt}\n` +
         classCode +
         "\n\n" +
         mapperCode +
