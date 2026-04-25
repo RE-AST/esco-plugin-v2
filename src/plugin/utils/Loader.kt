@@ -11,6 +11,7 @@ import plugin.KVars.globalScope
 import plugin.PVars
 import plugin.database.BanListener
 import plugin.database.models.Server
+import plugin.discord.sendLog
 import plugin.events.PEvents
 import plugin.menus.Menu
 import plugin.menus.TextMenu
@@ -92,6 +93,7 @@ object Loader {
     @JvmStatic
     fun exit() {
         Log.info("Exiting server, please wait...")
+        sendLog("Exiting server")
         saveLogs()
 
         exitProcess(0)

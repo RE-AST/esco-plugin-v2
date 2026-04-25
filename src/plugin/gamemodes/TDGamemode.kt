@@ -111,6 +111,17 @@ fun loadRes() {
         with(silicon, metaglass, titanium, graphite, lead, copper, thorium, surgeAlloy, plastanium, phaseFabric)
     )
     // endregion
+
+    // region erekir - tank
+    items.putAll(
+        stell, with(beryllium),
+        locus, with(beryllium, graphite),
+        precept, with(beryllium, graphite, silicon),
+        vanquish, with(beryllium, graphite, silicon, thorium, phaseFabric),
+        conquer, with(beryllium, graphite, silicon, thorium, surgeAlloy, phaseFabric),
+    )
+    // endregion
+
 }
 
 var floors: Seq<Floor> = with(Blocks.darkPanel2.asFloor(), Blocks.darkPanel3.asFloor())
