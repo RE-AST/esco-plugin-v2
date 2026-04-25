@@ -144,7 +144,7 @@ fun loadRes() {
 }
 
 var floors: Seq<Floor> = with(Blocks.darkPanel2.asFloor(), Blocks.darkPanel3.asFloor())
-var actions: Seq<Administration.ActionType> = with(
+var actions: Seq<ActionType> = with(
     ActionType.breakBlock, /*ActionType.buildSelect,*/
     ActionType.pickupBlock,
     ActionType.placeBlock,
@@ -213,7 +213,7 @@ fun load() {
 private fun reload() {
     // healthMod = 1f
     resMod = 1f
-    Timer.schedule({ ->
+    Timer.schedule({
         val rules = Vars.state.rules
         rules.defaultTeam.rules().blockDamageMultiplier = 1f
         rules.defaultTeam.rules().unitDamageMultiplier = 1f
@@ -237,7 +237,7 @@ private fun reload() {
             arkyid,
             toxopid
         )
-        Vars.state.rules = rules;
+        Vars.state.rules = rules
         Call.setRules(rules)
     }, 1f)
 }

@@ -48,11 +48,11 @@ public class ClientCrasher {
         }
     }
 
-    private static ReusableByteOutStream syncStream = new ReusableByteOutStream();
+    private static final ReusableByteOutStream syncStream = new ReusableByteOutStream();
     private static final Writes dataWrites = new Writes(null);
 
-    private static DataOutputStream dataStream = new DataOutputStream(syncStream);
-    private static Writes dataStreamWrites = new Writes(dataStream);
+    private static final DataOutputStream dataStream = new DataOutputStream(syncStream);
+    private static final Writes dataStreamWrites = new Writes(dataStream);
     private static final IntSeq hiddenIds = new IntSeq();
 
     private static final int maxSnapshotSize = 800;

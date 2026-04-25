@@ -58,7 +58,7 @@ class CustomHandler {
         var closest: CommandHandler.Command? = null
         val perms = Permission.getPerms(player)
 
-        for (command in Vars.netServer.clientCommands.getCommandList()) {
+        for (command in Vars.netServer.clientCommands.commandList) {
             if (!perms.contains(getCommand(command.text)!!.permission)) continue
             val dst = Strings.levenshtein(command.text, name)
             if (dst < 3 && (closest == null || dst < minDst)) {
@@ -74,7 +74,7 @@ class CustomHandler {
         var minDst = 0
         var closest: CommandHandler.Command? = null
 
-        for (command in Vars.netServer.clientCommands.getCommandList()) {
+        for (command in Vars.netServer.clientCommands.commandList) {
             val dst = Strings.levenshtein(command.text, name)
             if (dst < 3 && (closest == null || dst < minDst)) {
                 minDst = dst

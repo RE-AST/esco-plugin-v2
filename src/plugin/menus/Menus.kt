@@ -251,7 +251,7 @@ fun showBanMenu(p: Player, playerId: Int, target: Player) {
                         time,
                         PVars.discordLink,
                         "unknown (re-join to see)"
-                    ), 0);
+                    ), 0)
             } else {
                 pl2.sendMessage("[scarlet]Failed to ban player.")
             }

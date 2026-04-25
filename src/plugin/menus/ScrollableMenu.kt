@@ -46,8 +46,8 @@ class ScrollableMenu(
             }
 	    
 	        if((i - start + 1) % rowPerItems == 0) {
-	    	    menu.row();
-	        }
+	    	    menu.row()
+            }
         }
 
         menu.row()

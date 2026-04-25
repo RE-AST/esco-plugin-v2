@@ -158,10 +158,10 @@ public class NetServerPatched extends NetServer {
             }
 
             if (Groups.player.size() > 0) {
-                IntSet buildHealthChanged = (IntSet) get(F.buildHealthChanged);
+                IntSet buildHealthChanged = get(F.buildHealthChanged);
                 if (buildHealthChanged.size > 0 && healthSyncTime.poll()) {
 
-                    IntSeq healthSeq = (IntSeq) get(F.healthSeq);
+                    IntSeq healthSeq = get(F.healthSeq);
                     healthSeq.clear();
 
                     var iter = buildHealthChanged.iterator();
@@ -236,11 +236,11 @@ public class NetServerPatched extends NetServer {
     public void writeEntitySnapshot(Player player) throws IOException {
         byte tps = (byte) Math.min(Core.graphics.getFramesPerSecond(), 255);
 
-        ReusableByteOutStream syncStream = (ReusableByteOutStream) get(F.syncStream);
-        DataOutputStream dataStream = (DataOutputStream) get(F.dataStream);
-        Writes dataWrites = (Writes) get(F.dataWrites);
-        Writes dataStreamWrites = (Writes) get(F.dataStreamWrites);
-        IntSeq hiddenIds = (IntSeq) get(F.hiddenIds);
+        ReusableByteOutStream syncStream = get(F.syncStream);
+        DataOutputStream dataStream = get(F.dataStream);
+        Writes dataWrites = get(F.dataWrites);
+        Writes dataStreamWrites = get(F.dataStreamWrites);
+        IntSeq hiddenIds = get(F.hiddenIds);
 
         syncStream.reset();
 
@@ -252,7 +252,7 @@ public class NetServerPatched extends NetServer {
         for (Teams.TeamData data : state.teams.present) {
             if (data.cores.size > 0) {
                 dataStream.writeByte(data.team.id);
-                ((CoreBlock.CoreBuild) data.cores.first()).items.write(dataWrites);
+                data.cores.first().items.write(dataWrites);
             }
         }
 

@@ -20,7 +20,7 @@ import java.nio.file.StandardCopyOption
 
 fun registerGlobal(handler: CommandHandler) {
     handler.register("ver", "SS") { _: Array<String>, ctx: Context ->
-        globalExecutor.submit { ->
+        globalExecutor.submit {
             ctx.replyServer("Current: ${version}  Latest: ${httpGetString(buildsLatestTxtUrl)}")
         }
     }

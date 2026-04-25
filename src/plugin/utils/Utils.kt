@@ -202,7 +202,7 @@ fun Player.hasPerms(perm: Permission): Boolean {
 }
 
 fun findMap(name: String): Map? {
-    val maps = Vars.maps.customMaps();
+    val maps = Vars.maps.customMaps()
     for (map in maps)
         if (map.name().contains(name))
             return map

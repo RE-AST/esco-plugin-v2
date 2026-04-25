@@ -36,13 +36,13 @@ class TDGroundAI : GroundAI() {
             var move = true
 
             if (Vars.state.rules.waves && unit.team === Vars.state.rules.defaultTeam) {
-                val spawner = getClosestSpawner()
+                val spawner = closestSpawner
                 if (spawner != null && unit.within(spawner, Vars.state.rules.dropZoneRadius + 120f)) move = false
                 if (spawner == null && core == null) move = false
             }
 
             //no reason to move if there's nothing there
-            if (core == null && (!Vars.state.rules.waves || getClosestSpawner() == null)) {
+            if (core == null && (!Vars.state.rules.waves || closestSpawner == null)) {
                 move = false
             }
 

@@ -37,7 +37,7 @@ var mutesCache = ObjectMap<Int, Mute>()
 // region Admin
 
 fun updateAdminHidden(pid: Int, hidden: Boolean): Boolean {
-    return Database.executeUpdate(
+    return executeUpdate(
         """
                         UPDATE ADMINS SET
                         hidden = ?
@@ -88,7 +88,7 @@ fun getAdmin(rs: ResultSet): Admin {
 // region Ban
 
 fun ban(pid: Int, aid: Int, reason: String?, unban: Long): Boolean {
-    return Database.executeUpdate(
+    return executeUpdate(
         "INSERT INTO bans (player_id, admin_id, reason, unban_time) VALUES (?, ?, ?, ?)",
         StatementSetter { stmt: PreparedStatement? ->
             stmt!!.setInt(1, pid)
@@ -100,7 +100,7 @@ fun ban(pid: Int, aid: Int, reason: String?, unban: Long): Boolean {
 }
 
 fun ban(pid: Int, admin: Player, reason: String?, unban: Long): Boolean {
-    return Database.executeUpdate(
+    return executeUpdate(
         """
         INSERT INTO bans (player_id, admin_id, reason, unban_time)
         VALUES (
@@ -120,7 +120,7 @@ fun ban(pid: Int, admin: Player, reason: String?, unban: Long): Boolean {
 }
 
 fun ban(player: Player, admin: Player, reason: String?, unban: Long): Boolean {
-    return Database.executeUpdate(
+    return executeUpdate(
         """
         INSERT INTO bans (player_id, admin_id, reason, unban_time)
         VALUES (

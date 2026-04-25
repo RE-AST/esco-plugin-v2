@@ -40,7 +40,7 @@ class TDAI : AIController() {
 
         pathfind(Pathfinder.fieldCore, true, stuckTime >= stuckThreshold)
 
-        core = coreBuild;
+        core = coreBuild
     }
 
     /*
