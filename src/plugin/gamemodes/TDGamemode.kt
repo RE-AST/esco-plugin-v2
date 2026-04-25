@@ -158,7 +158,7 @@ const val baseRes = 40
 fun load() {
     Log.info("Loading Tower Defense gamemode")
     loadRes()
-    Events.on(ServerLoadEvent::class.java) { _: ServerLoadEvent? ->
+    Events.on(ServerLoadEvent::class.java) { _: ServerLoadEvent ->
         for (u in Vars.content.units()) {
             u.payloadCapacity = 0f
         }
@@ -172,9 +172,13 @@ fun load() {
             true
         })
     }
-    Events.on(UnitDestroyEvent::class.java, Cons { e: UnitDestroyEvent? ->
-        val unit = e!!.unit
-        val it = items.get(unit.type) ?: return@Cons
+    Events.on(UnitDestroyEvent::class.java, Cons { e: UnitDestroyEvent ->
+        val unit = e.unit
+        val it = items.get(unit.type)
+        if(it == null) {
+            Call.label("${unit.type.emoji()} - Unsupported unit", 1.5f, unit.x, unit.y)
+            return@Cons
+        }
         val core = Vars.state.rules.defaultTeam
         val sb = StringBuilder()
 
