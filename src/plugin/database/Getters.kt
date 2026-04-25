@@ -510,3 +510,21 @@ fun getMute(rs: ResultSet): Mute {
 }
 
 // endregion
+
+// region map stats
+
+@Throws(SQLException::class)
+fun getMapStats(rs: ResultSet): MapStats {
+    return MapStats(
+        rs.getInt("id"),
+        rs.getString("name"),
+        rs.getInt("server"),
+        rs.getInt("min_wave"),
+        rs.getInt("max_wave"),
+        rs.getInt("min_playtime"),
+        rs.getInt("max_playtime"),
+        rs.getInt("wins"),
+        rs.getInt("loses"),
+        rs.getInt("skips")
+    )
+}
