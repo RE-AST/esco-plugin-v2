@@ -58,6 +58,10 @@ function rsGetter(column, raw) {
 }
 
 for (const match of tables) {
+    const startIndex = match.index;
+    const before = sql.slice(0, startIndex);
+    const line = before.split("\n").length;
+
     const tableName = match[1];
     const body = match[2];
 
@@ -115,7 +119,10 @@ ${fields.map(f => `        ${f.getter}`).join(",\n")}
     const generatedAt = new Date().toISOString();
 
     const full =
-        `// Auto-generated on ${generatedAt}\n` +
+        `/*\nAuto-generated on ${generatedAt}\n` +
+        `Based on migrations.sql#L${line} (table: ${tableName})\n` +
+        `*/\n` +
+
         classCode +
         "\n\n" +
         mapperCode +

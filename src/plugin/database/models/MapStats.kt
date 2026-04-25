@@ -1,4 +1,7 @@
-// Auto-generated on 2026-04-25T22:28:05.484Z
+/*
+Auto-generated on 2026-04-25T22:39:13.017Z
+Based on migrations.sql#L99 (table: maps)
+*/
 package plugin.database.models
 
 data class MapStats(
