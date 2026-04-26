@@ -47,11 +47,15 @@ public class MapPreview {
                 Tile tile = tiles.getn(x, y);
                 if (tile.build != null) {
                     if (tile.build.config() instanceof Item item) {
-                        //pixmap.set(x, pixmap.height - 1 - y, item.color.rgba());
                         image.setRGB(x, tiles.height - 1 - y, convert(item.color.rgba()));
                         item = null;
                     } else if(tile.build.block.name.contains("conveyor")) {
-                        image.setRGB(x, tiles.height - 1 - y, convert(tile.build.items.first().color.rgba()));
+                        Item item = tile.build.items.first();
+                        if(item == null) {
+                            image.setRGB(x, tiles.height - 1 - y, convert(colorFor(tile.block(), tile.floor(), tile.overlay(), tile.team())));
+                            continue;
+                        }
+                        image.setRGB(x, tiles.height - 1 - y, convert(item.color.rgba()));
                     } else {
                         // pixmap.set(x, pixmap.height - 1 - y, colorFor(tile.block(), tile.floor(), tile.overlay(), tile.team()));
                         image.setRGB(x, tiles.height - 1 - y, convert(colorFor(tile.block(), tile.floor(), tile.overlay(), tile.team())));
