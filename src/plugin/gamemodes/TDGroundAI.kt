@@ -32,7 +32,7 @@ class TDGroundAI : GroundAI() {
             return
         }
 
-        if ((core == null || !unit.within(core, unit.type.range * 0.5f))) {
+        if ((core == null || !unit.within(core, unit.type.range * 0.1f))) {
             var move = true
 
             if (Vars.state.rules.waves && unit.team === Vars.state.rules.defaultTeam) {

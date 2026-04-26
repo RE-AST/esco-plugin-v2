@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji
 import arc.util.CommandHandler
 import arc.util.Log
 import mindustry.Vars
+import plugin.Bundle
 import plugin.KVars.buildsBaseUrl
 import plugin.KVars.buildsLatestTxtUrl
 import plugin.PVars.gamemode
@@ -57,5 +58,10 @@ fun registerGlobal(handler: CommandHandler) {
             Timer.schedule({ Loader.exit() }, 1f)
         }
         PVars.needRestart = true
+    }
+
+    handler.register("reloadbundle", "SS") { _: Array<String>, ctx: Context ->
+        Bundle.load()
+        ctx.replyServer("IDK, reloaded probably")
     }
 }
