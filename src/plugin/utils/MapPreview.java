@@ -50,6 +50,8 @@ public class MapPreview {
                         //pixmap.set(x, pixmap.height - 1 - y, item.color.rgba());
                         image.setRGB(x, tiles.height - 1 - y, convert(item.color.rgba()));
                         item = null;
+                    } else if(tile.build.block.name.contains("conveyor")) {
+                        image.setRGB(x, tiles.height - 1 - y, convert(tile.build.items.first().color.rgba()));
                     } else {
                         // pixmap.set(x, pixmap.height - 1 - y, colorFor(tile.block(), tile.floor(), tile.overlay(), tile.team()));
                         image.setRGB(x, tiles.height - 1 - y, convert(colorFor(tile.block(), tile.floor(), tile.overlay(), tile.team())));
