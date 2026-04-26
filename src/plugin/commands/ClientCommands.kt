@@ -56,7 +56,15 @@ fun register(handler: CustomHandler) {
             }, 0.1f+(i/10f))
         }
     })
-    handler.registerCommand("name", "<name...>", CommandRunner { arg: Array<String>, p: Player ->
+    handler.registerCommand("name", "[name...]", CommandRunner { arg: Array<String>, p: Player ->
+        if(arg.isEmpty()) {
+            getPlayerData(p).ifPresent { pd: PlayerData ->
+                pd.prefs.setCustomName("")
+                pd.updatePrefs()
+                Core.app.post { p.name("") }
+            }
+            return@CommandRunner
+        }
         val name = arg[0].trim()
         if(name.length > 100 || Strings.stripColors(name).length > 40) {
             p.sendMessage("[scarlet]Too long!")

@@ -95,7 +95,8 @@ object Loader {
         Log.info("Exiting server, please wait...")
         sendLog("Exiting server")
         saveLogs()
-
-        exitProcess(0)
+        Timer.schedule({
+            exitProcess(0)
+        }, 1f)
     }
 }
