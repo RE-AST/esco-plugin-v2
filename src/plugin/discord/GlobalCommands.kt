@@ -25,6 +25,11 @@ fun registerGlobal(handler: CommandHandler) {
             ctx.replyServer("Current: ${version}  Latest: ${httpGetString(buildsLatestTxtUrl)}")
         }
     }
+
+    handler.register("ver", "SS") { _: Array<String>, _: Context ->
+        System.gc()
+    }
+
     handler.register("update", "ss") { _: Array<String>, ctx: Context ->
         globalExecutor.submit {
             try {
