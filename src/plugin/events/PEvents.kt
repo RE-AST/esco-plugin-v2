@@ -159,7 +159,7 @@ fun loadEvents() {
     onAsync(ClassificationEvent::class.java) { e: ClassificationEvent ->
         val embed = EmbedBuilder()
             .setColor(Color.red)
-            .setTitle("NSFW detected on ${PVars.gamemode.name}")
+            .setTitle("NSFW detected on ${PVars.gamemode.name} (Rate: ${e.rating.name})")
         e.author?.uuid?.let { uuid ->
             getPlayerData(uuid).ifPresent { pd ->
                 embed.setAuthor("[${pd.id}] ${pd.lastName}")
