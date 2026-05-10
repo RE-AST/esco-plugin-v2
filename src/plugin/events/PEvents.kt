@@ -2,7 +2,9 @@ package plugin.events
 
 import arc.Core.app
 import arc.Events
+import arc.struct.ObjectMap
 import arc.util.Log
+import arc.util.Strings
 import arc.util.Timer
 import com.xpdustry.nohorny.client.ClassificationEvent
 import com.xpdustry.nohorny.common.MindustryImageRenderer
@@ -11,29 +13,27 @@ import kotlinx.coroutines.launch
 import mindustry.Vars
 import mindustry.game.EventType
 import mindustry.game.EventType.PlayerConnect
+import mindustry.game.EventType.PlayerJoin
 import mindustry.game.Team
+import mindustry.gen.Call
+import mindustry.gen.Groups
+import mindustry.gen.Player
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.utils.FileUpload
-import net.dv8tion.jda.api.utils.messages.MessageCreateData
+import plugin.Bundle
 import plugin.KVars
 import plugin.KVars.eventsScope
 import plugin.KVars.mapStats
 import plugin.PVars
 import plugin.antigrief.apply
-import plugin.database.createOrGetMapStats
-import plugin.database.getAdmin
-import plugin.database.getBan
 import plugin.database.*
-import plugin.database.getPlayerId
 import plugin.database.models.Admin
-import plugin.database.putLog
-import plugin.database.updateMapStats
-import plugin.discord.sendLog
-import plugin.utils.ApiResponse
-import plugin.utils.Permission
-import plugin.utils.isAnon
-import plugin.utils.onAsync
-import plugin.utils.parseImage
+import plugin.database.models.PlayerData
+import plugin.database.models.PlayerStats
+import plugin.discord.*
+import plugin.menus.showWelcome
+import plugin.utils.*
+import plugin.utils.Loader.exit
 import java.awt.Color
 import java.util.function.Consumer
 
@@ -103,6 +103,101 @@ fun loadEvents() {
                 }
             })
             if (PVars.mapVote != null) PVars.mapVote.checkPass()
+        }
+    }
+
+    onAsync(PlayerJoin::class.java) { e ->
+        // full connect
+        val player: Player = e.player
+
+        val pdOpt = getPlayerData(player)
+        if (pdOpt.isEmpty) {
+            app.post {
+                player.kick("[scarlet]Failed to create player, try re-join")
+            }
+            return@onAsync
+        }
+        val pd = pdOpt.get()
+        app.post {
+            PlayerStats.setJoinTime(player)
+        }
+
+        //pd.setOriginalName(player.coloredName());
+        getPlayerStats(player)
+
+        app.post {
+            Bundle.sendMessage("messages.join", pd.id.toString(), player.coloredName())
+            putLog(pd.id, "event", "Player joined!")
+        }
+
+        Log.info("[@] Player @ joined [@]", pd.id, player.plainName(), player.uuid())
+        app.post {
+            sendJoinMessage(player, pd.id)
+
+            Call.clientPacketReliable(player.con, "SendMeSubtitle", if (player == null) null else player.id.toString())
+            if (pd.prefs.showWelcomeMenu) showWelcome(player)
+        }
+
+
+        // simple bot check
+        Timer.schedule(Runnable {
+            if (player.con.isConnected() && player.con.lastReceivedClientSnapshot == -1) {
+                putLog(pd.id, "system", "Player detected as bot")
+                player.kick("[scarlet]Try reconnect\nDiscord " + PVars.discordLink, 0)
+            }
+        }, 2f)
+    }
+
+    Events.on(EventType.PlayerLeave::class.java) { e ->
+        val player = e.player
+        if (player != null /* how? */) PVars.SSUsers.remove(player.id)
+
+        val pdOpt = getPlayerData(player!!)
+        if (pdOpt.isPresent()) {
+            val pd = pdOpt.get()
+            Bundle.sendMessage("messages.leave", pd.id.toString(), player.coloredName())
+            Log.info("[@] Player @ left [@]", pd.id, player.plainName(), player.uuid())
+            sendLeaveMessage(player, pd.id)
+            putLog(pd.id, "event", "Player disconnected")
+        }
+        if (PVars.currentlyKicking != null && PVars.currentlyKicking.target == player) {
+            ban(
+                PVars.currentlyKicking.targetId,
+                PVars.currentlyKicking.startedId,
+                "AutoBan: Leave during votekick\n" + PVars.currentlyKicking.reason,
+                (2 * 60 * 60).toLong()
+            )
+            PVars.currentlyKicking.cancel()
+            Bundle.sendMessage("votekick.targetleft")
+        }
+
+        purgeData(player)
+
+
+        /*if(rtvVotes.contains(player)) {
+                rtvVotes.remove(player);
+                Bundle.sendMessage("rtv.playerleft", rtvVotes.size+"/"+Math.max(1, (int) Math.round(Groups.player.size() * 0.8)));
+            }*/
+        Timer.schedule(Runnable {
+            if (PVars.mapVote != null) PVars.mapVote.checkPass()
+            if (Groups.player.isEmpty() && PVars.needRestart) {
+                exit()
+            }
+        }, 0.2f)
+    }
+
+    onAsync(EventType.PlayerChatEvent::class.java) { e ->
+        val player = e.player
+        val message = e.message
+
+        getPlayerData(player).ifPresent(Consumer { pd: PlayerData? ->
+            putLog(pd!!.id, "event", "Player sent message $message")
+        })
+        if (!message.startsWith("/")) {
+            val content =
+                ("`" + player.plainName() + ": " + stripFoo(Strings.stripColors(message)) + "`").replace("@", "")
+            sendServerMessage(content)
+            if (Math.random() > 0.9) sendParrotMessage(content)
         }
     }
 
@@ -177,4 +272,24 @@ fun loadEvents() {
         }
         message.queue()
     }
+}
+
+fun purgeData(p: Player) {
+    getPlayerId(p).ifPresent(Consumer { id: Int? ->
+        mutesCache.remove(id)
+    })
+    Permission.cache.remove(p)
+    playerDataCache.remove(p)
+    adminsCache.remove(p)
+    PlayerStats.purge(p)
+    PVars.historyPlayers.remove(p)
+    PVars.vanishedPlayers.remove(p)
+
+    if (PVars.linkCodes.containsValue(
+            p,
+            false
+        )
+    ) PVars.linkCodes.forEach(Consumer { e: ObjectMap.Entry<String, Player> ->
+        if (e.value == p) app.post { PVars.linkCodes.remove(e.key) }
+    })
 }

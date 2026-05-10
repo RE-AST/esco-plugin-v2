@@ -61,7 +61,7 @@ fun register(handler: CustomHandler) {
             getPlayerData(p).ifPresent { pd: PlayerData ->
                 pd.prefs.setCustomName("")
                 pd.updatePrefs()
-                Core.app.post { p.name("") }
+                Core.app.post { p.name(pd.lastName) }
             }
             return@CommandRunner
         }

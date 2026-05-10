@@ -45,90 +45,6 @@ public class PEvents {
     public static void load() {
         loadEvents();
 
-        Events.on(EventType.PlayerJoin.class, (e) -> { // full connect
-            Player player = e.player;
-
-            Optional<PlayerData> pdOpt = getPlayerData(player);
-            if (pdOpt.isEmpty()) {
-                player.kick("[scarlet]Failed to create player!");
-                return;
-            }
-            PlayerData pd = pdOpt.get();
-
-            PlayerStats.setJoinTime(player);
-            //pd.setOriginalName(player.coloredName());
-            getPlayerStats(player);
-
-            sendMessage("messages.join", String.valueOf(pd.id), player.coloredName());
-            putLog(pd.id, "event", "Player joined!");
-
-            Log.info("[@] Player @ joined [@]", pd.id, player.plainName(), player.uuid());
-            BotKt.sendJoinMessage(player, pd.id);
-
-            Call.clientPacketReliable(player.con, "SendMeSubtitle", player == null ? null : String.valueOf(player.id));
-            if (pd.prefs.showWelcomeMenu)
-                MenusKt.showWelcome(player);
-
-            // simple bot check
-            Timer.schedule(() -> {
-                if (player.con.isConnected() && player.con.lastReceivedClientSnapshot == -1) {
-                    putLog(pd.id, "system", "Player detected as bot");
-                    player.kick("[scarlet]Try reconnect\nDiscord " + discordLink, 0);
-                }
-            }, 2);
-            /*if (gamemode == pvp)
-                player.name = "[white]<" + player.team().coloredName() + "[white]> " + player.coloredName();*/
-        });
-
-        Events.on(EventType.PlayerLeave.class, (e) -> {
-            Player player = e.player;
-
-            if (player != null/* how? */) SSUsers.remove(player.id);
-
-            Optional<PlayerData> pdOpt = getPlayerData(player);
-            if (pdOpt.isPresent()) {
-                PlayerData pd = pdOpt.get();
-                sendMessage("messages.leave", String.valueOf(pd.id), player.coloredName());
-                Log.info("[@] Player @ left [@]", pd.id, player.plainName(), player.uuid());
-                BotKt.sendLeaveMessage(player, pd.id);
-                putLog(pd.id, "event", "Player disconnected");
-            }
-            if (currentlyKicking != null && currentlyKicking.target.equals(player)) {
-                ban(currentlyKicking.targetId, currentlyKicking.startedId, "AutoBan: Leave during votekick\n" + currentlyKicking.reason, 2 * 60 * 60);
-                currentlyKicking.cancel();
-                sendMessage("votekick.targetleft");
-            }
-
-            purgeData(player);
-
-            /*if(rtvVotes.contains(player)) {
-                rtvVotes.remove(player);
-                Bundle.sendMessage("rtv.playerleft", rtvVotes.size+"/"+Math.max(1, (int) Math.round(Groups.player.size() * 0.8)));
-            }*/
-            Timer.schedule(() -> {
-                if (mapVote != null) mapVote.checkPass();
-                if (Groups.player.isEmpty() && needRestart) {
-                    Loader.exit();
-                }
-            }, 0.2f);
-        });
-
-        Events.on(EventType.PlayerChatEvent.class, (e) -> {
-            Player player = e.player;
-            String message = e.message;
-
-            getPlayerData(player).ifPresent(pd -> {
-                putLog(pd.id, "event", "Player sent message " + message);
-            });
-
-            if (!message.startsWith("/")) {
-                String content = ("`" + player.plainName() + ": " + stripFoo(Strings.stripColors(message)) + "`").replace("@", "");
-                BotKt.sendServerMessage(content);
-                if (Math.random() > 0.9)
-                    sendParrotMessage(content);
-            }
-        });
-
         Events.on(EventType.ServerLoadEvent.class, (e) -> {
             Loader.loadAfterStart();
 
@@ -299,23 +215,5 @@ public class PEvents {
         Events.on(EventType.WaveEvent.class, (e) -> {
             Groups.player.each(p -> getPlayerStats(p).ifPresent(s -> s.adjWavesSurvived()));
         });
-    }
-
-    public static void purgeData(Player p) {
-        getPlayerId(p).ifPresent(id->{
-            mutesCache.remove(id);
-        });
-        Permission.cache.remove(p);
-        playerDataCache.remove(p);
-        adminsCache.remove(p);
-        PlayerStats.purge(p);
-        historyPlayers.remove(p);
-        vanishedPlayers.remove(p);
-
-        if (linkCodes.containsValue(p, false))
-            linkCodes.forEach(e -> {
-                if (e.value.equals(p))
-                    Core.app.post(() -> linkCodes.remove(e.key));
-            });
     }
 }
