@@ -6,6 +6,7 @@ import arc.util.Log
 import arc.util.Timer
 import com.xpdustry.nohorny.client.ClassificationEvent
 import com.xpdustry.nohorny.common.MindustryImageRenderer
+import com.xpdustry.nohorny.common.Rating
 import kotlinx.coroutines.launch
 import mindustry.Vars
 import mindustry.game.EventType
@@ -157,6 +158,7 @@ fun loadEvents() {
     }
 
     onAsync(ClassificationEvent::class.java) { e: ClassificationEvent ->
+        if(e.rating != Rating.NSFW) return@onAsync
         val embed = EmbedBuilder()
             .setColor(Color.red)
             .setTitle("NSFW detected on ${PVars.gamemode.name} (Rate: ${e.rating.name})")
