@@ -54,8 +54,8 @@ object Loader {
 
     fun loadGamemode() {
         if (PVars.gamemode == Gamemode.tdefense) {
-		TDGamemode.load()
-	}
+		    TDGamemode.load()
+	    }
     }
 
     fun loadTimers() {

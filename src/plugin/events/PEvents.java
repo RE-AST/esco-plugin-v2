@@ -19,7 +19,6 @@ import mindustry.world.blocks.logic.LogicBlock;
 import mindustry.world.blocks.storage.CoreBlock;
 import mindustry.world.modules.ItemModule;
 import plugin.Bundle;
-import plugin.antigrief.AntiFimoz;
 import plugin.database.models.Mute;
 import plugin.database.models.PlayerData;
 import plugin.database.models.PlayerStats;
@@ -74,8 +73,6 @@ public class PEvents {
             });
 
             Vars.netServer.admins.addChatFilter((player, message) -> {
-                if (AntiFimoz.applyMessage(message, player))
-                    return null;
 
                 /* WIP
                 Optional<Mute> muteOpt = getMute(player);
@@ -185,6 +182,7 @@ public class PEvents {
                     Vars.state.rules.blockDamageMultiplier = 0;
                     Vars.state.rules.unitHealthMultiplier = 0.1f;
                     Vars.state.rules.blockHealthMultiplier = 0.1f;
+                    Vars.state.rules.coreCapture = false;
                 } else if (gamemode == campaign) {
                     CoreBlock.CoreBuild core = Vars.state.rules.defaultTeam.core();
                     if (core == null) return;
