@@ -1,4 +1,4 @@
-package plugin.discord;
+package plugin.discord.listeners;
 
 import arc.util.CommandHandler.CommandResponse;
 import arc.util.CommandHandler.ResponseType;
@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import plugin.PVars;
+import plugin.discord.Context;
 import plugin.utils.Permission;
 
 import java.text.MessageFormat;

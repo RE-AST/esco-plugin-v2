@@ -19,6 +19,8 @@ import mindustry.gen.Call
 import mindustry.gen.Groups
 import mindustry.gen.Player
 import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.components.actionrow.ActionRow
+import net.dv8tion.jda.api.components.buttons.Button
 import net.dv8tion.jda.api.utils.FileUpload
 import plugin.Bundle
 import plugin.KVars
@@ -254,17 +256,21 @@ fun loadEvents() {
 
     onAsync(ClassificationEvent::class.java) { e: ClassificationEvent ->
         val response = e.response
+        val author = e.author
         if(response.rating != Rating.NSFW) return@onAsync
         val embed = EmbedBuilder()
             .setColor(Color.red)
             .setTitle("NSFW detected on ${PVars.gamemode.name} (Confidence: ${response.confidence.toInt()})")
             .setImage("attachment://image.png")
+        val message = PVars.nsfwChannel.sendMessageEmbeds(embed.build())
         e.author?.uuid?.let { uuid ->
             getPlayerData(uuid).ifPresent { pd ->
                 embed.setAuthor("[${pd.id}] ${pd.lastName}")
+                message.addComponents(ActionRow.of(
+                    Button.danger("$nohornyBanButtonId:${pd.id}", "🔨Ban")
+                ))
             }
         }
-        val message = PVars.nsfwChannel.sendMessageEmbeds(embed.build())
         try {
             val image = parseImage(MindustryImageRenderer.render(e.group))
             message.addFiles(FileUpload.fromData(image, "image.png"))

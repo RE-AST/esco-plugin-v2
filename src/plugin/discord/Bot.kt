@@ -9,8 +9,11 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
 import net.dv8tion.jda.api.requests.GatewayIntent
 import plugin.PVars
+import plugin.discord.listeners.MessageListener
 import java.awt.Color
 import java.util.*
+
+const val nohornyBanButtonId = "nohornyban";
 
 fun load() {
     val intents = EnumSet.allOf(GatewayIntent::class.java)
