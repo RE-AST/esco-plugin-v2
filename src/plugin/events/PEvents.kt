@@ -256,28 +256,39 @@ fun loadEvents() {
 
     onAsync(ClassificationEvent::class.java) { e: ClassificationEvent ->
         val response = e.response
-        val author = e.author
         if(response.rating != Rating.NSFW) return@onAsync
+
         val embed = EmbedBuilder()
             .setColor(Color.red)
             .setTitle("NSFW detected on ${PVars.gamemode.name} (Confidence: ${response.confidence.toInt()})")
             .setImage("attachment://image.png")
-        val message = PVars.nsfwChannel.sendMessageEmbeds(embed.build())
+
+        var playerId: Int? = null
+
         e.author?.uuid?.let { uuid ->
             getPlayerData(uuid).ifPresent { pd ->
+                playerId = pd.id
                 embed.setAuthor("[${pd.id}] ${pd.lastName}")
-                message.addComponents(ActionRow.of(
-                    Button.danger("$nohornyBanButtonId:${pd.id}", "🔨Ban")
-                ))
             }
         }
+
+        val message = PVars.nsfwChannel.sendMessageEmbeds(embed.build())
+
+        playerId?.let {
+            message.addComponents(ActionRow.of(
+                Button.danger("$nohornyBanButtonId:$it", "🔨Ban")
+            )
+            )
+        }
+
         try {
             val image = parseImage(MindustryImageRenderer.render(e.group))
             message.addFiles(FileUpload.fromData(image, "image.png"))
-        } catch (e: Exception) {
-            Log.err("Error while rendering nsfw image", e)
+        } catch (ex: Exception) {
+            Log.err("Error while rendering nsfw image", ex)
             message.addContent("Error while rendering nsfw image")
         }
+
         message.queue()
     }
 }
