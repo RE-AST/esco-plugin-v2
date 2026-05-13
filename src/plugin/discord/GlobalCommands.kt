@@ -75,6 +75,6 @@ fun registerGlobal(handler: CommandHandler) {
         val before = Core.app.javaHeap / 1024 / 1024
         System.gc()
         val after = Core.app.javaHeap / 1024 / 1024
-        ctx.reply("Before: $before\nAfter: $after\nDiff: ${before - after}")
+        ctx.replyServer("Before: $before\nAfter: $after\nDiff: ${before - after}")
     }
 }
