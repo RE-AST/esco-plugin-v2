@@ -64,7 +64,7 @@ fun loadEvents() {
                     sendLog("Possible account thief! Usid: " + player.usid() + " Database: " + u)
                 }
             })
-
+            if(PVars.gamemode != Gamemode.hub)
             isAnon(player.ip()) { resp: ApiResponse ->
                 if (resp.anon && pd.discordId == null) {
                     putLog(pd.id, "system", "Detected using vpn or proxy. IP ${player.ip()}")

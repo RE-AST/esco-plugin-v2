@@ -1,5 +1,6 @@
 package plugin.discord
 
+import arc.Core
 import mindustry.gen.Groups
 import arc.util.Timer
 import net.dv8tion.jda.api.entities.emoji.Emoji
@@ -68,5 +69,12 @@ fun registerGlobal(handler: CommandHandler) {
     handler.register("reloadbundle", "SS") { _: Array<String>, ctx: Context ->
         Bundle.load()
         ctx.replyServer("IDK, reloaded probably")
+    }
+
+    handler.register("gc", "SS") { _: Array<String>, ctx: Context ->
+        val before = Core.app.javaHeap / 1024 / 1024
+        System.gc()
+        val after = Core.app.javaHeap / 1024 / 1024
+        ctx.reply("Before: $before\nAfter: $after\nDiff: ${before - after}")
     }
 }
