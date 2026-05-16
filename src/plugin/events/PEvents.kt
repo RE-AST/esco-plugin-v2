@@ -260,7 +260,7 @@ fun loadEvents() {
 
         val embed = EmbedBuilder()
             .setColor(Color.red)
-            .setTitle("NSFW detected on ${PVars.gamemode.name} (Confidence: ${response.confidence.toInt()})")
+            .setTitle("NSFW detected on ${PVars.gamemode.name} (Confidence: ${response.confidence.toFloat()})")
             .setImage("attachment://image.png")
 
         var playerId: Int? = null
