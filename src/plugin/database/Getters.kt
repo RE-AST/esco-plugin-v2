@@ -604,10 +604,13 @@ fun getMapStats(id: Int): Optional<MapStats> {
 fun createOrGetMapStats(name: String): Optional<MapStats> {
     return executeQueryAsync(
         """
-        INSERT INTO maps (name, server)
-        VALUES (?, ?)
-        ON CONFLICT DO NOTHING
-        RETURNING
+        WITH inserted AS (
+            INSERT INTO maps (name, server)
+            VALUES (?, ?)
+            ON CONFLICT (name, server) DO NOTHING
+            RETURNING *
+        )
+        SELECT
             id,
             name,
             server,
@@ -620,10 +623,31 @@ fun createOrGetMapStats(name: String): Optional<MapStats> {
             wins,
             loses,
             skips
+        FROM inserted
+        UNION ALL
+        SELECT
+            id,
+            name,
+            server,
+            min_wave,
+            (min_wave + max_wave) / 2 AS avg_wave,
+            max_wave,
+            min_playtime,
+            (min_playtime + max_playtime) / 2 AS avg_playtime,
+            max_playtime,
+            wins,
+            loses,
+            skips
+        FROM maps
+        WHERE name = ? AND server = ?
+          AND NOT EXISTS (SELECT 1 FROM inserted)
+        LIMIT 1
         """.trimIndent(),
         { stmt ->
             stmt.setString(1, name)
             stmt.setInt(2, serverId)
+            stmt.setString(3, name)
+            stmt.setInt(4, serverId)
         },
         { rs -> getMapStats(rs) }
     )
