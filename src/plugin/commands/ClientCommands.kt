@@ -565,7 +565,7 @@ fun register(handler: CustomHandler) {
 private fun registerHexedCommands(handler: CustomHandler) {
     handler.registerCommand(
         "spectate",
-        "Enter spectator mode. This destroys your base.",
+        "",
         CommandRunner { _: Array<String>, player: Player ->
             if (player.team() === Team.derelict) {
                 player.sendMessage("[scarlet]You're already spectating.")
@@ -578,7 +578,7 @@ private fun registerHexedCommands(handler: CustomHandler) {
 
     handler.registerCommand(
         "captured",
-        "Dispay the number of hexes you have captured.",
+        "",
         CommandRunner { _: Array<String>, player: Player ->
             if (player.team() === Team.derelict) {
                 player.sendMessage("[scarlet]You're spectating.")
@@ -589,14 +589,14 @@ private fun registerHexedCommands(handler: CustomHandler) {
 
     handler.registerCommand(
         "leaderboard",
-        "Display the leaderboard",
+        "",
         CommandRunner { _: Array<String>, player: Player ->
             player.sendMessage(hexedGamemode.getLeaderboard())
         })
 
     handler.registerCommand(
         "hexstatus",
-        "Get hex status at your position.",
+        "",
         CommandRunner { _: Array<String>, player: Player ->
             val hex: Hex? = hexedGamemode.data.data(player).location
             if (hex != null) {
