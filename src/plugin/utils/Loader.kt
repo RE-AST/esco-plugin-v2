@@ -3,6 +3,7 @@ package plugin.utils
 import arc.util.Log
 import arc.util.Timer
 import kotlinx.coroutines.launch
+import mindustry.Vars
 import mindustry.gen.Groups
 import mindustry.net.Administration
 import plugin.Bundle
@@ -50,6 +51,8 @@ object Loader {
         // AntiFimoz.load();
         Administration.Config.showConnectMessages.set(false)
         Packets.load()
+
+        Vars.maps.setMapProvider(PluginMapProvider())
     }
 
     fun loadGamemode() {
