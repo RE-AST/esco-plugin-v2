@@ -1,4 +1,4 @@
-package plugin.gamemodes
+package plugin.gamemodes.tdf
 
 import arc.struct.Seq
 import mindustry.Vars

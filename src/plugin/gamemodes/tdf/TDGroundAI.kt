@@ -1,4 +1,4 @@
-package plugin.gamemodes
+package plugin.gamemodes.tdf
 
 import arc.func.Cons
 import arc.math.Mathf

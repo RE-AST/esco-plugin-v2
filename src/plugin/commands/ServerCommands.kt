@@ -12,7 +12,7 @@ import plugin.discord.sendServerMessage
 import plugin.history.History
 import plugin.patches.Patches
 import plugin.utils.Loader
-import plugin.gamemodes.TDGamemode
+import plugin.gamemodes.tdf.TDGamemode
 
 fun register(handler: CommandHandler) {
     handler.register("reload-bundle", "reload bundle") { _: Array<String> ->

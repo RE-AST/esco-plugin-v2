@@ -20,7 +20,7 @@ import plugin.menus.loadMenus
 import plugin.packets.Packets
 import plugin.patches.Patches
 import kotlin.system.exitProcess
-import plugin.gamemodes.TDGamemode
+import plugin.gamemodes.tdf.TDGamemode
 
 object Loader {
 

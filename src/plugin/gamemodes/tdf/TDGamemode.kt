@@ -1,4 +1,4 @@
-package plugin.gamemodes
+package plugin.gamemodes.tdf
 
 import arc.Events
 import arc.func.Cons
@@ -13,7 +13,6 @@ import mindustry.content.Items.*
 import mindustry.content.UnitTypes.*
 import mindustry.game.EventType.*
 import mindustry.gen.Call
-import mindustry.net.Administration
 import mindustry.net.Administration.*
 import mindustry.type.Item
 import mindustry.type.UnitType
