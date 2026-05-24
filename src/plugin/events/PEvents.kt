@@ -11,6 +11,7 @@ import com.xpdustry.nohorny.common.MindustryImageRenderer
 import com.xpdustry.nohorny.common.Rating
 import kotlinx.coroutines.launch
 import mindustry.Vars
+import mindustry.content.Blocks
 import mindustry.game.EventType
 import mindustry.game.EventType.PlayerConnect
 import mindustry.game.EventType.PlayerJoin
@@ -33,6 +34,7 @@ import plugin.database.models.Admin
 import plugin.database.models.PlayerData
 import plugin.database.models.PlayerStats
 import plugin.discord.*
+import plugin.gamemodes.hexed.HexData
 import plugin.menus.showWelcome
 import plugin.utils.*
 import plugin.utils.Loader.exit
@@ -291,6 +293,12 @@ fun loadEvents() {
         }
 
         message.queue()
+    }
+    Events.on(HexData.HexCaptureEvent::class.java) { e ->
+        val hex = e.hex
+        Vars.world.tile(hex.x, hex.y)?.let { tile ->
+            tile.setBlock(Blocks.coreShard, e.player.team())
+        }
     }
 }
 
