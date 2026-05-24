@@ -5,7 +5,7 @@ import arc.files.*;
 import arc.math.*;
 import arc.struct.*;
 import arc.util.*;
-import hexed.HexData.*;
+import plugin.gamemodes.hexed.HexData.*;
 import mindustry.content.*;
 import mindustry.core.GameState.*;
 import mindustry.core.NetServer.*;
@@ -218,7 +218,6 @@ public class HexedGamemode {
         Call.setHudText(player.con, message.toString());
     }
 
-    @Override
     public void registerServerCommands(CommandHandler handler){
         handler.register("hexed", "Begin hosting with the Hexed gamemode.", args -> {
             if(!state.is(State.menu)){
@@ -248,7 +247,6 @@ public class HexedGamemode {
         handler.register("r", "Restart the server.", args -> System.exit(2));
     }
 
-    @Override
     public void registerClientCommands(CommandHandler handler){
         if(registered) return;
         registered = true;
