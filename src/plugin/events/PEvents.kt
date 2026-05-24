@@ -297,7 +297,7 @@ fun loadEvents() {
     Events.on(HexData.HexCaptureEvent::class.java) { e ->
         val hex = e.hex
         Vars.world.tile(hex.x, hex.y)?.let { tile ->
-            tile.setBlock(Blocks.coreShard, e.player.team())
+            tile.setNet(Blocks.coreShard, e.player.team(), 1)
         }
     }
 }
