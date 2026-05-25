@@ -64,7 +64,7 @@ public class PEvents {
                 getPlayerStats(player).ifPresent(s -> {
                     if (e.breaking) {
                         s.adjBlocksBroken();
-                        if (antigriefCooldown.get() && s.blocksBroken >= 350 && s.blocksBuild < 5 && s.playtime < 600) {
+                        if (antigriefCooldown.get() && s.blocksBroken >= 600 && s.blocksBuild < 5 && s.playtime < 600) {
                             ban(player, player, "AutoBan: Possible Griefer", parseTime("1d"));
                             player.kick("AutoBan: Possible Griefer", 0);
                             player.con.close();

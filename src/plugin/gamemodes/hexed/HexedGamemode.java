@@ -65,6 +65,7 @@ public class HexedGamemode {
         rules.tags.put("hexed", "true");
         rules.canGameOver = false;
         rules.polygonCoreProtection = true;
+        rules.pvpAutoPause = false;
 
         //attempt to load the base schematic from mods/hexed/base.msch, defaulting to a built-in one upon failure.
         Fi baseFile = mainClass.getConfig().sibling("base.msch");

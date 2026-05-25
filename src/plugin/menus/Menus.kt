@@ -93,7 +93,9 @@ fun showShopZ(stats: PlayerStats, p: Player) {
         })
         itemMenu.show(pl)
     }
-    menu.add(Bundle.get("other", p.locale))
+    menu.add(Bundle.get("other", p.locale)) { pl ->
+
+    }
 }
 
 fun showShop(stats: PlayerStats, p: Player) {
