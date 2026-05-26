@@ -228,7 +228,22 @@ public class HexedGamemode {
 
     public void registerServerCommands(CommandHandler handler){
         handler.register("hexed", "Begin hosting with the Hexed gamemode.", args -> {
-            generateMap();
+            if(!state.is(State.menu)){
+                Log.err("Stop the server first.");
+                return;
+            }
+
+            data = new HexData();
+
+            logic.reset();
+            Log.info("Generating map...");
+            HexedGenerator generator = new HexedGenerator();
+            world.loadGenerator(Hex.size, Hex.size, generator);
+            data.initHexes(generator.getHex());
+            info("Map generated.");
+            state.rules = rules.copy();
+            logic.play();
+            netServer.openServer();
         });
 
         handler.register("countdown", "Get the hexed restart countdown.", args -> {
@@ -238,29 +253,6 @@ public class HexedGamemode {
         handler.register("end", "End the game.", args -> endGame());
 
         handler.register("r", "Restart the server.", args -> System.exit(2));
-    }
-
-    public void registerClientCommands(CommandHandler handler){
-        if(registered) return;
-        registered = true;
-
-        handler.<Player>register("hexstatus", "Get hex status at your position.", (args, player) -> {
-            Hex hex = data.data(player).location;
-            if(hex != null){
-                hex.updateController();
-                StringBuilder builder = new StringBuilder();
-                builder.append("| [lightgray]Hex #").append(hex.id).append("[]\n");
-                builder.append("| [lightgray]Owner:[] ").append(hex.controller != null && data.getPlayer(hex.controller) != null ? data.getPlayer(hex.controller).name : "<none>").append("\n");
-                for(TeamData data : state.teams.getActive()){
-                    if(hex.getProgressPercent(data.team) > 0){
-                        builder.append("|> [accent]").append(this.data.getPlayer(data.team).name).append("[lightgray]: ").append((int)hex.getProgressPercent(data.team)).append("% captured\n");
-                    }
-                }
-                player.sendMessage(builder.toString());
-            }else{
-                player.sendMessage("[scarlet]No hex found.");
-            }
-        });
     }
 
     void endGame(){
@@ -286,12 +278,13 @@ public class HexedGamemode {
             }
         }
 
-        Log.info("&ly--SERVER RESTARTING--");
+        /*Log.info("&ly--SERVER RESTARTING--");
         Groups.player.each(p->Call.connect(p.con, hubIp, hubPort));
         Time.runTask(60f * 10f, () -> {
             //netServer.kickAll(KickReason.serverRestarting);
             Time.runTask(5f, () -> System.exit(2));
-        });
+        });*/
+        generateMap();
     }
 
     public String getLeaderboard(){
@@ -350,11 +343,6 @@ public class HexedGamemode {
     }
 
     public void generateMap() {
-        if(!state.is(State.menu)){
-            Log.err("Stop the server first.");
-            return;
-        }
-
         data = new HexData();
 
         logic.reset();
@@ -365,6 +353,6 @@ public class HexedGamemode {
         info("Map generated.");
         state.rules = rules.copy();
         logic.play();
-        netServer.openServer();
+        //netServer.openServer();
     }
 }
