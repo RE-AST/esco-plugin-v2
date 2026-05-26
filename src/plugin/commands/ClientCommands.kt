@@ -150,6 +150,9 @@ fun register(handler: CustomHandler) {
         }
     })
     handler.registerCommand("shop", CommandRunner { _: Array<String>, p: Player ->
+        if(PVars.gamemode == Gamemode.hexed) {
+            return@CommandRunner
+        }
         globalScope.launch {
             getPlayerStats(p).ifPresent(
                 Consumer { s: PlayerStats -> Core.app.post { showShop(s, p) } })

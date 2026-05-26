@@ -24,6 +24,8 @@ import plugin.PPlugin;
 import static arc.util.Log.*;
 import static mindustry.Vars.*;
 import static plugin.PPlugin.mainClass;
+import static plugin.PVars.hubIp;
+import static plugin.PVars.hubPort;
 
 public class HexedGamemode {
     @Nullable
@@ -64,7 +66,9 @@ public class HexedGamemode {
         rules.pvp = true;
         rules.tags.put("hexed", "true");
         rules.canGameOver = false;
-        rules.polygonCoreProtection = true;
+        rules.polygonCoreProtection = false;
+        rules.enemyCoreBuildRadius = 31.5f;
+        rules.placeRangeCheck = true;
         rules.pvpAutoPause = false;
 
         //attempt to load the base schematic from mods/hexed/base.msch, defaulting to a built-in one upon failure.
@@ -298,8 +302,9 @@ public class HexedGamemode {
         }
 
         Log.info("&ly--SERVER RESTARTING--");
+        Groups.player.each(p->Call.connect(p.con, hubIp, hubPort));
         Time.runTask(60f * 10f, () -> {
-            netServer.kickAll(KickReason.serverRestarting);
+            //netServer.kickAll(KickReason.serverRestarting);
             Time.runTask(5f, () -> System.exit(2));
         });
     }
@@ -358,6 +363,4 @@ public class HexedGamemode {
     public boolean active(){
         return state.rules.tags.getBool("hexed") && !state.is(State.menu);
     }
-
-
 }

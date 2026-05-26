@@ -63,4 +63,7 @@ public class PVars {
         .build();
 
     //public static long startTime = Time.millis();
+
+    public static final String hubIp = "node2.larzed.icu";
+    public static final int hubPort = 6568;
 }
