@@ -280,7 +280,7 @@ public class HexedGamemode {
             }
         }
 
-        //Time.runTask(50*10f, ()->Groups.player.each(p->p.team(Team.derelict)));
+        Groups.player.each(p->p.team(Team.derelict));
 
         Time.runTask(60f * 10f, () -> {
             counter = 0;
@@ -335,7 +335,7 @@ public class HexedGamemode {
 
             Timer.schedule(()->{
                 Groups.player.each(p->{
-                    if(!active() /*|| player.team() == Team.derelict*/) return;
+                    if(p == null) return;
 
                     Seq<Hex> copy = data.hexes().copy();
                     copy.shuffle();
