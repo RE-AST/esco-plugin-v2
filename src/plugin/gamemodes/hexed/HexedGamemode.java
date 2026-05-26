@@ -57,7 +57,7 @@ public class HexedGamemode {
     private Interval interval = new Interval(5);
 
     public HexData data;
-    private boolean restarting = false, registered = false;
+    private boolean restarting = false;
 
     private Schematic baseSchematic;
     private double counter = 0f;
@@ -352,7 +352,9 @@ public class HexedGamemode {
                 }
             }*/
 
-            restarting = false;
+            Core.app.post(()->{
+                restarting = false;
+            });
             Log.info("Hexed map regenerated, new round started.");
         });
     }
