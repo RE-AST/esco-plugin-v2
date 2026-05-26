@@ -92,6 +92,7 @@ public class HexedGamemode {
 
                 for(Player player : Groups.player){
                     if(!restarting && player.team() != Team.derelict && player.team().cores().isEmpty()){
+                        Log.info("elim: player=@ restarting=@ active=@", player.name, restarting, active());
                         player.clearUnit();
                         killTiles(player.team());
                         Call.sendMessage("[yellow](!)[] [accent]" + player.name + "[lightgray] has been eliminated![yellow] (!)");
