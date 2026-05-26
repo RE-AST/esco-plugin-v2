@@ -332,7 +332,7 @@ public class HexedGamemode {
                     Call.infoMessage(player.con, "There are currently no empty hex spaces available.\nAssigning into spectator mode.");
                 }
             }*/
-
+            /*
             Timer.schedule(()->{
                 Groups.player.each(p->{
                     if(p == null) return;
@@ -355,7 +355,11 @@ public class HexedGamemode {
                 });
 
                 restarting = false;
-            }, 1f);
+            }, 1f);*/
+
+            Groups.player.each(p->{
+               Call.connect(p.con, "play.larzed.icu", 6569);
+            });
             Log.info("Hexed map regenerated, new round started.");
         });
     }
