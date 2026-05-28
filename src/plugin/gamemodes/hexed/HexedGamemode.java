@@ -283,6 +283,7 @@ public class HexedGamemode {
         // Groups.player.each(p->p.team(Team.derelict));
 
         Time.runTask(60f * 10f, () -> {
+            Groups.player.each(p->p.team(Team.derelict));
             counter = 0;
             lastMin = 0;
             data = new HexData();
