@@ -280,7 +280,7 @@ public class HexedGamemode {
             }
         }
 
-        Groups.player.each(p->p.team(Team.derelict));
+        // Groups.player.each(p->p.team(Team.derelict));
 
         Time.runTask(60f * 10f, () -> {
             counter = 0;
