@@ -2,6 +2,7 @@ package plugin.events
 
 import arc.Core.app
 import arc.Events
+import arc.func.Cons
 import arc.struct.ObjectMap
 import arc.util.Log
 import arc.util.Strings
@@ -12,13 +13,12 @@ import com.xpdustry.nohorny.common.Rating
 import kotlinx.coroutines.launch
 import mindustry.Vars
 import mindustry.content.Blocks
-import mindustry.game.EventType
-import mindustry.game.EventType.PlayerConnect
-import mindustry.game.EventType.PlayerJoin
+import mindustry.game.EventType.*
 import mindustry.game.Team
 import mindustry.gen.Call
 import mindustry.gen.Groups
 import mindustry.gen.Player
+import mindustry.net.Administration
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.buttons.Button
@@ -35,10 +35,12 @@ import plugin.database.models.PlayerData
 import plugin.database.models.PlayerStats
 import plugin.discord.*
 import plugin.gamemodes.hexed.HexData
+import plugin.history.History
 import plugin.menus.showWelcome
 import plugin.utils.*
 import plugin.utils.Loader.exit
 import java.awt.Color
+import java.util.*
 import java.util.function.Consumer
 
 fun loadEvents() {
@@ -138,26 +140,26 @@ fun loadEvents() {
         app.post {
             sendJoinMessage(player, pd.id)
 
-            Call.clientPacketReliable(player.con, "SendMeSubtitle", if (player == null) null else player.id.toString())
+            Call.clientPacketReliable(player.con, "SendMeSubtitle", player.id.toString())
             if (pd.prefs.showWelcomeMenu) showWelcome(player)
         }
 
 
         // simple bot check
-        Timer.schedule(Runnable {
-            if (player.con.isConnected() && player.con.lastReceivedClientSnapshot == -1) {
+        Timer.schedule({
+            if (player.con.isConnected && player.con.lastReceivedClientSnapshot == -1) {
                 putLog(pd.id, "system", "Player detected as bot")
                 player.kick("[scarlet]Try reconnect\nDiscord " + PVars.discordLink, 0)
             }
         }, 2f)
     }
 
-    Events.on(EventType.PlayerLeave::class.java) { e ->
+    Events.on(PlayerLeave::class.java) { e ->
         val player = e.player
         if (player != null /* how? */) PVars.SSUsers.remove(player.id)
 
         val pdOpt = getPlayerData(player!!)
-        if (pdOpt.isPresent()) {
+        if (pdOpt.isPresent) {
             val pd = pdOpt.get()
             Bundle.sendMessage("messages.leave", pd.id.toString(), player.coloredName())
             Log.info("[@] Player @ left [@]", pd.id, player.plainName(), player.uuid())
@@ -182,15 +184,15 @@ fun loadEvents() {
                 rtvVotes.remove(player);
                 Bundle.sendMessage("rtv.playerleft", rtvVotes.size+"/"+Math.max(1, (int) Math.round(Groups.player.size() * 0.8)));
             }*/
-        Timer.schedule(Runnable {
+        Timer.schedule({
             if (PVars.mapVote != null) PVars.mapVote.checkPass()
-            if (Groups.player.isEmpty() && PVars.needRestart) {
+            if (Groups.player.isEmpty && PVars.needRestart) {
                 exit()
             }
         }, 0.2f)
     }
 
-    onAsync(EventType.PlayerChatEvent::class.java) { e ->
+    onAsync(PlayerChatEvent::class.java) { e ->
         val player = e.player
         val message = e.message
 
@@ -205,7 +207,7 @@ fun loadEvents() {
         }
     }
 
-    Events.on(EventType.WorldLoadEvent::class.java) { _: EventType.WorldLoadEvent ->
+    Events.on(WorldLoadEvent::class.java) { _: WorldLoadEvent ->
         Timer.schedule({
             KVars.startTime = System.currentTimeMillis()
             eventsScope.launch {
@@ -218,7 +220,7 @@ fun loadEvents() {
         }, 1f)
     }
 
-    onAsync(EventType.GameOverEvent::class.java) { e: EventType.GameOverEvent ->
+    onAsync(GameOverEvent::class.java) { e: GameOverEvent ->
         if(PVars.gamemode == Gamemode.hexed) return@onAsync
         val stats = mapStats ?: return@onAsync
 
@@ -237,12 +239,16 @@ fun loadEvents() {
         var wins = stats.wins
         var loses = stats.loses
         var skips = stats.skips
-        if(e.winner == Team.derelict) {
-            skips += 1
-        } else if(e.winner == Vars.state.rules.defaultTeam) {
-            wins += 1
-        } else {
-            loses += 1
+        when (e.winner) {
+            Team.derelict -> {
+                skips += 1
+            }
+            Vars.state.rules.defaultTeam -> {
+                wins += 1
+            }
+            else -> {
+                loses += 1
+            }
         }
 
         updateMapStats(
@@ -300,6 +306,78 @@ fun loadEvents() {
             tile.setNet(Blocks.coreShard, e.player.team(), 1)
         }
     }
+
+    Events.on(BlockBuildEndEvent::class.java, Cons { e: BlockBuildEndEvent ->
+        if (e.tile == null || e.unit == null) return@Cons
+        val player = e.unit.player
+
+        if (player != null) getPlayerStats(player).ifPresent(Consumer { s: PlayerStats ->
+            if (e.breaking) {
+                s.adjBlocksBroken()
+                if (PEvents.antigriefCooldown.get() && s.blocksBroken >= 600 && s.blocksBuild < 5 && s.playtime < 600) {
+                    ban(player, player, "AutoBan: Possible Griefer", parseTime("1d"))
+                    player.kick("AutoBan: Possible Griefer", 0)
+                    player.con.close()
+                    PEvents.antigriefCooldown.reset()
+                }
+            } else s.adjBlocksBuild()
+        })
+
+        if (e.breaking) return@Cons
+
+        val unit = e.unit
+        val tile = e.tile
+        var name: String? = null
+        var pid: Optional<Int> = Optional.empty<Int>()
+        eventsScope.launch {
+            if (player != null) {
+                name = player.coloredName()
+                pid = getPlayerId(player)
+            }
+            History.write(tile, name, pid, Administration.ActionType.buildSelect, tile.block(), unit.type())
+        }
+    })
+
+    Events.on(BlockBuildBeginEvent::class.java, Cons { e: BlockBuildBeginEvent ->
+        if (e.tile == null || e.unit == null || !e.breaking) return@Cons
+        val player = e.unit.player
+        val unit = e.unit
+        val tile = e.tile
+        var name: String? = null
+        var pid: Optional<Int> = Optional.empty<Int>()
+        eventsScope.launch {
+            if (player != null) {
+                name = player.coloredName()
+                pid = getPlayerId(player)
+            }
+            History.write(tile, name, pid, Administration.ActionType.breakBlock, tile.block(), unit.type())
+        }
+    })
+
+    Events.on(BuildRotateEvent::class.java, Cons { e: BuildRotateEvent ->
+        if (e.build == null || e.unit == null || e.unit.player == null) return@Cons
+        val player = e.unit.player
+        val build = e.build
+        var name: String? = null
+        var pid: Optional<Int> = Optional.empty<Int>()
+        eventsScope.launch {
+            if (player != null) {
+                name = player.coloredName()
+                pid = getPlayerId(player)
+            }
+            History.write(build.tile, name, pid, Administration.ActionType.rotate, build.block, null)
+        }
+    })
+
+    Events.on(ConfigEvent::class.java, Cons { e: ConfigEvent ->
+        if (e.player == null || e.tile == null) return@Cons
+        val player = e.player
+        val build = e.tile
+        val name = player.coloredName()
+        eventsScope.launch {
+            History.write(build.tile, name, getPlayerId(player), Administration.ActionType.configure, build.block, null)
+        }
+    })
 }
 
 fun purgeData(p: Player) {

@@ -418,9 +418,13 @@ fun register(handler: CustomHandler) {
 
     handler.registerCommand("a", "<message...>", Permission.admin, CommandRunner { arg: Array<String>, p: Player ->
         val raw = "[#" + Pal.adminChat.toString() + "]<ADM> " + Vars.netServer.chatFormatter.format(p, arg[0])
-        Groups.player.each(
-            { pl: Player -> pl.admin || Permission.getPerms(pl).contains(Permission.admin) },
-            { a: Player -> a.sendMessage(raw, p, arg[0]) })
+        globalScope.launch {
+            Groups.player.each(
+                { pl: Player -> pl.admin || Permission.getPerms(pl).contains(Permission.admin) },
+                { a: Player -> Core.app.post {
+                    a.sendMessage(raw, p, raw)
+                } })
+        }
     })
 
     handler.registerCommand("vote", "<y/n/c>", CommandRunner { arg: Array<String>, player: Player ->
