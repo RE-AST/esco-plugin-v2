@@ -36,6 +36,7 @@ import plugin.database.models.PlayerStats
 import plugin.discord.*
 import plugin.gamemodes.hexed.HexData
 import plugin.history.History
+import plugin.history.HistoryType
 import plugin.menus.showWelcome
 import plugin.utils.*
 import plugin.utils.Loader.exit
@@ -334,7 +335,7 @@ fun loadEvents() {
                 name = player.coloredName()
                 pid = getPlayerId(player)
             }
-            History.write(tile, name, pid, Administration.ActionType.buildSelect, tile.block(), unit.type())
+            History.write(tile, name, pid, HistoryType.buildBlock, tile.block(), unit.type())
         }
     })
 
@@ -350,7 +351,7 @@ fun loadEvents() {
                 name = player.coloredName()
                 pid = getPlayerId(player)
             }
-            History.write(tile, name, pid, Administration.ActionType.breakBlock, tile.block(), unit.type())
+            History.write(tile, name, pid, HistoryType.breakBlock, tile.block(), unit.type())
         }
     })
 
@@ -365,7 +366,7 @@ fun loadEvents() {
                 name = player.coloredName()
                 pid = getPlayerId(player)
             }
-            History.write(build.tile, name, pid, Administration.ActionType.rotate, build.block, null)
+            History.write(build.tile, name, pid, HistoryType.rotate, build.block, null)
         }
     })
 
@@ -375,8 +376,14 @@ fun loadEvents() {
         val build = e.tile
         val name = player.coloredName()
         eventsScope.launch {
-            History.write(build.tile, name, getPlayerId(player), Administration.ActionType.configure, build.block, null)
+            History.write(build.tile, name, getPlayerId(player), HistoryType.configure, build.block, null)
         }
+    })
+
+    Events.on(BlockDestroyEvent::class.java, Cons { e: BlockDestroyEvent ->
+        if(e.tile == null || e.tile.block() == null) return@Cons
+
+        History.write(e.tile, null, Optional.empty<Int>(), HistoryType.destroyBlock, e.tile.block(), null)
     })
 }
 

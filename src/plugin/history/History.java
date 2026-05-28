@@ -33,7 +33,7 @@ public class History {
     public static void write(Tile tile,
                              String playerName,
                              Optional<Integer> playerId,
-                             Administration.ActionType type,
+                             HistoryType type,
                              Block block,
                              UnitType unit) {
 
