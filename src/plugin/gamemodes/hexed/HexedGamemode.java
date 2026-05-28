@@ -357,6 +357,9 @@ public class HexedGamemode {
 
                 restarting = false;
             }, 1f);*/
+
+            restarting = false;
+
             Log.info("Hexed map regenerated, new round started.");
         });
     }
