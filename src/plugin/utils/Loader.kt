@@ -49,7 +49,7 @@ object Loader {
         PVars.version = getResource("version")!!.readString()
 
         loadMenus()
-        if(Core.settings.getBool("autorestarted", false)) {
+        if(PVars.gamemode != Gamemode.hexed && Core.settings.getBool("autorestarted", false)) {
             if(state.isGame) {
                 Vars.net.closeServer()
                 ServerControl.instance.cancelPlayTask()
