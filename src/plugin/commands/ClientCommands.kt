@@ -98,9 +98,6 @@ fun register(handler: CustomHandler) {
         val menu = ScrollableTextMenu(p.coloredName())
         for(i in 0..15) {
             menu.add("[gold][[[white]$i[gold]][stat] - meow")
-            if(i % 5 == 0) {
-                menu.row()
-            }
         }
         menu.show(p)
     })
