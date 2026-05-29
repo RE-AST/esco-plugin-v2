@@ -37,6 +37,8 @@ ext {
 }
 
 dependencies{
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+
     // compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
     // compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
     def useLatest = false //set to "true" to always depend on the newest version of mindustry
