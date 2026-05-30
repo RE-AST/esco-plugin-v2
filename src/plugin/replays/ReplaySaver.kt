@@ -12,7 +12,7 @@ fun saveReplay(history: LongMap<HistoryStack>): String {
         val stack = ReplayStack()
         value.stack.forEach { r ->
             var unitId: Short? = null;
-            r.unit.let { u ->
+            r.unit?.let { u ->
                 unitId = u.id
             }
             stack.add(ReplayRecord(
