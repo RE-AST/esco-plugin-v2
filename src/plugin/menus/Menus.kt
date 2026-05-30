@@ -53,15 +53,15 @@ fun loadMenus() {
         UnitTypes.fortress, 1550
     )
     itemCosts.putAll(
-        coal, 100,
-        sand, 100,
-        scrap, 100,
-        copper, 150,
-        lead, 200,
-        pyratite, 200,
-        graphite, 250,
-        silicon, 250,
-        titanium, 250
+        coal, 1000,
+        sand, 1000,
+        scrap, 1000,
+        copper, 1500,
+        lead, 2000,
+        pyratite, 2000,
+        graphite, 2500,
+        silicon, 2500,
+        titanium, 2500,
     )
 }
 
@@ -98,7 +98,7 @@ fun showShop(stats: PlayerStats, p: Player) {
                     Bundle.sendMessage("menu.shop.nomoney", pl)
                     return@add
                 }
-                pl.team().core().items.add(type, 100)
+                pl.team().core().items.add(type, 1000)
                 stats.subBalance(cost)
                 Bundle.label("menu.shop.itembuy", 1f, pl.x, pl.y, pl.coloredName(), type.emoji(), cost)
             }

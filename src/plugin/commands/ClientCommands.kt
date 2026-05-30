@@ -28,7 +28,9 @@ import plugin.database.*
 import plugin.database.models.*
 import plugin.gamemodes.hexed.Hex
 import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode
+import plugin.history.History
 import plugin.menus.*
+import plugin.replays.saveReplay
 import plugin.utils.*
 import plugin.votes.VoteMap
 import plugin.votes.VoteWave
@@ -56,6 +58,12 @@ fun register(handler: CustomHandler) {
                 Vars.logic.runWave()
             }, 0.1f+(i/10f))
         }
+    })
+    handler.registerCommand("savereplay", "<name>", Permission.test, CommandRunner { arg: Array<String>, p: Player ->
+        val file = Vars.dataDirectory.child("replays").child("${arg[0]}.json")
+        file.mkdirs()
+        file.writeString(saveReplay(History.history))
+        p.sendMessage("Done!")
     })
     handler.registerCommand("name", "[name...]", CommandRunner { arg: Array<String>, p: Player ->
         if(arg.isEmpty()) {

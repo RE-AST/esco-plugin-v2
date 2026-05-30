@@ -39,7 +39,7 @@ public class History {
 
         if (tile == null) return;
 
-        HistoryRecord record = new HistoryRecord(playerName, playerId, type, block, unit);
+        HistoryRecord record = new HistoryRecord(playerName, playerId, type, block, unit, System.currentTimeMillis());
 
         tile.getLinkedTiles(t -> {
 
