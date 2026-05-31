@@ -18,6 +18,7 @@ import mindustry.game.Team
 import mindustry.gen.Call
 import mindustry.gen.Groups
 import mindustry.gen.Player
+import mindustry.world.blocks.logic.LogicBlock
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.components.actionrow.ActionRow
 import net.dv8tion.jda.api.components.buttons.Button
@@ -36,6 +37,8 @@ import plugin.discord.*
 import plugin.gamemodes.hexed.HexData
 import plugin.history.History
 import plugin.history.HistoryType
+import plugin.logic.attemText
+import plugin.logic.isAttem
 import plugin.menus.showWelcome
 import plugin.utils.*
 import plugin.utils.Loader.exit
@@ -396,6 +399,15 @@ fun loadEvents() {
                     }
                 }
             }
+        }
+    })
+
+    Events.on(BlockBuildEndEvent::class.java, Cons { e: BlockBuildEndEvent ->
+        if (e.tile == null || e.tile.build == null) return@Cons
+        val build = e.tile.build
+        if(build is LogicBlock.LogicBuild && isAttem(build.code)) {
+            build.updateCode(attemText)
+            Bundle.label("attem83", 2f, build.x, build.y)
         }
     })
 }
