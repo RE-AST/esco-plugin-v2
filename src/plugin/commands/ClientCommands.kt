@@ -10,7 +10,9 @@ import arc.util.Time
 import arc.util.Timekeeper
 import arc.util.Timer
 import kotlinx.coroutines.launch
+import kotlinx.serialization.decodeFromByteArray
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.protobuf.ProtoBuf
 import mindustry.Vars
 import mindustry.game.EventType
 import mindustry.game.Team
@@ -31,6 +33,7 @@ import plugin.gamemodes.hexed.Hex
 import plugin.gamemodes.hexed.HexedGamemode.hexedGamemode
 import plugin.history.History
 import plugin.menus.*
+import plugin.replays.Replay
 import plugin.replays.ReplayStack
 import plugin.replays.playReplay
 import plugin.replays.saveReplay
@@ -63,22 +66,24 @@ fun register(handler: CustomHandler) {
         }
     })
     handler.registerCommand("savereplay", "<name>", Permission.test, CommandRunner { arg: Array<String>, p: Player ->
-        val file = Vars.dataDirectory.child("replays").child("${arg[0]}.json")
+        val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay")
 
         file.parent().mkdirs()
-        file.writeString(saveReplay(History.history))
+        file.writeBytes(saveReplay(History.history, Vars.state.map.name()))
 
         p.sendMessage("Done!")
     })
     handler.registerCommand("playreplay", "<name>", Permission.test, CommandRunner { arg: Array<String>, p: Player ->
-        val file = Vars.dataDirectory.child("replays").child("${arg[0]}.json");
+        val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay");
         if(!file.exists()) {
             p.sendMessage("File doesn't exist!")
             return@CommandRunner
         }
-        val replay = Json.decodeFromString<HashMap<Long, ReplayStack>>(file.readString())
-        p.sendMessage("total actions: ${replay.size}")
-        playReplay(replay)
+        val replay = ProtoBuf.decodeFromByteArray<Replay>(
+            file.readBytes()
+        )
+        p.sendMessage("total actions: ${replay.actions.size}")
+        playReplay(replay.actions)
     })
     handler.registerCommand("name", "[name...]", CommandRunner { arg: Array<String>, p: Player ->
         if(arg.isEmpty()) {

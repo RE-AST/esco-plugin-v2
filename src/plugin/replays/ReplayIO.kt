@@ -1,18 +1,17 @@
 package plugin.replays
 
-import arc.math.geom.Point2
 import arc.struct.LongMap
 import arc.util.Timer
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToByteArray
+import kotlinx.serialization.protobuf.ProtoBuf
 import mindustry.Vars
 import mindustry.content.Blocks
 import mindustry.game.Team
 import mindustry.gen.Call
 import plugin.history.HistoryStack
 import plugin.history.HistoryType
-import java.util.TimerTask
 
-fun saveReplay(history: LongMap<HistoryStack>): String {
+fun saveReplay(history: LongMap<HistoryStack>, mapName: String): ByteArray {
     val map = HashMap<Long, ReplayStack>()
     history.forEach { entry ->
         val key = entry.key
@@ -38,7 +37,7 @@ fun saveReplay(history: LongMap<HistoryStack>): String {
         }
         map[key] = stack
     }
-    return Json.encodeToString(map)
+    return ProtoBuf.encodeToByteArray(Replay(mapName, map))
 }
 
 fun playReplay(replay: HashMap<Long, ReplayStack>) {
