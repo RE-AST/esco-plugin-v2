@@ -60,7 +60,7 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.11")
     implementation("com.zaxxer:HikariCP:7.0.2")
 
-    implementation("org.slf4j:slf4j-api:2.0.9")
+    implementation("org.slf4j:slf4j-api:2.0.18")
     implementation("org.slf4j:slf4j-simple:2.0.18")
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.21.4")
