@@ -12,5 +12,4 @@ data class ReplayRecord(
     val time: Long,
     val team: Int,
     val rotation: Int
-) {
-}
+)

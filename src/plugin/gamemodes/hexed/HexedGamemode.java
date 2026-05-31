@@ -60,7 +60,7 @@ public class HexedGamemode {
     private final static int timerBoard = 0, timerUpdate = 1, timerWinCheck = 2;
 
     private final Rules rules = new Rules();
-    private Interval interval = new Interval(5);
+    private final Interval interval = new Interval(5);
 
     public HexData data;
     private boolean restarting = false;
@@ -184,11 +184,11 @@ public class HexedGamemode {
             data.data(event.player).lastMessage.reset();
         });
 
-        Events.on(ProgressIncreaseEvent.class, event -> updateText(event.player));
+        Events.on(ProgressIncreaseEvent.class, event -> updateText(event.player()));
 
-        Events.on(HexCaptureEvent.class, event -> updateText(event.player));
+        Events.on(HexCaptureEvent.class, event -> updateText(event.player()));
 
-        Events.on(HexMoveEvent.class, event -> updateText(event.player));
+        Events.on(HexMoveEvent.class, event -> updateText(event.player()));
 
         TeamAssigner prev = netServer.assigner;
         netServer.assigner = (player, players) -> {

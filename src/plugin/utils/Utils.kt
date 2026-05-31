@@ -237,22 +237,22 @@ fun parseImage(image: BufferedImage): ByteArray {
 
 fun save(name: String): Boolean {
     if(!Vars.state.isGame){
-        Log.err("Not hosting. Failed to save.");
-        return false;
+        Log.err("Not hosting. Failed to save.")
+        return false
     }
 
-    val file = saveDirectory.child("$name.$saveExtension");
+    val file = saveDirectory.child("$name.$saveExtension")
 
     Core.app.post {
-        SaveIO.save(file);
-        Log.info("Saved to @.", file);
+        SaveIO.save(file)
+        Log.info("Saved to @.", file)
     }
-    return true;
+    return true
 }
 
 fun loadSave(name: String): Boolean {
-    if (Vars.state.isGame()) {
-        Log.err("Already hosting. Failed to load save.");
+    if (Vars.state.isGame) {
+        Log.err("Already hosting. Failed to load save.")
         return false
     }
 

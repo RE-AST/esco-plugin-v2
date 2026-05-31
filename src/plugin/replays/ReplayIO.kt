@@ -19,7 +19,7 @@ fun saveReplay(history: LongMap<HistoryStack>, mapName: String): ByteArray {
         val stack = ReplayStack()
         value.stack.forEach { r ->
             if(r.center()) {
-                var unitId: Short? = null;
+                var unitId: Short? = null
                 r.unit?.let { u ->
                     unitId = u.id
                 }

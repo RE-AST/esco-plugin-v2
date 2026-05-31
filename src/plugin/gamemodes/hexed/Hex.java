@@ -15,7 +15,7 @@ import java.util.Arrays;
 import static mindustry.Vars.*;
 
 public class Hex{
-    private float[] progress = new float[256];
+    private final float[] progress = new float[256];
 
     public final static int size = 516;
     public final static int diameter = 74;

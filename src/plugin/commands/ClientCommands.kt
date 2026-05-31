@@ -76,7 +76,7 @@ fun register(handler: CustomHandler) {
         p.sendMessage("Done!")
     })
     handler.registerCommand("playreplay", "<name>", Permission.test, CommandRunner { arg: Array<String>, p: Player ->
-        val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay");
+        val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay")
         if(!file.exists()) {
             p.sendMessage("File doesn't exist!")
             return@CommandRunner

@@ -13,15 +13,15 @@ import mindustry.gen.Player;
 
 public class HexData{
     /** All hexes on the map. No order. */
-    private Seq<Hex> hexes = new Seq<>();
+    private final Seq<Hex> hexes = new Seq<>();
     /** Maps world pos -> hex */
-    private IntMap<Hex> hexPos = new IntMap<>();
+    private final IntMap<Hex> hexPos = new IntMap<>();
     /** Maps team ID -> player */
-    private IntMap<Player> teamMap = new IntMap<>();
+    private final IntMap<Player> teamMap = new IntMap<>();
     /** Maps team ID -> list of controlled hexes */
-    private IntMap<Seq<Hex>> control = new IntMap<>();
+    private final IntMap<Seq<Hex>> control = new IntMap<>();
     /** Data of specific teams. */
-    private HexTeam[] teamData = new HexTeam[256];
+    private final HexTeam[] teamData = new HexTeam[256];
 
     public void updateStats(){
         teamMap.clear();
@@ -131,31 +131,12 @@ public class HexData{
         public Timekeeper lastMessage = Timekeeper.ofSeconds(HexedGamemode.messageTime);
     }
 
-    public static class HexCaptureEvent{
-        public final Player player;
-        public final Hex hex;
-
-        public HexCaptureEvent(Player player, Hex hex){
-            this.player = player;
-            this.hex = hex;
-        }
+    public record HexCaptureEvent(Player player, Hex hex) {
     }
 
-    public static class HexMoveEvent{
-        public final Player player;
-
-        public HexMoveEvent(Player player){
-            this.player = player;
-        }
+    public record HexMoveEvent(Player player) {
     }
 
-    public static class ProgressIncreaseEvent{
-        public final Player player;
-        public final float percent;
-
-        public ProgressIncreaseEvent(Player player, float percent){
-            this.player = player;
-            this.percent = percent;
-        }
+    public record ProgressIncreaseEvent(Player player, float percent) {
     }
 }

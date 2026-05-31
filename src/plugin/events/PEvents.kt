@@ -300,6 +300,7 @@ fun loadEvents() {
 
         message.queue()
     }
+
     Events.on(HexData.HexCaptureEvent::class.java) { e ->
         val hex = e.hex
         Vars.world.tile(hex.x, hex.y)?.let { tile ->

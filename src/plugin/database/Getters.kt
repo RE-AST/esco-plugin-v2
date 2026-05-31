@@ -72,7 +72,7 @@ fun getAdmin(player: Player): Optional<Admin> {
     if (adminsCache.containsKey(player)) return Optional.of(adminsCache.get(player))
     logExpectedCacheMiss(player, "adminsCache")
 
-    val a = Database.executeQueryAsync(
+    val a = executeQueryAsync(
         """
                         SELECT 
                                 COALESCE(ar.name, 'player') AS rank_name,
@@ -167,7 +167,7 @@ fun getTimestamp(seconds: Long): Timestamp? {
 }
 
 fun getBan(id: Int): Optional<Ban> {
-    return Database.executeQueryAsync(
+    return executeQueryAsync(
         "SELECT * FROM bans WHERE id = ?",
         { stmt: PreparedStatement -> stmt.setInt(1, id) },
         { rs: ResultSet -> getBan(rs) }
@@ -175,7 +175,7 @@ fun getBan(id: Int): Optional<Ban> {
 }
 
 fun getBan(player: Player): Optional<Ban> {
-    return Database.executeQueryAsync(
+    return executeQueryAsync(
         """
 SELECT b.*
 FROM bans b
@@ -200,7 +200,7 @@ LIMIT 1;
             stmt.setString(1, player.uuid())
             stmt.setString(2, player.ip())
             stmt.setString(3, player.usid())
-            stmt.setInt(4, PVars.serverId)
+            stmt.setInt(4, serverId)
         },
         { rs: ResultSet -> getBan(rs) }
     )
@@ -270,7 +270,7 @@ fun putLog(action: PlayerAction, pd: PlayerData) {
 // region PlayerData
 
 fun deepSearchNames(player: Player): MutableList<String> {
-    return Database.executeQueryList(
+    return executeQueryList(
         """
                 SELECT DISTINCT p.last_name
                 FROM players p
@@ -291,7 +291,7 @@ fun deepSearchNames(player: Player): MutableList<String> {
 }
 
 fun deepSearch(player: Player): MutableList<PlayerData> {
-    return Database.executeQueryList(
+    return executeQueryList(
         """
                 SELECT DISTINCT p.*
                 FROM players p
@@ -326,7 +326,7 @@ fun getOrCreatePlayerData(p: Player): Optional<PlayerData> {
         return Optional.of(playerDataCache.get(p))
     }
 
-    val pd = Database.executeQueryAsync(
+    val pd = executeQueryAsync(
         """
                         WITH update_players AS (
                             INSERT INTO players (uuid, last_name, last_ip, locale, color)
@@ -367,9 +367,9 @@ fun getOrCreatePlayerData(p: Player): Optional<PlayerData> {
             stmt.setString(4, p.locale)
             stmt.setString(5, p.color.toString())
             stmt.setString(6, p.usid())
-            stmt.setInt(7, PVars.serverId)
+            stmt.setInt(7, serverId)
             stmt.setString(8, getUDPAddress(p))
-            stmt.setInt(9, PVars.serverId)
+            stmt.setInt(9, serverId)
         },
         { rs: ResultSet -> getPlayerData(rs) }
     )
@@ -378,7 +378,7 @@ fun getOrCreatePlayerData(p: Player): Optional<PlayerData> {
 }
 
 fun getPlayerData(id: Int): Optional<PlayerData> {
-    return Database.executeQueryAsync(
+    return executeQueryAsync(
         "SELECT * FROM players WHERE id = ?",
         { stmt: PreparedStatement -> stmt.setInt(1, id) },
         { rs: ResultSet -> getPlayerData(rs) }
@@ -389,7 +389,7 @@ fun getPlayerData(player: Player): Optional<PlayerData> {
     if (playerDataCache.containsKey(player)) return Optional.of(playerDataCache.get(player))
     logExpectedCacheMiss(player, "playerDataCache")
 
-    return Database.executeQueryAsync(
+    return executeQueryAsync(
         "SELECT * FROM players WHERE uuid = ?",
         { stmt: PreparedStatement -> stmt.setString(1, player.uuid()) },
         { rs: ResultSet -> getPlayerData(rs) }
@@ -400,7 +400,7 @@ fun getPlayerData(player: Player): Optional<PlayerData> {
  * no cache
  * */
 fun getPlayerData(uuid: String): Optional<PlayerData> {
-    return Database.executeQueryAsync(
+    return executeQueryAsync(
         "SELECT * FROM players WHERE uuid = ?",
         { stmt: PreparedStatement -> stmt.setString(1, uuid) },
         { rs: ResultSet -> getPlayerData(rs) }
@@ -411,7 +411,7 @@ fun getPlayerId(player: Player): Optional<Int> {
     if (playerDataCache.containsKey(player)) return Optional.of<Int>(playerDataCache.get(player).id)
     logExpectedCacheMiss(player, "playerDataCache(id)")
 
-    return Database.executeQueryAsync(
+    return executeQueryAsync(
         "SELECT id FROM players WHERE uuid = ?",
         { stmt: PreparedStatement -> stmt.setString(1, player.uuid()) },
         { rs: ResultSet -> rs.getInt("id") }
@@ -421,7 +421,7 @@ fun getPlayerId(player: Player): Optional<Int> {
 * No caching!!!
 * */
 fun getPlayerId(uuid: String): Optional<Int> {
-    return Database.executeQueryAsync(
+    return executeQueryAsync(
         "SELECT id FROM players WHERE uuid = ?",
         { stmt: PreparedStatement -> stmt.setString(1, uuid) },
         { rs: ResultSet -> rs.getInt("id") }
@@ -460,7 +460,7 @@ fun getPlayerStats(player: Player): Optional<PlayerStats> {
     if (cached != null) return Optional.of(cached)
     logExpectedCacheMiss(player, "playerStatsCache")
 
-    val opt = Database.executeQueryAsync(
+    val opt = executeQueryAsync(
         "SELECT * from statistics WHERE player_id in (SELECT id FROM players WHERE uuid = ?)",
         { stmt: PreparedStatement -> stmt.setString(1, uuid) },
         { rs: ResultSet -> getPlayerStats(rs) }
@@ -472,7 +472,7 @@ fun getPlayerStats(player: Player): Optional<PlayerStats> {
 }
 
 fun getPlayerStats(pid: Int): Optional<PlayerStats> {
-    return Database.executeQueryAsync(
+    return executeQueryAsync(
         "SELECT * from statistics WHERE player_id = ?",
         { stmt: PreparedStatement -> stmt.setInt(1, pid) },
         { rs: ResultSet -> getPlayerStats(rs) }
@@ -508,7 +508,7 @@ fun getMute(pid: Int): Optional<Mute> {
     if(cached != null)
         return Optional.of(cached)
 
-    val mute = Database.executeQueryAsync(
+    val mute = executeQueryAsync(
         "SELECT * FROM mutes WHERE player_id = ? AND active = TRUE AND unmute_time > NOW()",
         { stmt: PreparedStatement -> stmt.setInt(1, pid) },
         { rs: ResultSet -> getMute(rs) }
@@ -694,7 +694,7 @@ fun getNextMap(excluded: String) : Optional<String> {
                 "ORDER BY rounds_total LIMIT 1",
         { stmt ->
             stmt.setString(1, excluded)
-            stmt.setInt(2, PVars.serverId)
+            stmt.setInt(2, serverId)
         },
         { rs ->
             rs.getString("name")
