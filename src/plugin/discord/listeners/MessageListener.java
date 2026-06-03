@@ -46,7 +46,7 @@ public class MessageListener extends ListenerAdapter {
             Call.sendMessage(mindustryMessage);
         }
         if (discordCommands != null) {
-            CommandResponse response = discordCommands.handleMessage(content, new Context(message, channel, author));
+            CommandResponse response = discordCommands.handleMessage(content, new Context(message, channel, author, false));
             if (response.type == ResponseType.fewArguments) {
                 reply(message, MessageFormat.format("Too few arguments!\nUsage **{0}{1}** {2}", gamemode.botPrefix, response.command.text, response.command.paramText));
             } else if (response.type == ResponseType.manyArguments) {
@@ -54,7 +54,7 @@ public class MessageListener extends ListenerAdapter {
             }
         }
         if(globalCommands != null && content.startsWith("gc!")) {
-            Context ctx = new Context(message, channel, author);
+            Context ctx = new Context(message, channel, author, true);
             if(!ctx.hasPerm(Permission.editServer)) return;
             globalCommands.handleMessage(content, ctx);
         }
