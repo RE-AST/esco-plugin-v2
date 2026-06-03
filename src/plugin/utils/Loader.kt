@@ -50,6 +50,8 @@ object Loader {
         PVars.version = getResource("version")!!.readString()
 
         loadMenus()
+
+        /*
         if(PVars.gamemode != Gamemode.hexed && Core.settings.getBool("autorestarted", false)) {
             if(state.isGame) {
                 Vars.net.closeServer()
@@ -61,7 +63,7 @@ object Loader {
             loadSave("autorestart")
 
             Core.settings.put("autorestarted", false)
-        }
+        }*/
 
 	    Log.debug("Loader: OK!")
     }
