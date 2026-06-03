@@ -4,6 +4,7 @@ import arc.Core;
 import arc.Events;
 import arc.files.Fi;
 import arc.math.Mathf;
+import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.*;
 import mindustry.content.Blocks;
@@ -69,6 +70,7 @@ public class HexedGamemode {
     private double counter = 0f;
     private int lastMin;
 
+    private final ObjectMap<String, LeavedPlayer> leavedPlayerTimers = new ObjectMap<>();
     public void init(){
         rules.pvp = true;
         rules.tags.put("hexed", "true");
@@ -159,13 +161,34 @@ public class HexedGamemode {
         });
 
         Events.on(PlayerLeave.class, event -> {
-            if(active() && event.player.team() != Team.derelict){
-                killTiles(event.player.team());
+            Team team = event.player.team();
+            if(active() && team != Team.derelict){
+                String uuid = event.player.uuid();
+                LeavedPlayer old = leavedPlayerTimers.remove(uuid);
+                if(old != null) old.removeTask.cancel();
+                leavedPlayerTimers.put(uuid, new LeavedPlayer(
+                        team,
+                        Timer.schedule(()->{
+                            leavedPlayerTimers.remove(uuid);
+                            killTiles(team);
+                        }, 5 * 60)
+                ));
             }
         });
 
         Events.on(PlayerConnectionConfirmed.class, event -> {
-            if(!active() || event.player.team() == Team.derelict) return;
+            if(!active()) return;
+
+            LeavedPlayer leaved = leavedPlayerTimers.remove(event.player.uuid());
+
+            if(leaved != null){
+                leaved.removeTask.cancel();
+                event.player.team(leaved.team);
+                data.data(event.player).lastMessage.reset();
+                return;
+            }
+
+            if(event.player.team() == Team.derelict) return;
 
             Seq<Hex> copy = data.hexes().copy();
             copy.shuffle();
@@ -267,6 +290,9 @@ public class HexedGamemode {
         if(restarting) return;
 
         restarting = true;
+        leavedPlayerTimers.each((uuid, leaved) -> leaved.removeTask.cancel());
+        leavedPlayerTimers.clear();
+
         Seq<Player> players = data.getLeaderboard();
         StringBuilder builder = new StringBuilder();
         for(int i = 0; i < players.size && i < 3; i++){
@@ -423,5 +449,15 @@ public class HexedGamemode {
 
     public boolean active(){
         return state.rules.tags.getBool("hexed") && !state.is(State.menu);
+    }
+
+
+    private static class LeavedPlayer{
+        public Team team;
+        public Timer.Task removeTask;
+        public LeavedPlayer(Team team, Timer.Task task){
+            this.team = team;
+            this.removeTask = task;
+        }
     }
 }
