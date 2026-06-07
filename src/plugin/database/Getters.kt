@@ -343,7 +343,7 @@ fun getOrCreatePlayerData(p: Player): Optional<PlayerData> {
                             INSERT INTO usid_list (player_id, usid, server)
                             SELECT id, ?, ?
                             FROM update_players
-                            ON CONFLICT (usid, server) DO NOTHING
+                            ON CONFLICT (player_id, server) DO NOTHING
                         ),
                         insert_connection AS (
                             INSERT INTO connections(player_name, address, address_udp, server_id, player_id)
