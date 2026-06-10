@@ -55,7 +55,7 @@ fun loadEvents() {
             val pdataOpt = getOrCreatePlayerData(player)
             if (pdataOpt.isEmpty) {
                 app.post {
-                    player.kick("[scarlet]Failed to create player!", 0)
+                    player.kick("[scarlet]Failed to create player! The server database may not be available", 0)
                 }
                 return@launch
             }
@@ -63,12 +63,12 @@ fun loadEvents() {
             pd.usid.ifPresent(Consumer { u: String ->
                 if (u != player.usid()) {
                     putLog(pd.id, "system", "Possible account thief")
-                    app.post {
+                    /*app.post {
                         player.kick(
                             "Failed to get player data.\nUsid in database is different from current!\nPlease contact us.\nDiscord: " + PVars.discordLink,
                             0
                         )
-                    }
+                    }*/
                     sendLog("Possible account thief! Usid: ${player.usid()} Database: $u ID: ${pd.id}")
                 }
             })

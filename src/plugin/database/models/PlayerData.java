@@ -15,6 +15,7 @@ public class PlayerData {
     public String uuid, lastName;
     public Long discordId;
     public PlayerPrefs prefs;
+    private String usid;
 
     /*public transient String originalName = "frog"; // set when player join
 
@@ -68,7 +69,10 @@ public class PlayerData {
     }
 
     public Optional<String> getUsid() {
-        return executeQueryAsync(
+        if(usid != null) {
+            return Optional.of(usid);
+        }
+        Optional<String> usidOpt =  executeQueryAsync(
                 """
                         SELECT usid FROM usid_list
                         WHERE player_id = ? AND server = ?
@@ -79,5 +83,8 @@ public class PlayerData {
                 },
                 rs -> rs.getString("usid")
         );
+        if(usidOpt.isPresent())
+            usid = usidOpt.get();
+        return usidOpt;
     }
 }
