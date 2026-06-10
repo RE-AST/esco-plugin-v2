@@ -473,7 +473,7 @@ fun register(handler: CustomHandler) {
             Groups.player.each(
                 { pl: Player -> pl.admin || Permission.getPerms(pl).contains(Permission.admin) },
                 { a: Player -> Core.app.post {
-                    a.sendMessage(raw, p, raw)
+                    a.sendMessage(raw, p, arg[0])
                 } })
         }
     })
