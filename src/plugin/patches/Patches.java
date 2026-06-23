@@ -31,44 +31,33 @@ public class Patches {
     public static Fi currentLogFile;
 
     public static void load() {
-        if (gamemode.optimized) {
-            patchUnits();
-            Timer.schedule(() -> {
-                despawnUnits();
-            }, 30 * 60, 30 * 60);
+        if (gamemode == Gamemode.sandbox) {
+            Vars.content.units().each(u -> {
+                if (!u.hidden)
+                    u.controller = (un) -> new DumbAI();
+            });
+
+            Timer.schedule(Patches::despawnUnits, 30 * 60, 30 * 60);
+
             Timer.schedule(() -> {
                 Call.sendMessage("[stat]Time to change map! Save your buildings.");
                 Timer.schedule(() -> {
                     Events.fire(new GameOverEvent(Team.derelict));
                 }, 10);
             }, 60 * 60 * 6, 60 * 60 * 6);
+
+            Vars.content.each(content -> {
+                if(content instanceof CoreBlock block) {
+                    block.health = 999999999;
+                }
+            });
         }
-        if(gamemode == Gamemode.sandbox)
-            patchCoreHealth();
         loadLogger();
-        replaceNetServer();
-    }
 
-    public static void patchCoreHealth() {
-        Vars.content.each(content -> {
-            if(content instanceof CoreBlock block) {
-                block.health = 999999999;
-            }
-        });
-    }
-
-    private static void replaceNetServer() {
         Core.app.removeListener(Vars.netServer);
         Vars.netServer.dispose();
         Vars.netServer = new NetServerPatched();
         Core.app.addListener(Vars.netServer);
-    }
-
-    private static void patchUnits() {
-        Vars.content.units().each(u -> {
-            if (!u.hidden)
-                u.controller = (un) -> new DumbAI();
-        });
     }
 
     public static void despawnUnits() {

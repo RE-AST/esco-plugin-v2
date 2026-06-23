@@ -182,28 +182,6 @@ fun decompress(data: ByteArray?): String {
     return "" // Somehow this failed to read the code
 }
 
-
-/*public static int countWords(String word, String text) {
-        return (text.length() - text.replace(word, "").length()) / word.length();
-    }*/
-fun countWords(w: String, t: String): Int {
-    return countOccurrences(w, t)
-}
-
-fun countOccurrences(word: String, text: String): Int {
-    if (word.isEmpty()) return 0
-
-    var count = 0
-    var index = 0
-
-    while ((text.indexOf(word, index).also { index = it }) != -1) {
-        count++
-        index += word.length
-    }
-
-    return count
-}
-
 fun getUDPAddress(player: Player): String {
     return Reflect.get<Connection>(player.con, "connection").remoteAddressUDP.address.toString().substring(1)
 }
