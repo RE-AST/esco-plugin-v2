@@ -11,7 +11,7 @@ import java.util.Optional;
 import static arc.util.Log.err;
 import static plugin.PVars.*;
 import static plugin.PVars.gamemode;
-import static plugin.database.Database.executeQueryAsync;
+import static plugin.database.Database.executeQuery;
 import static plugin.database.Database.executeUpdate;
 
 public class PlayerData {
@@ -87,7 +87,7 @@ public class PlayerData {
         if(usid != null) {
             return Optional.of(usid);
         }
-        Optional<String> usidOpt =  executeQueryAsync(
+        Optional<String> usidOpt =  executeQuery(
                 """
                         SELECT usid FROM usid_list
                         WHERE player_id = ? AND server = ?

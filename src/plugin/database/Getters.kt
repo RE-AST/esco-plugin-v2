@@ -73,7 +73,7 @@ fun getAdmin(player: Player): Optional<Admin> {
     if (adminsCache.containsKey(player)) return Optional.of(adminsCache.get(player))
     logExpectedCacheMiss(player, "adminsCache")
 
-    val a = executeQueryAsync(
+    val a = executeQuery(
         """
                         SELECT 
                                 COALESCE(ar.name, 'player') AS rank_name,
@@ -168,7 +168,7 @@ fun getTimestamp(seconds: Long): Timestamp? {
 }
 
 fun getBan(id: Int): Optional<Ban> {
-    return executeQueryAsync(
+    return executeQuery(
         "SELECT * FROM bans WHERE id = ?",
         { stmt: PreparedStatement -> stmt.setInt(1, id) },
         { rs: ResultSet -> getBan(rs) }
@@ -176,7 +176,7 @@ fun getBan(id: Int): Optional<Ban> {
 }
 
 fun getBan(player: Player): Optional<Ban> {
-    return executeQueryAsync(
+    return executeQuery(
         """
 SELECT b.*
 FROM bans b
@@ -327,7 +327,7 @@ fun getOrCreatePlayerData(p: Player): Optional<PlayerData> {
         return Optional.of(playerDataCache.get(p))
     }
 
-    val pd = executeQueryAsync(
+    val pd = executeQuery(
         """
                         WITH update_players AS (
                             INSERT INTO players (uuid, last_name, last_ip, locale, color)
@@ -379,7 +379,7 @@ fun getOrCreatePlayerData(p: Player): Optional<PlayerData> {
 }
 
 fun getPlayerData(id: Int): Optional<PlayerData> {
-    return executeQueryAsync(
+    return executeQuery(
         "SELECT * FROM players WHERE id = ?",
         { stmt: PreparedStatement -> stmt.setInt(1, id) },
         { rs: ResultSet -> getPlayerData(rs) }
@@ -390,7 +390,7 @@ fun getPlayerData(player: Player): Optional<PlayerData> {
     if (playerDataCache.containsKey(player)) return Optional.of(playerDataCache.get(player))
     logExpectedCacheMiss(player, "playerDataCache")
 
-    return executeQueryAsync(
+    return executeQuery(
         "SELECT * FROM players WHERE uuid = ?",
         { stmt: PreparedStatement -> stmt.setString(1, player.uuid()) },
         { rs: ResultSet -> getPlayerData(rs) }
@@ -401,7 +401,7 @@ fun getPlayerData(player: Player): Optional<PlayerData> {
  * no cache
  * */
 fun getPlayerData(uuid: String): Optional<PlayerData> {
-    return executeQueryAsync(
+    return executeQuery(
         "SELECT * FROM players WHERE uuid = ?",
         { stmt: PreparedStatement -> stmt.setString(1, uuid) },
         { rs: ResultSet -> getPlayerData(rs) }
@@ -412,7 +412,7 @@ fun getPlayerId(player: Player): Optional<Int> {
     if (playerDataCache.containsKey(player)) return Optional.of<Int>(playerDataCache.get(player).id)
     logExpectedCacheMiss(player, "playerDataCache(id)")
 
-    return executeQueryAsync(
+    return executeQuery(
         "SELECT id FROM players WHERE uuid = ?",
         { stmt: PreparedStatement -> stmt.setString(1, player.uuid()) },
         { rs: ResultSet -> rs.getInt("id") }
@@ -422,7 +422,7 @@ fun getPlayerId(player: Player): Optional<Int> {
 * No caching!!!
 * */
 fun getPlayerId(uuid: String): Optional<Int> {
-    return executeQueryAsync(
+    return executeQuery(
         "SELECT id FROM players WHERE uuid = ?",
         { stmt: PreparedStatement -> stmt.setString(1, uuid) },
         { rs: ResultSet -> rs.getInt("id") }
@@ -526,7 +526,7 @@ fun getMute(pid: Int): Optional<Mute> {
     if(cached != null)
         return Optional.of(cached)
 
-    val mute = executeQueryAsync(
+    val mute = executeQuery(
         "SELECT * FROM mutes WHERE player_id = ? AND active = TRUE AND unmute_time > NOW()",
         { stmt: PreparedStatement -> stmt.setInt(1, pid) },
         { rs: ResultSet -> getMute(rs) }
@@ -594,7 +594,7 @@ fun getMapStats(rs: ResultSet): MapStats {
 }
 
 fun getMapStats(id: Int): Optional<MapStats> {
-    return executeQueryAsync(
+    return executeQuery(
         """
         SELECT
             id,
@@ -618,7 +618,7 @@ fun getMapStats(id: Int): Optional<MapStats> {
 }
 
 fun createOrGetMapStats(name: String): Optional<MapStats> {
-    return executeQueryAsync(
+    return executeQuery(
         """
         WITH inserted AS (
             INSERT INTO maps (name, server)
@@ -706,7 +706,7 @@ fun updateMapStats(
 }
 
 fun getNextMap(excluded: String) : Optional<String> {
-    return executeQueryAsync(
+    return executeQuery(
         "SELECT name, loses + wins + skips AS rounds_total FROM maps " +
                 "WHERE name != ? AND server == ? " +
                 "ORDER BY rounds_total LIMIT 1",

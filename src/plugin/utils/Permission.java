@@ -43,7 +43,7 @@ public enum Permission {
         if (cache.containsKey(p))
             return cache.get(p);
 
-        Optional<Seq<Permission>> r = Database.executeQueryAsync(
+        Optional<Seq<Permission>> r = Database.executeQuery(
                 "SELECT ar.permissions\n" +
                         "        FROM players p\n" +
                         "        LEFT JOIN admins a ON a.player_id = p.id\n" +
@@ -62,7 +62,7 @@ public enum Permission {
     }
 
     public static Seq<Permission> getPermsByDiscordId(Long discordId) {
-        Optional<Seq<Permission>> r = Database.executeQueryAsync(
+        Optional<Seq<Permission>> r = Database.executeQuery(
                 "SELECT ar.permissions\n" +
                         "        FROM players p\n" +
                         "        LEFT JOIN admins a ON a.player_id = p.id\n" +

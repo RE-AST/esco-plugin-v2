@@ -16,7 +16,7 @@ fun apply(p: Player, isp: String?, pd: PlayerData) {
 }
 
 fun isGraylisted(isp: String?): Boolean {
-    return Database.executeQueryAsync(
+    return Database.executeQuery(
         """
                         SELECT EXISTS(
                             SELECT 1 FROM graylist WHERE isp ILIKE ?

@@ -115,7 +115,7 @@ object Loader {
     fun loadServerId() {
         val serverOpt = Server.getOrCreateServer()
         if (serverOpt.isPresent) PVars.serverId = serverOpt.get().id
-        else Log.err("WTF, cannot create/get server record. Server is unstable")
+        else Log.err("Сannot create/get server record. Server is unstable")
     }
 
     fun loadLogging() {

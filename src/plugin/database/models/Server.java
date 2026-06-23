@@ -18,7 +18,20 @@ public class Server {
     }
 
     public static Optional<Server> getOrCreateServer() {
-        return Database.executeQueryAsync(
+        Optional<Server> server = Database.executeQuery(
+                """
+                        SELECT * FROM servers
+                        WHERE name = ?
+                        """,
+                stmt -> {
+                    stmt.setString(1, gamemode.simpleName);
+                },
+                Server::getServer
+        );
+        if(server.isPresent()) {
+            return server;
+        }
+        return Database.executeQuery(
                 """
                         INSERT INTO servers (name)
                         VALUES (?)

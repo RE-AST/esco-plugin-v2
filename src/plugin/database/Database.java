@@ -38,7 +38,7 @@ public class Database {
         }
     }
 
-    public static <T> Optional<T> executeQueryAsync(String sql, StatementSetter<PreparedStatement> statementSetter, Serealizer<ResultSet, T> serealizer) {
+    public static <T> Optional<T> executeQuery(String sql, StatementSetter<PreparedStatement> statementSetter, Serealizer<ResultSet, T> serealizer) {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
