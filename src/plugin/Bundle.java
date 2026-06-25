@@ -35,7 +35,10 @@ public class Bundle {
     private static void loadLocale(String locale) {
         Http.get(bundleApi + locale)
                 .header("Authorization", "Basic " + apiAuth)
-                .error(err -> Log.err("Failed to load bundle locale '@'", locale, err))
+                .error(err -> {
+                    Log.err("Failed to load bundle locale '@'", locale);
+                    Log.err(err);
+                })
                 .submit(resp -> {
                     String content = resp.getResultAsString();
 
