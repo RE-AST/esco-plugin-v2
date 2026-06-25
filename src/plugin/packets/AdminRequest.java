@@ -38,7 +38,7 @@ public class AdminRequest {
                     return;
                 }
                 Vars.logic.skipWave();
-                Log.info("@ skipped wave!", player);
+                Log.info("@ skipped wave!", player.plainName());
             }
             case ban -> {
                 // ban(other, player, "Touch grass", parseTime("10"));

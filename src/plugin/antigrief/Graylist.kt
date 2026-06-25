@@ -58,6 +58,7 @@ fun reloadGraylist() {
             .submit { response ->
                 isps.clear()
                 isps.addAll(response.resultAsString.split('\n'))
+                Log.info("Loaded ${isps.size} ISPs")
             }
         Http.get(ipsUrl)
             .error { e ->
@@ -66,6 +67,7 @@ fun reloadGraylist() {
             .submit { response ->
                 ips.clear()
                 ips.addAll(response.resultAsString.split('\n'))
+                Log.info("Loaded ${ips.size} IPs")
             }
         Http.get(ipsBlockUrl)
             .error { e ->
@@ -74,8 +76,8 @@ fun reloadGraylist() {
             .submit { response ->
                 ipsBlock.clear()
                 ipsBlock.addAll(response.resultAsString.split('\n'))
+                Log.info("Loaded ${ipsBlock.size} blocked IPs")
             }
-        Log.info("Loaded ${ips.size} IPs, ${ipsBlock.size} blocked ips, ${isps.size} isps for graylist!")
     } catch (e: Exception) {
         Log.err("Failed to load graylist", e)
     }
