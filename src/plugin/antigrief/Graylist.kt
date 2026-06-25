@@ -21,6 +21,8 @@ const val ispsUrl = "$baseUrl/isps.txt"
 const val ipsUrl = "$baseUrl/ips.txt"
 const val ipsBlockUrl = "$baseUrl/ips-filter.txt"
 
+const val timeout = 30
+
 val isps = Seq<String>()
 val ips = Seq<String>()
 val ipsBlock = Seq<String>()
@@ -53,7 +55,6 @@ fun reloadGraylist() {
             .error { e ->
                 Log.err("Failed to load ISPs list", e)
             }
-            .timeout(5)
             .submit { response ->
                 isps.clear()
                 isps.addAll(response.resultAsString.split('\n'))
@@ -62,7 +63,6 @@ fun reloadGraylist() {
             .error { e ->
                 Log.err("Failed to load IPs list", e)
             }
-            .timeout(5)
             .submit { response ->
                 ips.clear()
                 ips.addAll(response.resultAsString.split('\n'))
@@ -71,7 +71,6 @@ fun reloadGraylist() {
             .error { e ->
                 Log.err("Failed to load IPs list", e)
             }
-            .timeout(5)
             .submit { response ->
                 ipsBlock.clear()
                 ipsBlock.addAll(response.resultAsString.split('\n'))
