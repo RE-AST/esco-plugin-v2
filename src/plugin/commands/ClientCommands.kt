@@ -59,19 +59,19 @@ var voteCooldown = 60 * 5
 
 fun register(handler: CustomHandler) {
     handler.registerCommand("runwave", "<count>", Permission.admin, CommandRunner { arg: Array<String>, p: Player ->
-        if(!Strings.canParseInt(arg[0])) {
+        if (!Strings.canParseInt(arg[0])) {
             Bundle.sendMessage("args.mustbeint", p, "<count>")
             return@CommandRunner
         }
         val count = Strings.parseInt(arg[0])
-        if(count > 10) {
+        if (count > 10) {
             Bundle.sendMessage("args.lessthan", p, "<count>")
             return@CommandRunner
         }
         for (i in 1..count) {
             Timer.schedule({
                 Vars.logic.runWave()
-            }, 0.1f+(i/10f))
+            }, 0.1f + (i / 10f))
         }
     })
     handler.registerCommand("savereplay", "<name>", Permission.test, CommandRunner { arg: Array<String>, p: Player ->
@@ -84,7 +84,7 @@ fun register(handler: CustomHandler) {
     })
     handler.registerCommand("playreplay", "<name>", Permission.test, CommandRunner { arg: Array<String>, p: Player ->
         val file = Vars.dataDirectory.child("replays").child("${arg[0]}.replay")
-        if(!file.exists()) {
+        if (!file.exists()) {
             p.sendMessage("File doesn't exist!")
             return@CommandRunner
         }
@@ -95,7 +95,7 @@ fun register(handler: CustomHandler) {
         playReplay(replay.actions)
     })
     handler.registerCommand("name", "[name...]", CommandRunner { arg: Array<String>, p: Player ->
-        if(arg.isEmpty()) {
+        if (arg.isEmpty()) {
             getPlayerData(p).ifPresent { pd: PlayerData ->
                 pd.prefs.setCustomName("")
                 pd.updatePrefs()
@@ -104,7 +104,7 @@ fun register(handler: CustomHandler) {
             return@CommandRunner
         }
         val name = arg[0].trim()
-        if(name.length > 100 || Strings.stripColors(name).length > 40) {
+        if (name.length > 100 || Strings.stripColors(name).length > 40) {
             p.sendMessage("[scarlet]Too long!")
             return@CommandRunner
         }
@@ -123,7 +123,7 @@ fun register(handler: CustomHandler) {
 
     handler.registerCommand("testmenus", "", Permission.test, CommandRunner { _: Array<String>, p: Player ->
         val menu = ScrollableMenu(p.coloredName(), "Hi!")
-        for(i in 0..15) {
+        for (i in 0..15) {
             menu.add("Button $i") { pl2: Player ->
                 pl2.sendMessage("You choose $i")
             }
@@ -133,7 +133,7 @@ fun register(handler: CustomHandler) {
 
     handler.registerCommand("testtextmenus", "", Permission.test, CommandRunner { _: Array<String>, p: Player ->
         val menu = ScrollableTextMenu(p.coloredName())
-        for(i in 0..15) {
+        for (i in 0..15) {
             menu.add("[gold][[[white]$i[gold]][stat] - meow")
         }
         menu.show(p)
@@ -201,7 +201,7 @@ fun register(handler: CustomHandler) {
         }
     })
     handler.registerCommand("shop", CommandRunner { _: Array<String>, p: Player ->
-        if(PVars.gamemode == Gamemode.hexed || PVars.gamemode == Gamemode.crawlerArena) {
+        if (PVars.gamemode == Gamemode.hexed || PVars.gamemode == Gamemode.crawlerArena) {
             return@CommandRunner
         }
         globalScope.launch {
@@ -295,7 +295,7 @@ fun register(handler: CustomHandler) {
     })
 
     handler.registerCommand("vnw", "[y/n]", CommandRunner { a: Array<String>, p: Player ->
-        if(PVars.gamemode == Gamemode.hexed) {
+        if (PVars.gamemode == Gamemode.hexed) {
             Bundle.sendMessage("rtv.error.hexed", p)
             return@CommandRunner
         }
@@ -319,7 +319,7 @@ fun register(handler: CustomHandler) {
     })
 
     handler.registerCommand("rtv", "[y/n]", CommandRunner { a: Array<String>, p: Player ->
-        if(PVars.gamemode == Gamemode.hexed) {
+        if (PVars.gamemode == Gamemode.hexed) {
             Bundle.sendMessage("rtv.error.hexed", p)
             return@CommandRunner
         }
@@ -335,7 +335,7 @@ fun register(handler: CustomHandler) {
                 }
             }
             val maps = Vars.maps.customMaps()
-            for(map in maps) {
+            for (map in maps) {
                 menu.add("${map.name()}\n[lightgray]${map.height}x${map.width}") { pl: Player ->
                     if (PVars.mapVote == null) {
                         PVars.mapVote = VoteMap(pl, map)
@@ -344,7 +344,7 @@ fun register(handler: CustomHandler) {
                     }
                 }
             }
-	    menu.show(p)
+            menu.show(p)
             return@CommandRunner
         }
 
@@ -459,7 +459,7 @@ fun register(handler: CustomHandler) {
                 player.team(Team.get(id));
             });*/
     handler.registerCommand("artv", "", Permission.artv, CommandRunner { _: Array<String>, p: Player ->
-        if(PVars.gamemode == Gamemode.hexed) {
+        if (PVars.gamemode == Gamemode.hexed) {
             Bundle.sendMessage("rtv.error.hexed", p)
             return@CommandRunner
         }
@@ -471,9 +471,11 @@ fun register(handler: CustomHandler) {
         globalScope.launch {
             Groups.player.each(
                 { pl: Player -> pl.admin || Permission.getPerms(pl).contains(Permission.admin) },
-                { a: Player -> Core.app.post {
-                    a.sendMessage(raw, p, arg[0])
-                } })
+                { a: Player ->
+                    Core.app.post {
+                        a.sendMessage(raw, p, arg[0])
+                    }
+                })
         }
     })
 
@@ -627,7 +629,7 @@ fun register(handler: CustomHandler) {
                 }
             }
         })
-    when(PVars.gamemode) {
+    when (PVars.gamemode) {
         Gamemode.hexed -> registerHexedCommands(handler)
         Gamemode.crawlerArena -> registerCrawlerArenaCommands(handler)
 
@@ -677,7 +679,11 @@ private fun registerHexedCommands(handler: CustomHandler) {
                 val builder = java.lang.StringBuilder()
                 builder.append("| [lightgray]Hex #").append(hex.id).append("[]\n")
                 builder.append("| [lightgray]Owner:[] ")
-                    .append(if (hex.controller != null && hexedGamemode.data.getPlayer(hex.controller) != null) hexedGamemode.data.getPlayer(hex.controller).name else "<none>")
+                    .append(
+                        if (hex.controller != null && hexedGamemode.data.getPlayer(hex.controller) != null) hexedGamemode.data.getPlayer(
+                            hex.controller
+                        ).name else "<none>"
+                    )
                     .append("\n")
                 for (data in Vars.state.teams.getActive()) {
                     if (hex.getProgressPercent(data.team) > 0) {
@@ -692,25 +698,29 @@ private fun registerHexedCommands(handler: CustomHandler) {
             }
         })
 
-    if(false)
-    handler.registerCommand("join", "<player...>", Permission.test, CommandRunner { arg: Array<String>, player: Player ->
-        val sname = Strings.stripColors(arg[0])
-        val player2 = Groups.player.find({ p ->
-            return@find p.plainName().contains(sname, ignoreCase = true)
-        })
-        if(player2 == null) {
-            player.sendBundle("votekick.playernotfound", sname)
-            return@CommandRunner
-        }
-        val oldTeam = player.team()
-        val newTeam = player2.team()
-        /*val oldTeamPlayers = Groups.player.find({
-            return@find it.team() == oldTeam && it.uuid() != player.uuid()
-        })
-        if(oldTeamPlayers == null) {
-            HexedGamemode.hexedGamemode.killTiles(oldTeam)
-        }*/
-    })
+    if (false)
+        handler.registerCommand(
+            "join",
+            "<player...>",
+            Permission.test,
+            CommandRunner { arg: Array<String>, player: Player ->
+                val sname = Strings.stripColors(arg[0])
+                val player2 = Groups.player.find({ p ->
+                    return@find p.plainName().contains(sname, ignoreCase = true)
+                })
+                if (player2 == null) {
+                    player.sendBundle("votekick.playernotfound", sname)
+                    return@CommandRunner
+                }
+                val oldTeam = player.team()
+                val newTeam = player2.team()
+                /*val oldTeamPlayers = Groups.player.find({
+                    return@find it.team() == oldTeam && it.uuid() != player.uuid()
+                })
+                if(oldTeamPlayers == null) {
+                    HexedGamemode.hexedGamemode.killTiles(oldTeam)
+                }*/
+            })
 }
 
 private fun registerCrawlerArenaCommands(handler: CustomHandler) {

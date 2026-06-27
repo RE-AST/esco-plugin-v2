@@ -217,7 +217,7 @@ fun parseImage(image: BufferedImage): ByteArray {
 }
 
 fun save(name: String): Boolean {
-    if(!Vars.state.isGame){
+    if (!Vars.state.isGame) {
         Log.err("Not hosting. Failed to save.")
         return false
     }
@@ -266,11 +266,11 @@ fun Player.sendBundle(req: String, vararg params: Any) {
     Bundle.sendMessage(req, this, *params)
 }
 
-fun getPlayersCount() : Int {
-    return if(Core.settings.getInt("totalPlayers") == 0) Groups.player.size() else Core.settings.getInt("totalPlayers")
+fun getPlayersCount(): Int {
+    return if (Core.settings.getInt("totalPlayers") == 0) Groups.player.size() else Core.settings.getInt("totalPlayers")
 }
 
-fun getRoleIDs(roles : List<Role>) : List<String> {
+fun getRoleIDs(roles: List<Role>): List<String> {
     val list = ArrayList<String>()
     roles.forEach { role ->
         list.add(role.id)
@@ -278,6 +278,6 @@ fun getRoleIDs(roles : List<Role>) : List<String> {
     return list
 }
 
-fun Member.hasRole(id : String) : Boolean {
+fun Member.hasRole(id: String): Boolean {
     return getRoleIDs(this.roles).contains(id)
 }

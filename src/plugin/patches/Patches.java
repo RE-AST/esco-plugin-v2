@@ -48,7 +48,7 @@ public class Patches {
             }, 60 * 60 * 6, 60 * 60 * 6);
 
             Vars.content.each(content -> {
-                if(content instanceof CoreBlock block) {
+                if (content instanceof CoreBlock block) {
                     block.health = 999999999;
                 }
             });

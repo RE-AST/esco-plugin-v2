@@ -9,14 +9,14 @@ import plugin.database.getNextMap
 
 class PluginMapProvider : Maps.MapProvider {
     override fun next(mode: Gamemode, previous: Map?): Map? {
-        if(previous != null) {
+        if (previous != null) {
             Log.debug("[MapProvider] Previous Map: $previous")
             val mapNameOpt = getNextMap(previous.name())
-            if(mapNameOpt.isPresent) {
+            if (mapNameOpt.isPresent) {
                 val mapName = mapNameOpt.get()
                 Log.debug("[MapProvider] Selected map name is $mapName")
                 val map = Vars.maps.customMaps().find { it.name() == mapName }
-                if(map != null) {
+                if (map != null) {
                     return map
                 } else {
                     Log.debug("[MapProvider] yay, db returned unknown map!")

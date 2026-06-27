@@ -4,12 +4,8 @@ import arc.Core
 import arc.util.Log
 import arc.util.Timer
 import kotlinx.coroutines.launch
-import mindustry.Vars
-import mindustry.Vars.state
-import mindustry.core.GameState
 import mindustry.gen.Groups
 import mindustry.net.Administration
-import mindustry.server.ServerControl
 import plugin.Bundle
 import plugin.Config
 import plugin.KVars.globalScope
@@ -57,7 +53,7 @@ object Loader {
 
         Timer.schedule({
             // ipJoins.clear();
-            if(joinDemographics.size > 7000) joinDemographics.clear();
+            if (joinDemographics.size > 7000) joinDemographics.clear();
         }, 60f, 60f);
 
         /*
@@ -74,7 +70,7 @@ object Loader {
             Core.settings.put("autorestarted", false)
         }*/
 
-	    Log.debug("Loader: OK!")
+        Log.debug("Loader: OK!")
     }
 
     @JvmStatic
@@ -89,13 +85,14 @@ object Loader {
     }
 
     fun loadGamemode() {
-        when(PVars.gamemode) {
+        when (PVars.gamemode) {
             Gamemode.tdefense -> TDGamemode.load()
             Gamemode.hexed -> {
                 hexedGamemode = HexedGamemode()
                 hexedGamemode.init()
                 hexedGamemode.registerServerCommands(serverCommands)
             }
+
             Gamemode.crawlerArena -> CrawlerArenaGamemode.init()
             else -> {}
         }

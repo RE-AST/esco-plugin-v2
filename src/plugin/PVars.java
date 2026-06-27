@@ -59,7 +59,7 @@ public class PVars {
 
     public static HttpClient httpClient = HttpClient.newBuilder()
             .followRedirects(HttpClient.Redirect.NORMAL)
-        .build();
+            .build();
 
     //public static long startTime = Time.millis();
 

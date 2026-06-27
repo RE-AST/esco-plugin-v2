@@ -10,7 +10,6 @@ import plugin.PVars
 import plugin.database.Database
 import java.sql.PreparedStatement
 import java.sql.ResultSet
-import java.util.*
 
 class PlayerData(
     var id: Int, var uuid: String?, var discordId: Long?, var prefs: PlayerPrefs, var lastName: String?, // stats

@@ -11,7 +11,6 @@ import java.sql.Statement;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static plugin.Bundle.sendMessage;
 import static plugin.database.GettersKt.getBan;
 import static plugin.database.GettersKt.getPlayerById;
 import static plugin.discord.BotKt.sendLog;
@@ -51,8 +50,8 @@ public class BanListener {
                 Log.err(e);
                 sendLog(e.getMessage());
                 //if (failedTimes < 5) {
-                    load();
-                    failedTimes += 1;
+                load();
+                failedTimes += 1;
                 //}
             }
         });

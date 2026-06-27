@@ -250,13 +250,33 @@ fun putLog(action: PlayerAction, pd: PlayerData) {
     if (tile.block().isAir) return
 
     message = when (type) {
-        Administration.ActionType.breakBlock -> Strings.format("Player break block @ at @ @", tile.block().name, tile.x, tile.y)
+        Administration.ActionType.breakBlock -> Strings.format(
+            "Player break block @ at @ @",
+            tile.block().name,
+            tile.x,
+            tile.y
+        )
 
-        Administration.ActionType.placeBlock -> Strings.format("Player placed block @ at @ @", action.block, tile.x, tile.y)
+        Administration.ActionType.placeBlock -> Strings.format(
+            "Player placed block @ at @ @",
+            action.block,
+            tile.x,
+            tile.y
+        )
 
-        Administration.ActionType.rotate -> Strings.format("Player rotated block @ at @ @", tile.block().name, tile.x, tile.y)
+        Administration.ActionType.rotate -> Strings.format(
+            "Player rotated block @ at @ @",
+            tile.block().name,
+            tile.x,
+            tile.y
+        )
 
-        Administration.ActionType.configure -> Strings.format("Player configured block @ at @ @", tile.block().name, tile.x, tile.y)
+        Administration.ActionType.configure -> Strings.format(
+            "Player configured block @ at @ @",
+            tile.block().name,
+            tile.x,
+            tile.y
+        )
 
         else -> return
     }
@@ -415,6 +435,7 @@ fun getPlayerId(player: Player): Int? {
         { rs: ResultSet -> rs.getInt("id") }
     )
 }
+
 /*
 * No caching!!!
 * */
@@ -518,7 +539,7 @@ fun getMute(player: Player): Mute? {
 
 fun getMute(pid: Int): Mute? {
     val cached: Mute? = mutesCache.get(pid)
-    if(cached != null)
+    if (cached != null)
         return cached
 
     val mute = executeQuery(
@@ -527,14 +548,14 @@ fun getMute(pid: Int): Mute? {
         { rs: ResultSet -> getMute(rs) }
     )
 
-    if(mute != null)
+    if (mute != null)
         mutesCache.put(pid, mute)
 
     return mute
 }
 
 fun mutePlayer(target: Int, admin: Int, reason: String, unmute: Long): Boolean {
-    if(unmute <= 0) {
+    if (unmute <= 0) {
         return false // no perm mutes
     }
     return executeUpdate(
@@ -698,7 +719,7 @@ fun updateMapStats(
     }
 }
 
-fun getNextMap(excluded: String) : String? {
+fun getNextMap(excluded: String): String? {
     return executeQuery(
         "SELECT name, loses + wins + skips AS rounds_total FROM maps " +
                 "WHERE name != ? AND server == ? " +

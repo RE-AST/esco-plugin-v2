@@ -25,7 +25,7 @@ class MessageListener : ListenerAdapter() {
         val channel = event.getChannel()
         val content = message.contentDisplay
 
-        if(member != null) {
+        if (member != null) {
             if (!content.contains("js") && channel.id == PVars.consoleChannelStr && member.hasRole(PVars.ownerRoleId)) {
                 ServerControl.instance.handleCommandString(content)
             }

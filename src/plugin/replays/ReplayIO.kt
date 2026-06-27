@@ -18,21 +18,23 @@ fun saveReplay(history: LongMap<HistoryStack>, mapName: String): ByteArray {
         val value = entry.value
         val stack = ReplayStack()
         value.stack.forEach { r ->
-            if(r.center()) {
+            if (r.center()) {
                 var unitId: Short? = null
                 r.unit?.let { u ->
                     unitId = u.id
                 }
-                stack.add(ReplayRecord(
-                    r.playerName(),
-                    r.playerId.orElse(null),
-                    r.type.ordinal,
-                    r.block.id,
-                    unitId,
-                    r.time,
-                    r.team.id,
-                    r.rotation
-                ))
+                stack.add(
+                    ReplayRecord(
+                        r.playerName(),
+                        r.playerId.orElse(null),
+                        r.type.ordinal,
+                        r.block.id,
+                        unitId,
+                        r.time,
+                        r.team.id,
+                        r.rotation
+                    )
+                )
             }
         }
         map[key] = stack
@@ -57,7 +59,7 @@ fun playReplay(replay: HashMap<Long, ReplayStack>) {
     events.forEach { event ->
         val delay = (event.record.time - start) / 1000f
         Timer.schedule({
-            if(event.record.time == end) {
+            if (event.record.time == end) {
                 Call.sendMessage("Done!")
             }
             applyEvent(event)
@@ -69,10 +71,11 @@ private fun applyEvent(event: ReplayEvent) {
     val record = event.record
     val tile = Vars.world.tile(event.pos)
     tile ?: return
-    when(event.record.type) {
+    when (event.record.type) {
         HistoryType.buildBlock.ordinal -> {
             tile.setNet(Vars.content.block(record.blockId.toInt()), Team.get(record.team), record.rotation)
         }
+
         HistoryType.destroyBlock.ordinal,
         HistoryType.breakBlock.ordinal -> {
             tile.setNet(Blocks.air)

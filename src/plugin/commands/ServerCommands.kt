@@ -9,7 +9,6 @@ import plugin.Bundle
 import plugin.PVars
 import plugin.discord.sendLog
 import plugin.discord.sendServerMessage
-import plugin.gamemodes.tdf.TDGamemode
 import plugin.history.History
 import plugin.patches.Patches
 import plugin.utils.Loader

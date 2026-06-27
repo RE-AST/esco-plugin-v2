@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
-import plugin.PVars;
 import plugin.utils.Permission;
 
 import java.util.List;
@@ -37,11 +36,11 @@ public class Context {
     }
 
     public void reply(String content) {
-        message.reply("["+ gamemode.name() + "] " +content).queue();
+        message.reply("[" + gamemode.name() + "] " + content).queue();
     }
 
     public void replyServer(String content) {
-        message.reply("["+gamemode.simpleName+"] "+content).queue();
+        message.reply("[" + gamemode.simpleName + "] " + content).queue();
     }
 
     public void replyEmbed(MessageEmbed embed) {

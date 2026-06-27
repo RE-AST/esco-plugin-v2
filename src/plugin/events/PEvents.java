@@ -24,6 +24,7 @@ import static plugin.utils.Gamemode.sandbox;
 
 public class PEvents {
     public static Timekeeper antigriefCooldown = Timekeeper.ofSeconds(3);
+
     public static void load() {
         loadEvents();
 

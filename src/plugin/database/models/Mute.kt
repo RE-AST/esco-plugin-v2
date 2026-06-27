@@ -10,7 +10,7 @@ class Mute(
     val reason: String,
     val muteTime: Instant,
     val unmuteTime: Instant
-    ) {
+) {
     @JvmField
     var unmuteIn: String? = null
 }

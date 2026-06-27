@@ -14,7 +14,7 @@ import java.util.Arrays;
 
 import static mindustry.Vars.*;
 
-public class Hex{
+public class Hex {
     private final float[] progress = new float[256];
 
     public final static int size = 516;
@@ -30,7 +30,7 @@ public class Hex{
     public @Nullable Team controller;
     public Timekeeper spawnTime = Timekeeper.ofSeconds(HexedGamemode.spawnDelay);
 
-    public Hex(int id, int x, int y){
+    public Hex(int id, int x, int y) {
         this.id = id;
         this.x = x;
         this.y = y;
@@ -38,39 +38,39 @@ public class Hex{
         wy = y * tilesize;
     }
 
-    public void updateController(){
+    public void updateController() {
         controller = findController();
     }
 
-    public float getProgressPercent(Team team){
+    public float getProgressPercent(Team team) {
         return progress[team.id] / HexedGamemode.itemRequirement * 100;
     }
 
-    public float getProgress(Team team){
+    public float getProgress(Team team) {
         return progress[team.id];
     }
 
-    public boolean hasCore(){
+    public boolean hasCore() {
         return world.tile(x, y).team() != Team.derelict && world.tile(x, y).block() instanceof CoreBlock;
     }
 
-    public @Nullable Team findController(){
-        if(hasCore()){
+    public @Nullable Team findController() {
+        if (hasCore()) {
             return world.tile(x, y).team();
         }
 
         Arrays.fill(progress, 0);
-        Groups.unit.intersect(wx - rad, wy - rad, rad*2, rad*2).each(e -> {
-            if(contains(e.x, e.y)){
+        Groups.unit.intersect(wx - rad, wy - rad, rad * 2, rad * 2).each(e -> {
+            if (contains(e.x, e.y)) {
                 progress[e.team.id] += e.health / 10f;
             }
         });
 
-        for(int cx = x - radius; cx < x + radius; cx++){
-            for(int cy = y - radius; cy < y + radius; cy++){
+        for (int cx = x - radius; cx < x + radius; cx++) {
+            for (int cy = y - radius; cy < y + radius; cy++) {
                 Tile tile = world.tile(cx, cy);
-                if(tile != null && tile.synthetic() && contains(tile) && tile.block().requirements != null){
-                    for(ItemStack stack : tile.block().requirements){
+                if (tile != null && tile.synthetic() && contains(tile) && tile.block().requirements != null) {
+                    for (ItemStack stack : tile.block().requirements) {
                         progress[tile.team().id] += stack.amount * stack.item.cost;
                     }
                 }
@@ -78,17 +78,17 @@ public class Hex{
         }
 
         TeamData data = state.teams.getActive().max(t -> progress[t.team.id]);
-        if(data != null && data.team != Team.derelict && progress[data.team.id] >= HexedGamemode.itemRequirement){
+        if (data != null && data.team != Team.derelict && progress[data.team.id] >= HexedGamemode.itemRequirement) {
             return data.team;
         }
         return null;
     }
 
-    public boolean contains(float x, float y){
+    public boolean contains(float x, float y) {
         return Intersector.isInsideHexagon(wx, wy, rad * 2, x, y);
     }
 
-    public boolean contains(Tile tile){
+    public boolean contains(Tile tile) {
         return contains(tile.worldx(), tile.worldy());
     }
 }

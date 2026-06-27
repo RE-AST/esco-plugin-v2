@@ -13,7 +13,6 @@ import com.xpdustry.nohorny.common.Rating
 import kotlinx.coroutines.launch
 import mindustry.Vars
 import mindustry.content.Blocks
-import mindustry.game.EventType
 import mindustry.game.EventType.*
 import mindustry.game.Team
 import mindustry.gen.Call
@@ -39,7 +38,6 @@ import plugin.gamemodes.hexed.HexData
 import plugin.history.History
 import plugin.history.HistoryType
 import plugin.logic.attemCode
-import plugin.logic.attemText
 import plugin.logic.isAttem
 import plugin.menus.showWelcome
 import plugin.utils.*
@@ -52,8 +50,8 @@ fun loadEvents() {
     Events.on(ConnectPacketEvent::class.java, { e ->
         val region = e.packet.uuid.hashCode()
         val cachedRegion = joinDemographics.get(region)
-        if(cachedRegion == null) joinDemographics.put(region, e.packet.uuid)
-        else if(cachedRegion != e.packet.uuid){
+        if (cachedRegion == null) joinDemographics.put(region, e.packet.uuid)
+        else if (cachedRegion != e.packet.uuid) {
             Vars.netServer.admins.blacklistDos(e.connection.address)
             Log.info("Blacklisting IP @ due to suspicious UUIDs", e.connection.address)
             sendLog($"Blacklisting ${e.connection.address} due to suspicious UUIDs")
@@ -83,25 +81,25 @@ fun loadEvents() {
                     sendLog("Possible account thief! Usid: ${player.usid()} Database: $u ID: ${pd.id}")
                 }
             }
-            if(PVars.gamemode != Gamemode.hub)
-            isAnon(player.ip()) { resp: VPNApiResponse ->
-                if (resp.anon && pd.discordId == null) {
-                    putLog(pd.id, "system", "Detected using vpn or proxy. IP ${player.ip()}")
+            if (PVars.gamemode != Gamemode.hub)
+                isAnon(player.ip()) { resp: VPNApiResponse ->
+                    if (resp.anon && pd.discordId == null) {
+                        putLog(pd.id, "system", "Detected using vpn or proxy. IP ${player.ip()}")
+                        app.post {
+                            player.kick(
+                                "You detected by [pink]AntiVPN[] system\nTry re-connect and disable vpn/proxy\nOr try linking your discord by /link\nDiscord: " + PVars.discordLink,
+                                0
+                            )
+                        }
+                    }
+                    //AntiFimoz.apply(resp.isp, player);
+                    //if(player.con.isConnected())
                     app.post {
-                        player.kick(
-                            "You detected by [pink]AntiVPN[] system\nTry re-connect and disable vpn/proxy\nOr try linking your discord by /link\nDiscord: " + PVars.discordLink,
-                            0
-                        )
+                        apply(player, resp.isp, pd)
+                        if (pd.prefs.customName.isNotEmpty())
+                            player.name(pd.prefs.customName)
                     }
                 }
-                //AntiFimoz.apply(resp.isp, player);
-                //if(player.con.isConnected())
-                app.post {
-                    apply(player, resp.isp, pd)
-                    if(pd.prefs.customName.isNotEmpty())
-                        player.name(pd.prefs.customName)
-                }
-            }
 
             val ban = getBan(player)
             if (ban != null) {
@@ -117,7 +115,7 @@ fun loadEvents() {
                 return@launch
             }
 
-            if(pd.getUsid() != null && pd.getUsid() != player.usid()) {
+            if (pd.getUsid() != null && pd.getUsid() != player.usid()) {
                 player.sendMessage("Your authentication credentials are different. Please contact us on Discord. If you have admin rights, they will not be granted until the authentication credentials are updated.")
             } else {
                 getAdmin(player)?.let { a: Admin ->
@@ -237,7 +235,7 @@ fun loadEvents() {
     }
 
     onAsync(GameOverEvent::class.java) { e: GameOverEvent ->
-        if(PVars.gamemode == Gamemode.hexed) return@onAsync
+        if (PVars.gamemode == Gamemode.hexed) return@onAsync
         val stats = mapStats ?: return@onAsync
 
         val wave = Vars.state.wave
@@ -259,9 +257,11 @@ fun loadEvents() {
             Team.derelict -> {
                 skips += 1
             }
+
             Vars.state.rules.defaultTeam -> {
                 wins += 1
             }
+
             else -> {
                 loses += 1
             }
@@ -281,11 +281,11 @@ fun loadEvents() {
 
     onAsync(ClassificationEvent::class.java) { e: ClassificationEvent ->
         val response = e.response
-        if(response.rating != Rating.NSFW) return@onAsync
+        if (response.rating != Rating.NSFW) return@onAsync
 
         val embed = EmbedBuilder()
             .setColor(Color.red)
-            .setTitle("NSFW detected on ${PVars.gamemode.name} (Confidence: ${(response.confidence*100).toInt()}%)")
+            .setTitle("NSFW detected on ${PVars.gamemode.name} (Confidence: ${(response.confidence * 100).toInt()}%)")
             .setImage("attachment://image.png")
 
         var playerId: Int? = null
@@ -300,9 +300,10 @@ fun loadEvents() {
         val message = PVars.nsfwChannel.sendMessageEmbeds(embed.build())
 
         playerId?.let {
-            message.addComponents(ActionRow.of(
-                Button.danger("$nohornyBanButtonId:$it", "🔨Ban")
-            )
+            message.addComponents(
+                ActionRow.of(
+                    Button.danger("$nohornyBanButtonId:$it", "🔨Ban")
+                )
             )
         }
 
@@ -353,7 +354,16 @@ fun loadEvents() {
                 name = player.coloredName()
                 pid = getPlayerId(player)
             }
-            History.write(tile, name, Optional.ofNullable(pid), HistoryType.buildBlock, tile.block(), unit.type(), actorTeam, rotation)
+            History.write(
+                tile,
+                name,
+                Optional.ofNullable(pid),
+                HistoryType.buildBlock,
+                tile.block(),
+                unit.type(),
+                actorTeam,
+                rotation
+            )
         }
     })
 
@@ -370,7 +380,16 @@ fun loadEvents() {
                 name = player.coloredName()
                 pid = getPlayerId(player)
             }
-            History.write(tile, name, Optional.ofNullable(pid), HistoryType.breakBlock, tile.block(), unit.type(), actorTeam, 0)
+            History.write(
+                tile,
+                name,
+                Optional.ofNullable(pid),
+                HistoryType.breakBlock,
+                tile.block(),
+                unit.type(),
+                actorTeam,
+                0
+            )
         }
     })
 
@@ -385,7 +404,16 @@ fun loadEvents() {
                 name = player.coloredName()
                 pid = getPlayerId(player)
             }
-            History.write(build.tile, name, Optional.ofNullable(pid), HistoryType.rotate, build.block, null, player.team(), e.build.rotation)
+            History.write(
+                build.tile,
+                name,
+                Optional.ofNullable(pid),
+                HistoryType.rotate,
+                build.block,
+                null,
+                player.team(),
+                e.build.rotation
+            )
         }
     })
 
@@ -395,14 +423,32 @@ fun loadEvents() {
         val build = e.tile
         val name = player.coloredName()
         eventsScope.launch {
-            History.write(build.tile, name, Optional.ofNullable(getPlayerId(player)), HistoryType.configure, build.block, null, player.team(), build.rotation)
+            History.write(
+                build.tile,
+                name,
+                Optional.ofNullable(getPlayerId(player)),
+                HistoryType.configure,
+                build.block,
+                null,
+                player.team(),
+                build.rotation
+            )
         }
     })
 
     Events.on(BlockDestroyEvent::class.java, Cons { e: BlockDestroyEvent ->
-        if(e.tile == null || e.tile.block() == null) return@Cons
+        if (e.tile == null || e.tile.block() == null) return@Cons
 
-        History.write(e.tile, null, Optional.empty<Int>(), HistoryType.destroyBlock, e.tile.block(), null, e.tile.team(), 0)
+        History.write(
+            e.tile,
+            null,
+            Optional.empty<Int>(),
+            HistoryType.destroyBlock,
+            e.tile.block(),
+            null,
+            e.tile.team(),
+            0
+        )
     })
 
     Events.on(WaveEvent::class.java, Cons { e: WaveEvent ->
@@ -421,7 +467,7 @@ fun loadEvents() {
     Events.on(BlockBuildEndEvent::class.java, Cons { e: BlockBuildEndEvent ->
         if (e.tile == null || e.tile.build == null) return@Cons
         val build = e.tile.build
-        if(build is LogicBlock.LogicBuild && isAttem(build.code)) {
+        if (build is LogicBlock.LogicBuild && isAttem(build.code)) {
             // build.updateCode(attemText)
             build.configure(attemCode)
             Bundle.label("attem83", 2f, build.x, build.y)

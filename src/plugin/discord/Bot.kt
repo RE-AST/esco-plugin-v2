@@ -85,6 +85,6 @@ fun reply(message: Message, content: String) {
 }
 
 fun sendConsoleMessage(message: String) {
-    if(PVars.consoleChannel == null) return
+    if (PVars.consoleChannel == null) return
     PVars.consoleChannel.sendMessage(message).submit()
 }

@@ -65,10 +65,15 @@ fun loadMenus() {
 }
 
 fun showShop(stats: PlayerData, p: Player) {
-    val menu = ScrollableMenu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance, rowPerItems = 1)
+    val menu = ScrollableMenu(
+        Bundle.get("menu.shop.title", p.locale),
+        "Balance: [green]$[white]" + stats.balance,
+        rowPerItems = 1
+    )
 
     menu.add(Bundle.get("units", p.locale)) { pl ->
-        val unitMenu = ScrollableMenu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance)
+        val unitMenu =
+            ScrollableMenu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance)
 
         unitCosts.forEach(Consumer { en: ObjectIntMap.Entry<UnitType> ->
             val type = en.key
@@ -88,7 +93,8 @@ fun showShop(stats: PlayerData, p: Player) {
         unitMenu.show(pl)
     }
     menu.add(Bundle.get("items", p.locale)) { pl ->
-        val itemMenu = ScrollableMenu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance)
+        val itemMenu =
+            ScrollableMenu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance)
         itemCosts.forEach(Consumer { en: ObjectIntMap.Entry<Item> ->
             val type = en.key
             val cost = if (PVars.gamemode == Gamemode.pvp) en.value * 3 else en.value
@@ -105,8 +111,9 @@ fun showShop(stats: PlayerData, p: Player) {
         itemMenu.show(pl)
     }
     menu.add(Bundle.get("other", p.locale)) { pl ->
-        val otherMenu = ScrollableMenu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance)
-        if(PVars.gamemode != Gamemode.pvp) {
+        val otherMenu =
+            ScrollableMenu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance)
+        if (PVars.gamemode != Gamemode.pvp) {
             menu.add(
                 Bundle.get(
                     "menu.shop.healcores",
@@ -127,6 +134,7 @@ fun showShop(stats: PlayerData, p: Player) {
 
     menu.show(p)
 }
+
 @Deprecated("Use showShop instead")
 fun showShopOld(stats: PlayerData, p: Player) {
     val menu = Menu(Bundle.get("menu.shop.title", p.locale), "Balance: [green]$[white]" + stats.balance)
@@ -344,7 +352,8 @@ fun showBanMenu(p: Player, playerId: Int, target: Player) {
                         time,
                         PVars.discordLink,
                         "unknown (re-join to see)"
-                    ), 0)
+                    ), 0
+                )
             } else {
                 pl2.sendMessage("[scarlet]Failed to ban player.")
             }

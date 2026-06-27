@@ -17,29 +17,29 @@ public class SwarmAI extends FlyingAI {
     public int swarmCount = 10;
 
     @Override
-    public void updateMovement(){
-        if(target != null && unit.hasWeapons()){
-            if(!unit.type.circleTarget){
-                if(Units.count(unit.x, unit.y, swarmRange, u -> u.type == unit.type && u.team == unit.team) > swarmCount){
+    public void updateMovement() {
+        if (target != null && unit.hasWeapons()) {
+            if (!unit.type.circleTarget) {
+                if (Units.count(unit.x, unit.y, swarmRange, u -> u.type == unit.type && u.team == unit.team) > swarmCount) {
                     moveTo(target, unit.type.range * kiteRange);
-                }else if(target != null){
+                } else if (target != null) {
                     Posc targetPosc = target;
-                    if(unit.dst2(targetPosc) > avoidRange2){
+                    if (unit.dst2(targetPosc) > avoidRange2) {
                         Unit targetSameType = Units.closest(unit.team, unit.x, unit.y, u -> u.type == unit.type && unit.dst2(u) > innerSwarmRange2);
                         moveTo(targetSameType != null ? targetSameType : target, unit.hitSize * 2f);
-                    }else{
+                    } else {
                         moveTo(target, avoidRange * 1.1f);
                     }
-                }else{
+                } else {
                     moveTo(null, avoidRange);
                 }
                 unit.lookAt(target);
-            }else{
+            } else {
                 circleAttack(120f);
             }
         }
 
-        if(target == null && state.rules.waves && unit.team == state.rules.defaultTeam){
+        if (target == null && state.rules.waves && unit.team == state.rules.defaultTeam) {
             moveTo(getClosestSpawner(), state.rules.dropZoneRadius + 130f);
         }
     }

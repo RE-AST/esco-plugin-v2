@@ -35,7 +35,7 @@ public class MapPreview {
             Vars.content
                     .blocks()
                     .each(block -> block.mapColor.argb8888(
-                            block instanceof OreBlock ? block.itemDrop.color.argb8888() : image.getRGB(block.id, 0))
+                                    block instanceof OreBlock ? block.itemDrop.color.argb8888() : image.getRGB(block.id, 0))
                             .a(1.0F));
         } catch (Exception e) {
             Log.err(e);

@@ -47,7 +47,7 @@ public class History {
 
         tile.getLinkedTiles(t -> {
             long pos = t.pos();
-            if(t.isCenter()) {
+            if (t.isCenter()) {
                 addTile(pos, new HistoryRecord(playerName, playerId, type, block, unit, time, true, team, rotation));
             } else {
                 addTile(pos, record);

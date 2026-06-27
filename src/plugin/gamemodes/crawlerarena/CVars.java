@@ -8,7 +8,7 @@ import mindustry.game.Team;
 import mindustry.type.UnitType;
 import mindustry.world.Block;
 
-public class CVars{
+public class CVars {
     public static int unitCap = 96;
     public static float tipChance = 1f / 30000f;
 
@@ -58,7 +58,7 @@ public class CVars{
         public T value;
         public float weight;
 
-        public WeightedEntry(float w, T val){
+        public WeightedEntry(float w, T val) {
             value = val;
             weight = w;
         }
@@ -68,17 +68,17 @@ public class CVars{
         public Seq<Block> blocks = new Seq<>();
         public IntSeq amounts = new IntSeq();
 
-        public DropSpecifier(Block block, int amount){
+        public DropSpecifier(Block block, int amount) {
             blocks.add(block);
             amounts.add(amount);
         }
 
-        public DropSpecifier(Block[] blocks, int[] amounts){
+        public DropSpecifier(Block[] blocks, int[] amounts) {
             this.blocks.addAll(blocks);
             this.amounts.addAll(amounts);
         }
 
-        public int size(){
+        public int size() {
             return blocks.size;
         }
     }
@@ -89,13 +89,13 @@ public class CVars{
     public static Seq<Block> guaranteedAirdrops = Seq.with(Blocks.coreNucleus, Blocks.coreAcropolis, Blocks.boulder);
     public static ObjectIntMap<UnitType> unitCosts = new ObjectIntMap<>();
 
-    public static DropSpecifier randomDrop(){
+    public static DropSpecifier randomDrop() {
         float at = Mathf.random(aidBlocksTotal);
         int ind = 0;
         int moveBy = Integer.highestOneBit(aidDrops.size);
-        while(moveBy > 0){
+        while (moveBy > 0) {
             int nextInd = ind + moveBy;
-            if(nextInd < aidDrops.size && aidDrops.get(nextInd).weight < at){
+            if (nextInd < aidDrops.size && aidDrops.get(nextInd).weight < at) {
                 ind += moveBy;
             }
             moveBy = moveBy >> 1;
@@ -127,18 +127,19 @@ public class CVars{
     public static ObjectFloatMap<UnitType> enemyMaxSpawnTimes = new ObjectFloatMap<>();
     public static ObjectFloatMap<UnitType> enemySpawnTimeRamps = new ObjectFloatMap<>();
     public static ObjectFloatMap<UnitType> defaultEnemySpeeds = new ObjectFloatMap<>();
+
     static {
         enemyTypes.each(type -> defaultEnemySpeeds.put(type, type.speed));
 
         enemyCrawlerCuts.putAll(UnitTypes.atrax, 10,
-        UnitTypes.spiroct, 50,
-        UnitTypes.arkyid, 1000,
-        UnitTypes.toxopid, 20000);
+                UnitTypes.spiroct, 50,
+                UnitTypes.arkyid, 1000,
+                UnitTypes.toxopid, 20000);
 
         enemyThresholds.putAll(UnitTypes.atrax, 100,
-        UnitTypes.spiroct, 400,
-        UnitTypes.arkyid, 1000,
-        UnitTypes.toxopid, 20000);
+                UnitTypes.spiroct, 400,
+                UnitTypes.arkyid, 1000,
+                UnitTypes.toxopid, 20000);
 
         enemyMaxSpawnTimes.put(UnitTypes.crawler, 5f);
         enemyMaxSpawnTimes.put(UnitTypes.atrax, 20f);
@@ -153,109 +154,110 @@ public class CVars{
         enemySpawnTimeRamps.put(UnitTypes.toxopid, 2f);
 
         unitCosts.putAll(UnitTypes.nova, 100,
-        UnitTypes.pulsar, 300,
-        UnitTypes.quasar, 2000,
-        UnitTypes.vela, 18000,
-        UnitTypes.corvus, 250000,
+                UnitTypes.pulsar, 300,
+                UnitTypes.quasar, 2000,
+                UnitTypes.vela, 18000,
+                UnitTypes.corvus, 250000,
 
-        UnitTypes.dagger, 25,
-        UnitTypes.mace, 200,
-        UnitTypes.fortress, 1500,
-        UnitTypes.scepter, 20000,
-        UnitTypes.reign, 250000,
+                UnitTypes.dagger, 25,
+                UnitTypes.mace, 200,
+                UnitTypes.fortress, 1500,
+                UnitTypes.scepter, 20000,
+                UnitTypes.reign, 250000,
 
-        UnitTypes.merui, 450,
-        UnitTypes.cleroi, 1800,
-        UnitTypes.anthicus, 12000,
-        UnitTypes.tecta, 22000,
-        UnitTypes.collaris, 325000,
+                UnitTypes.merui, 450,
+                UnitTypes.cleroi, 1800,
+                UnitTypes.anthicus, 12000,
+                UnitTypes.tecta, 22000,
+                UnitTypes.collaris, 325000,
 
-        UnitTypes.elude, 500,
-        UnitTypes.avert, 1000,
-        UnitTypes.obviate, 11000,
-        UnitTypes.quell, 25000,
-        UnitTypes.disrupt, 250000,
+                UnitTypes.elude, 500,
+                UnitTypes.avert, 1000,
+                UnitTypes.obviate, 11000,
+                UnitTypes.quell, 25000,
+                UnitTypes.disrupt, 250000,
 
-        UnitTypes.stell, 400,
-        UnitTypes.locus, 2500,
-        UnitTypes.precept, 10000,
-        UnitTypes.vanquish, 22000,
-        UnitTypes.conquer, 250000,
+                UnitTypes.stell, 400,
+                UnitTypes.locus, 2500,
+                UnitTypes.precept, 10000,
+                UnitTypes.vanquish, 22000,
+                UnitTypes.conquer, 250000,
 
-        UnitTypes.crawler, 7500,
-        UnitTypes.atrax, 250,
-        UnitTypes.spiroct, 1500,
-        UnitTypes.arkyid, 25000,
-        UnitTypes.toxopid, 325000,
+                UnitTypes.crawler, 7500,
+                UnitTypes.atrax, 250,
+                UnitTypes.spiroct, 1500,
+                UnitTypes.arkyid, 25000,
+                UnitTypes.toxopid, 325000,
 
-        UnitTypes.flare, 75,
-        UnitTypes.horizon, 250,
-        UnitTypes.zenith, 2500,
-        UnitTypes.antumbra, 18000,
-        UnitTypes.eclipse, 175000,
+                UnitTypes.flare, 75,
+                UnitTypes.horizon, 250,
+                UnitTypes.zenith, 2500,
+                UnitTypes.antumbra, 18000,
+                UnitTypes.eclipse, 175000,
 
-        UnitTypes.retusa, 400,
-        UnitTypes.oxynoe, 850,
-        UnitTypes.cyerce, 5000,
-        UnitTypes.aegires, 50000,
-        UnitTypes.navanax, 400000,
+                UnitTypes.retusa, 400,
+                UnitTypes.oxynoe, 850,
+                UnitTypes.cyerce, 5000,
+                UnitTypes.aegires, 50000,
+                UnitTypes.navanax, 400000,
 
-        UnitTypes.risso, 500,
-        UnitTypes.minke, 750,
-        UnitTypes.bryde, 5000,
-        UnitTypes.sei, 75000,
-        UnitTypes.omura, 1500000,
+                UnitTypes.risso, 500,
+                UnitTypes.minke, 750,
+                UnitTypes.bryde, 5000,
+                UnitTypes.sei, 75000,
+                UnitTypes.omura, 1500000,
 
-        UnitTypes.mono, 10000000,
-        UnitTypes.poly, 100000,
-        UnitTypes.mega, 2500,
-        UnitTypes.quad, 25000,
-        UnitTypes.oct, 250000);
+                UnitTypes.mono, 10000000,
+                UnitTypes.poly, 100000,
+                UnitTypes.mega, 2500,
+                UnitTypes.quad, 25000,
+                UnitTypes.oct, 250000);
 
         FloatSeq weights = new FloatSeq();
         Seq<Block> drops = new Seq<>();
         IntSeq dropAmounts = new IntSeq();
-        weights.addAll(    7f,                    7f,                        5f,                      10f,
-                            5f,                    5f,                        1f,                      5f,
-                             5f,                    10f,                       10f,                     5f,
-                              5f,                    5f,                        5f,                      5f,
-                           2f,                    3f,                        3f,                      3f,
-                            4f,                    3f,                        4f,                      3f,
-                             4f,                    4f,                        4f,                      3f,
-                              3f,                    3f,                        3f,                      3f,
-                           3f,                    1f,                        1f,                      1f,
-                            1f,                    1f,                        1f,                      4f);
-        drops.addAll(      Blocks.liquidSource,   Blocks.powerSource,        Blocks.powerNodeLarge,   Blocks.itemSource,
-                            Blocks.heatSource,     Blocks.constructor,        Blocks.largeConstructor, Blocks.unloader,
-                             Blocks.container,      Blocks.thoriumWallLarge,   Blocks.surgeWallLarge,   Blocks.mendProjector,
-                              Blocks.forceProjector, Blocks.repairPoint,        Blocks.repairTurret,     Blocks.overdriveProjector,
-                           Blocks.overdriveDome,  Blocks.hyperProcessor,     Blocks.arc,              Blocks.scorch,
-                            Blocks.lancer,         Blocks.sublimate,          Blocks.ripple,           Blocks.titan,
-                             Blocks.cyclone,        Blocks.fuse,               Blocks.lustre,           Blocks.swarmer,
-                              Blocks.tsunami,        Blocks.spectre,            Blocks.foreshadow,       Blocks.scathe,
-                           Blocks.malign,         Blocks.coreNucleus,        Blocks.coreAcropolis,    Blocks.groundFactory,
-                            Blocks.airFactory,     Blocks.navalFactory,       Blocks.boulder,          Blocks.segment);
-        dropAmounts.addAll(4,                     4,                         4,                       6,
-                            4,                     1,                         1,                       4,
-                             2,                     8,                         4,                       3,
-                              2,                     4,                         2,                       1,
-                           1,                     2,                         6,                       6,
-                            4,                     2,                         2,                       2,
-                             2,                     2,                         2,                       2,
-                              1,                     1,                         1,                       2,
-                           1,                     1,                         1,                       1,
-                            1,                     1,                         100,                     3);
-        for(int i = 0; i < drops.size; i++){
+        weights.addAll(7f, 7f, 5f, 10f,
+                5f, 5f, 1f, 5f,
+                5f, 10f, 10f, 5f,
+                5f, 5f, 5f, 5f,
+                2f, 3f, 3f, 3f,
+                4f, 3f, 4f, 3f,
+                4f, 4f, 4f, 3f,
+                3f, 3f, 3f, 3f,
+                3f, 1f, 1f, 1f,
+                1f, 1f, 1f, 4f);
+        drops.addAll(Blocks.liquidSource, Blocks.powerSource, Blocks.powerNodeLarge, Blocks.itemSource,
+                Blocks.heatSource, Blocks.constructor, Blocks.largeConstructor, Blocks.unloader,
+                Blocks.container, Blocks.thoriumWallLarge, Blocks.surgeWallLarge, Blocks.mendProjector,
+                Blocks.forceProjector, Blocks.repairPoint, Blocks.repairTurret, Blocks.overdriveProjector,
+                Blocks.overdriveDome, Blocks.hyperProcessor, Blocks.arc, Blocks.scorch,
+                Blocks.lancer, Blocks.sublimate, Blocks.ripple, Blocks.titan,
+                Blocks.cyclone, Blocks.fuse, Blocks.lustre, Blocks.swarmer,
+                Blocks.tsunami, Blocks.spectre, Blocks.foreshadow, Blocks.scathe,
+                Blocks.malign, Blocks.coreNucleus, Blocks.coreAcropolis, Blocks.groundFactory,
+                Blocks.airFactory, Blocks.navalFactory, Blocks.boulder, Blocks.segment);
+        dropAmounts.addAll(4, 4, 4, 6,
+                4, 1, 1, 4,
+                2, 8, 4, 3,
+                2, 4, 2, 1,
+                1, 2, 6, 6,
+                4, 2, 2, 2,
+                2, 2, 2, 2,
+                1, 1, 1, 2,
+                1, 1, 1, 1,
+                1, 1, 100, 3);
+        for (int i = 0; i < drops.size; i++) {
             float weight = weights.get(i);
             aidDrops.add(new WeightedEntry<>(aidBlocksTotal, new DropSpecifier(drops.get(i), dropAmounts.get(i))));
             aidBlocksTotal += weight;
         }
 
         guaranteedDrops.put(16, new DropSpecifier(Blocks.largeConstructor, 1));
-        guaranteedDrops.put(8,  new DropSpecifier(Blocks.constructor,      1));
-        guaranteedDrops.put(2,  new DropSpecifier(new Block[]{Blocks.itemSource, Blocks.liquidSource, Blocks.heatSource, Blocks.powerSource},
-                                                  new int[]  {4,                 4,                   4,                 4}));
+        guaranteedDrops.put(8, new DropSpecifier(Blocks.constructor, 1));
+        guaranteedDrops.put(2, new DropSpecifier(new Block[]{Blocks.itemSource, Blocks.liquidSource, Blocks.heatSource, Blocks.powerSource},
+                new int[]{4, 4, 4, 4}));
     }
+
     public static float crawlerHealthRamp = 1f;
     public static float crawlerSpeedRamp = 0.003f;
 

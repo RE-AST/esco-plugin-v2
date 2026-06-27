@@ -71,7 +71,8 @@ public class HexedGamemode {
     private int lastMin;
 
     private final ObjectMap<String, LeavedPlayer> leavedPlayerTimers = new ObjectMap<>();
-    public void init(){
+
+    public void init() {
         rules.pvp = true;
         rules.tags.put("hexed", "true");
         rules.canGameOver = false;
@@ -82,24 +83,24 @@ public class HexedGamemode {
 
         //attempt to load the base schematic from mods/hexed/base.msch, defaulting to a built-in one upon failure.
         Fi baseFile = mainClass.getConfig().sibling("base.msch");
-        if(baseFile.exists()){
-            try{
+        if (baseFile.exists()) {
+            try {
                 baseSchematic = Schematics.read(baseFile);
-            }catch(Exception e){
+            } catch (Exception e) {
                 Log.err("Failed to load base schematic file.", e);
             }
         }
 
-        if(baseSchematic == null){
+        if (baseSchematic == null) {
             baseSchematic = Schematics.readBase64("bXNjaAF4nE1S226cMBA9mIuNoZu0/4HUvuYf8tLXqg8OOAkS2MiwiVZRPr3dznjaKoD3eDxzjuey6HBToQpu9aj359GvsGMMhw/HvdvQv329e1u8m+6+vb+jm/w+pnk75hgANIt78MsO9ePnDb4czzHN53V4dcsyLC49efQfz3Dr0hqTnwbSf/GXmFC6NKLbI0UPmwt+QZ/85may4hwO2C2++jSEOHnofXTH4RP6kUSGcB4Xf97x+QP7763N6sNEgeYcluh417HkoxuPmC7QD1nnAvM/D+A7LRT5Q4n8VIDiIgW0gBFfK5GdWD1bbBO14KUIMq8QXsE89nUoOPLEBCVk9tJdivxlTUBb9tXsUaKiREWxSkPQGnW9ZgbrK1iWUJKGEvFSKij5ZaBlSFOLL4dUUgjfqSxZFYqOfkisp8O+gFRVSXTN0Z8ISInBouTD7GuQe9Ggqtm0tLNcaCNuLYVqzlLTS2lXBJYz08QrTwQ9p6vphkzIvNzrhqA2RLn+vv6iqpETNtwHBi1guGmGx1ITWL7AsDJDVjaibES5/TfFgsfS5kYS5Im3It2KdMvS7GslspPIXlROUm6JPITMs8KzkpLlv8gfnoxifw==");
         }
 
         Events.run(Trigger.update, () -> {
-            if(active()){
+            if (active()) {
                 data.updateStats();
 
-                for(Player player : Groups.player){
-                    if(!restarting && player.team() != Team.derelict && player.team().cores().isEmpty()){
+                for (Player player : Groups.player) {
+                    if (!restarting && player.team() != Team.derelict && player.team().cores().isEmpty()) {
                         Log.info("elim: player=@ restarting=@ active=@", player.name, restarting, active());
                         player.clearUnit();
                         killTiles(player.team());
@@ -108,30 +109,30 @@ public class HexedGamemode {
                         player.team(Team.derelict);
                     }
 
-                    if(player.team() == Team.derelict){
+                    if (player.team() == Team.derelict) {
                         player.clearUnit();
-                    }else if(data.getControlled(player).size == data.hexes().size){
+                    } else if (data.getControlled(player).size == data.hexes().size) {
                         endGame();
                         break;
                     }
                 }
 
-                int minsToGo = (int)(roundTime - counter) / 60 / 60;
-                if(minsToGo != lastMin){
+                int minsToGo = (int) (roundTime - counter) / 60 / 60;
+                if (minsToGo != lastMin) {
                     lastMin = minsToGo;
                 }
 
-                if(interval.get(timerBoard, leaderboardTime)){
+                if (interval.get(timerBoard, leaderboardTime)) {
                     Call.infoToast(getLeaderboard(), 15f);
                 }
 
-                if(interval.get(timerUpdate, updateTime)){
+                if (interval.get(timerUpdate, updateTime)) {
                     data.updateControl();
                 }
 
-                if(interval.get(timerWinCheck, 60 * 2)){
+                if (interval.get(timerWinCheck, 60 * 2)) {
                     Seq<Player> players = data.getLeaderboard();
-                    if(!players.isEmpty() && data.getControlled(players.first()).size >= winCondition && players.size > 1 && data.getControlled(players.get(1)).size <= 1){
+                    if (!players.isEmpty() && data.getControlled(players.first()).size >= winCondition && players.size > 1 && data.getControlled(players.get(1)).size <= 1) {
                         endGame();
                     }
                 }
@@ -139,20 +140,20 @@ public class HexedGamemode {
                 counter += Time.delta;
 
                 //kick everyone and restart w/ the script
-                if(counter > roundTime && !restarting){
+                if (counter > roundTime && !restarting) {
                     endGame();
                 }
-            }else{
+            } else {
                 counter = 0;
             }
         });
 
         Events.on(BlockDestroyEvent.class, event -> {
             //reset last spawn times so this hex becomes vacant for a while.
-            if(event.tile.block() instanceof CoreBlock){
+            if (event.tile.block() instanceof CoreBlock) {
                 Hex hex = data.getHex(event.tile.pos());
 
-                if(hex != null){
+                if (hex != null) {
                     hex.spawnTime.reset();
                     hex.updateController();
                 }
@@ -161,13 +162,13 @@ public class HexedGamemode {
 
         Events.on(PlayerLeave.class, event -> {
             Team team = event.player.team();
-            if(active() && team != Team.derelict){
+            if (active() && team != Team.derelict) {
                 String uuid = event.player.uuid();
                 LeavedPlayer old = leavedPlayerTimers.remove(uuid);
-                if(old != null) old.removeTask.cancel();
+                if (old != null) old.removeTask.cancel();
                 leavedPlayerTimers.put(uuid, new LeavedPlayer(
                         team,
-                        Timer.schedule(()->{
+                        Timer.schedule(() -> {
                             leavedPlayerTimers.remove(uuid);
                             killTiles(team);
                         }, 5 * 60)
@@ -176,28 +177,28 @@ public class HexedGamemode {
         });
 
         Events.on(PlayerConnectionConfirmed.class, event -> {
-            if(!active()) return;
+            if (!active()) return;
 
             LeavedPlayer leaved = leavedPlayerTimers.remove(event.player.uuid());
 
-            if(leaved != null){
+            if (leaved != null) {
                 leaved.removeTask.cancel();
                 event.player.team(leaved.team);
                 data.data(event.player).lastMessage.reset();
                 return;
             }
 
-            if(event.player.team() == Team.derelict) return;
+            if (event.player.team() == Team.derelict) return;
 
             Seq<Hex> copy = data.hexes().copy();
             copy.shuffle();
             Hex hex = copy.find(h -> h.controller == null && h.spawnTime.get());
 
-            if(hex != null){
+            if (hex != null) {
                 loadout(event.player, hex.x, hex.y);
                 Core.app.post(() -> data.data(event.player).chosen = false);
                 hex.findController();
-            }else{
+            } else {
                 Call.infoMessage(event.player.con, "There are currently no empty hex spaces available.\nAssigning into spectator mode.");
                 event.player.unit().kill();
                 event.player.team(Team.derelict);
@@ -216,49 +217,49 @@ public class HexedGamemode {
         netServer.assigner = (player, players) -> {
             Seq<Player> arr = Seq.with(players);
 
-            if(active()){
+            if (active()) {
                 //pick first inactive team
-                for(Team team : Team.all){
-                    if(team.id > 5 && !team.active() && !arr.contains(p -> p.team() == team) && !data.data(team).dying && !data.data(team).chosen){
+                for (Team team : Team.all) {
+                    if (team.id > 5 && !team.active() && !arr.contains(p -> p.team() == team) && !data.data(team).dying && !data.data(team).chosen) {
                         data.data(team).chosen = true;
                         return team;
                     }
                 }
                 Call.infoMessage(player.con, "There are currently no empty hex spaces available.\nAssigning into spectator mode.");
                 return Team.derelict;
-            }else{
+            } else {
                 return prev.assign(player, players);
             }
         };
     }
 
-    void updateText(Player player){
+    void updateText(Player player) {
         HexTeam team = data.data(player);
 
         StringBuilder message = new StringBuilder("[white]Hex #" + team.location.id + "\n");
 
-        if(!team.lastMessage.get()) return;
+        if (!team.lastMessage.get()) return;
 
-        if(team.location.controller == null){
-            if(team.progressPercent > 0){
-                message.append("[lightgray]Capture progress: [accent]").append((int)(team.progressPercent)).append("%");
-            }else{
+        if (team.location.controller == null) {
+            if (team.progressPercent > 0) {
+                message.append("[lightgray]Capture progress: [accent]").append((int) (team.progressPercent)).append("%");
+            } else {
                 message.append("[lightgray][[Empty]");
             }
-        }else if(team.location.controller == player.team()){
+        } else if (team.location.controller == player.team()) {
             message.append("[yellow][[Captured]");
-        }else if(team.location != null && team.location.controller != null && data.getPlayer(team.location.controller) != null){
+        } else if (team.location != null && team.location.controller != null && data.getPlayer(team.location.controller) != null) {
             message.append("[#").append(team.location.controller.color).append("]Captured by ").append(data.getPlayer(team.location.controller).name);
-        }else{
+        } else {
             message.append("<Unknown>");
         }
 
         Call.setHudText(player.con, message.toString());
     }
 
-    public void registerServerCommands(CommandHandler handler){
+    public void registerServerCommands(CommandHandler handler) {
         handler.register("hexed", "Begin hosting with the Hexed gamemode.", args -> {
-            if(!state.is(State.menu)){
+            if (!state.is(State.menu)) {
                 Log.err("Stop the server first.");
                 return;
             }
@@ -277,7 +278,7 @@ public class HexedGamemode {
         });
 
         handler.register("countdown", "Get the hexed restart countdown.", args -> {
-            Log.info("Time until round ends: &lc@ minutes", (int)(roundTime - counter) / 60 / 60);
+            Log.info("Time until round ends: &lc@ minutes", (int) (roundTime - counter) / 60 / 60);
         });
 
         handler.register("end", "End the game.", args -> endGame());
@@ -285,8 +286,8 @@ public class HexedGamemode {
         handler.register("r", "Restart the server.", args -> System.exit(2));
     }
 
-    void endGame(){
-        if(restarting) return;
+    void endGame() {
+        if (restarting) return;
 
         restarting = true;
         leavedPlayerTimers.each((uuid, leaved) -> leaved.removeTask.cancel());
@@ -294,27 +295,27 @@ public class HexedGamemode {
 
         Seq<Player> players = data.getLeaderboard();
         StringBuilder builder = new StringBuilder();
-        for(int i = 0; i < players.size && i < 3; i++){
-            if(data.getControlled(players.get(i)).size > 1){
+        for (int i = 0; i < players.size && i < 3; i++) {
+            if (data.getControlled(players.get(i)).size > 1) {
                 builder.append("[yellow]").append(i + 1).append(".[accent] ").append(players.get(i).name)
-                .append("[lightgray] (x").append(data.getControlled(players.get(i)).size).append(")[]\n");
+                        .append("[lightgray] (x").append(data.getControlled(players.get(i)).size).append(")[]\n");
             }
         }
 
-        if(!players.isEmpty()){
+        if (!players.isEmpty()) {
             boolean dominated = data.getControlled(players.first()).size == data.hexes().size;
 
-            for(Player player : Groups.player){
+            for (Player player : Groups.player) {
                 Call.infoMessage(player.con, "[accent]--ROUND OVER--\n\n[lightgray]"
-                + (player == players.first() ? "[accent]You[] were" : "[yellow]" + players.first().name + "[lightgray] was") +
-                " victorious, with [accent]" + data.getControlled(players.first()).size + "[lightgray] hexes conquered." + (dominated ? "" : "\n\nFinal scores:\n" + builder));
+                        + (player == players.first() ? "[accent]You[] were" : "[yellow]" + players.first().name + "[lightgray] was") +
+                        " victorious, with [accent]" + data.getControlled(players.first()).size + "[lightgray] hexes conquered." + (dominated ? "" : "\n\nFinal scores:\n" + builder));
             }
         }
 
         // Groups.player.each(p->p.team(Team.derelict));
 
         Time.runTask(60f * 10f, () -> {
-            Groups.player.each(p->p.team(Team.derelict));
+            Groups.player.each(p -> p.team(Team.derelict));
             counter = 0;
             lastMin = 0;
             data = new HexData();
@@ -395,65 +396,66 @@ public class HexedGamemode {
         });
     }
 
-    public String getLeaderboard(){
+    public String getLeaderboard() {
         StringBuilder builder = new StringBuilder();
         builder.append("[accent]Leaderboard\n[scarlet]").append(lastMin).append("[lightgray] mins. remaining\n\n");
         int count = 0;
-        for(Player player : data.getLeaderboard()){
+        for (Player player : data.getLeaderboard()) {
             builder.append("[yellow]").append(++count).append(".[white] ")
-            .append(player.name).append("[orange] (").append(data.getControlled(player).size).append(" hexes)\n[white]");
+                    .append(player.name).append("[orange] (").append(data.getControlled(player).size).append(" hexes)\n[white]");
 
-            if(count > 4) break;
+            if (count > 4) break;
         }
         return builder.toString();
     }
 
-    public void killTiles(Team team){
+    public void killTiles(Team team) {
         data.data(team).dying = true;
         Time.runTask(8f, () -> data.data(team).dying = false);
-        for(int x = 0; x < world.width(); x++){
-            for(int y = 0; y < world.height(); y++){
+        for (int x = 0; x < world.width(); x++) {
+            for (int y = 0; y < world.height(); y++) {
                 Tile tile = world.tile(x, y);
-                if(tile.build != null && tile.team() == team){
+                if (tile.build != null && tile.team() == team) {
                     Time.run(Mathf.random(60f * 6), tile.build::kill);
                 }
             }
         }
     }
 
-    void loadout(Player player, int x, int y){
+    void loadout(Player player, int x, int y) {
         Stile coreTile = baseSchematic.tiles.find(s -> s.block instanceof CoreBlock);
-        if(coreTile == null) throw new IllegalArgumentException("Schematic has no core tile. Exiting.");
+        if (coreTile == null) throw new IllegalArgumentException("Schematic has no core tile. Exiting.");
         int ox = x - coreTile.x, oy = y - coreTile.y;
         baseSchematic.tiles.each(st -> {
             Tile tile = world.tile(st.x + ox, st.y + oy);
-            if(tile == null) return;
+            if (tile == null) return;
 
-            if(tile.block() != Blocks.air){
+            if (tile.block() != Blocks.air) {
                 tile.removeNet();
             }
 
             tile.setNet(st.block, player.team(), st.rotation);
 
-            if(st.config != null){
+            if (st.config != null) {
                 tile.build.configureAny(st.config);
             }
-            if(tile.block() instanceof CoreBlock){
-                for(ItemStack stack : state.rules.loadout){
+            if (tile.block() instanceof CoreBlock) {
+                for (ItemStack stack : state.rules.loadout) {
                     Call.setItem(tile.build, stack.item, stack.amount);
                 }
             }
         });
     }
 
-    public boolean active(){
+    public boolean active() {
         return state.rules.tags.getBool("hexed") && !state.is(State.menu);
     }
 
-    private static class LeavedPlayer{
+    private static class LeavedPlayer {
         public Team team;
         public Timer.Task removeTask;
-        public LeavedPlayer(Team team, Timer.Task task){
+
+        public LeavedPlayer(Team team, Timer.Task task) {
             this.team = team;
             this.removeTask = task;
         }

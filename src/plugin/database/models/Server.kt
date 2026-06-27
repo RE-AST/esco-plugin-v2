@@ -1,10 +1,10 @@
 package plugin.database.models
 
-import plugin.database.Database.executeQuery
 import plugin.PVars.gamemode
+import plugin.database.Database.executeQuery
 import java.sql.ResultSet
 import java.sql.SQLException
-import java.util.Optional
+import java.util.*
 
 class Server(
     val id: Int,
@@ -18,10 +18,10 @@ class Server(
                 SELECT * FROM servers
                 WHERE name = ?
                 """.trimIndent(), { stmt ->
-                stmt.setString(1, gamemode.simpleName)
-            }, { rs ->
-                getServer(rs)
-            })
+                    stmt.setString(1, gamemode.simpleName)
+                }, { rs ->
+                    getServer(rs)
+                })
 
             if (server.isPresent) {
                 return server
@@ -36,10 +36,10 @@ class Server(
                 RETURNING id, name
                 """.trimIndent(),
                 { stmt ->
-                stmt.setString(1, gamemode.simpleName)
-            }, { rs ->
-                getServer(rs)
-            })
+                    stmt.setString(1, gamemode.simpleName)
+                }, { rs ->
+                    getServer(rs)
+                })
         }
 
         @JvmStatic

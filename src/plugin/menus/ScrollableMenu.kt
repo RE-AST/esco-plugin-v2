@@ -33,7 +33,7 @@ class ScrollableMenu(
 
         val menu = Menu(
             title,
-            if(message.isEmpty()) "[gray]Page ${page + 1}/$totalPages" else "$message\n[gray]Page ${page + 1}/$totalPages"
+            if (message.isEmpty()) "[gray]Page ${page + 1}/$totalPages" else "$message\n[gray]Page ${page + 1}/$totalPages"
         )
 
         val start = page * itemsPerPage
@@ -44,9 +44,9 @@ class ScrollableMenu(
             menu.add(items[i]) { p ->
                 handlers[i](p)
             }
-	    
-	        if((i - start + 1) % rowPerItems == 0) {
-	    	    menu.row()
+
+            if ((i - start + 1) % rowPerItems == 0) {
+                menu.row()
             }
         }
 

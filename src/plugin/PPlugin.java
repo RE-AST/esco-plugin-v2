@@ -15,6 +15,7 @@ import static plugin.PVars.serverCommands;
 
 public class PPlugin extends Plugin {
     public static PPlugin mainClass;
+
     @Override
     public void init() {
         mainClass = this;
