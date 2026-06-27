@@ -13,7 +13,7 @@ import java.sql.ResultSet
 import java.util.*
 
 class PlayerData(
-    var id: Int, var uuid: String?, var discordId: Long?, var prefs: PlayerPrefs?, var lastName: String?, // stats
+    var id: Int, var uuid: String?, var discordId: Long?, var prefs: PlayerPrefs, var lastName: String?, // stats
     var playtime: Long, var blocksBuild: Int, var blocksBroken: Int, var balance: Int, var wavesSurvived: Int
 ) {
     var usid: String? = null
@@ -21,9 +21,9 @@ class PlayerData(
     @Transient
     var lastGambling: Timekeeper? = null
 
-    fun getUsid(): Optional<String> {
+    fun getUsid(): String? {
         if (usid != null) {
-            return Optional.of<String>(usid!!)
+            return usid
         }
         val usidOpt = Database.executeQuery(
             """
@@ -37,7 +37,7 @@ class PlayerData(
             },
             { rs: ResultSet -> rs.getString("usid") }
         )
-        if (usidOpt.isPresent) usid = usidOpt.get()
+        if (usidOpt != null) usid = usidOpt
         return usidOpt
     }
 

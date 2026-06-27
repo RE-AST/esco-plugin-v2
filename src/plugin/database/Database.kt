@@ -1,103 +1,120 @@
-package plugin.database;
+package plugin.database
 
-import arc.util.Log;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import arc.util.Log
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
+import plugin.PVars.*
+import java.sql.PreparedStatement
+import java.sql.ResultSet
+import java.sql.SQLException
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+object Database {
+    val dataSource: HikariDataSource? = createDataSource()
 
-import static plugin.PVars.*;
+    private fun createDataSource(): HikariDataSource? {
+        return try {
+            Class.forName("org.postgresql.Driver")
 
-public class Database {
-    public static final HikariDataSource dataSource = createDataSource();
+            val config = HikariConfig().apply {
+                jdbcUrl = "jdbc:postgresql://$dbHost:$dbPort/$db"
+                username = dbUser
 
-    private static HikariDataSource createDataSource() {
+                if (dbPassword != "empty" && dbPassword.isNotEmpty()) {
+                    password = dbPassword
+                }
+
+                maximumPoolSize = 10
+                minimumIdle = 3
+                idleTimeout = 30000
+                connectionTimeout = 5000
+            }
+
+            HikariDataSource(config)
+        } catch (err: ClassNotFoundException) {
+            Log.err(err)
+            null
+        }
+    }
+
+    @JvmStatic
+    fun <T> executeQuery(
+        sql: String,
+        setter: StatementSetter<PreparedStatement>,
+        mapper: (ResultSet) -> T
+    ): T? {
+        return try {
+            dataSource!!.connection.use { conn ->
+                conn.prepareStatement(sql).use { stmt ->
+                    setter.accept(stmt)
+
+                    stmt.executeQuery().use { rs ->
+                        if (rs.next()) {
+                            mapper(rs)
+                        } else {
+                            null
+                        }
+                    }
+                }
+            }
+        } catch (e: SQLException) {
+            Log.err("SQL query failed @ @", sql, e)
+            null
+        }
+    }
+
+    @JvmStatic
+    fun executeUpdate(
+        sql: String,
+        statementSetter: StatementSetter<PreparedStatement>
+    ): Boolean {
+        return try {
+            dataSource!!.connection.use { conn ->
+                conn.prepareStatement(sql).use { pstmt ->
+                    statementSetter.accept(pstmt)
+                    val updated = pstmt.executeUpdate()
+                    updated > 0
+                }
+            }
+        } catch (e: SQLException) {
+            Log.err("SQL query failed @ @", sql, e)
+            false
+        }
+    }
+
+    @JvmStatic
+    fun <T> executeQueryList(
+        sql: String,
+        statementSetter: StatementSetter<PreparedStatement>,
+        serializer: Serializer<ResultSet, T>
+    ): List<T> {
+        val results = mutableListOf<T>()
+
         try {
-            Class.forName("org.postgresql.Driver");
-            HikariConfig config = new HikariConfig();
-            config.setJdbcUrl("jdbc:postgresql://" + dbHost + ":" + dbPort + "/" + db);
-            config.setUsername(dbUser);
-            if (!dbPassword.equals("empty") && !dbPassword.isEmpty())
-                config.setPassword(dbPassword);
+            dataSource!!.connection.use { conn ->
+                conn.prepareStatement(sql).use { pstmt ->
+                    statementSetter.accept(pstmt)
 
-            config.setMaximumPoolSize(10);
-            config.setMinimumIdle(3);
-            config.setIdleTimeout(30000);
-            config.setConnectionTimeout(5000);
-
-            return new HikariDataSource(config);
-        } catch (ClassNotFoundException err) {
-            Log.err(err);
-            return null;
-        }
-    }
-
-    public static <T> Optional<T> executeQuery(String sql, StatementSetter<PreparedStatement> statementSetter, Serealizer<ResultSet, T> serealizer) {
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            statementSetter.accept(pstmt);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return Optional.of(serealizer.apply(rs));
-                }
-                return Optional.empty();
-            }
-        } catch (SQLException e) {
-            // System.out.println(e);
-            Log.err("SQL query failed @ @", sql, e);
-            return Optional.empty();
-        }
-    }
-
-    public static boolean executeUpdate(String sql, StatementSetter<PreparedStatement> statementSetter) {
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            statementSetter.accept(pstmt);
-            int updated = pstmt.executeUpdate();
-            return updated > 0;
-
-        } catch (SQLException e) {
-            // System.out.println(e);
-            Log.err("SQL query failed @ @", sql, e);
-            return false;
-        }
-    }
-
-    public static <T> List<T> executeQueryList(String sql, StatementSetter<PreparedStatement> statementSetter, Serealizer<ResultSet, T> serealizer) {
-        List<T> results = new ArrayList<>();
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            statementSetter.accept(pstmt);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    results.add(serealizer.apply(rs));
+                    pstmt.executeQuery().use { rs ->
+                        while (rs.next()) {
+                            results.add(serializer.apply(rs))
+                        }
+                    }
                 }
             }
-        } catch (SQLException e) {
-            // System.out.println(e);
-            Log.err("SQL query failed @ @", sql, e);
+        } catch (e: SQLException) {
+            Log.err("SQL query failed @ @", sql, e)
         }
-        return results;
+
+        return results
     }
 
-    @FunctionalInterface
-    public interface StatementSetter<T> {
-        void accept(T t) throws SQLException;
+    fun interface StatementSetter<T> {
+        @Throws(SQLException::class)
+        fun accept(t: T)
     }
 
-    @FunctionalInterface
-    public interface Serealizer<T, R> {
-        R apply(T t) throws SQLException;
+    fun interface Serializer<T, R> {
+        @Throws(SQLException::class)
+        fun apply(t: T): R
     }
 }

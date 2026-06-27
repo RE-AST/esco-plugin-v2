@@ -9,7 +9,9 @@ import mindustry.net.Administration
 import mindustry.net.Administration.PlayerAction
 import plugin.PVars
 import plugin.PVars.serverId
-import plugin.database.Database.*
+import plugin.database.Database.executeQuery
+import plugin.database.Database.executeQueryList
+import plugin.database.Database.executeUpdate
 import plugin.database.models.*
 import plugin.utils.Permission
 import plugin.utils.getUDPAddress
@@ -19,7 +21,6 @@ import java.sql.SQLException
 import java.sql.Timestamp
 import java.time.Instant
 import java.util.*
-import java.util.function.Consumer
 
 // GOVNOCODE
 
@@ -69,8 +70,8 @@ fun updateAdminHidden(pid: Int, hidden: Boolean): Boolean {
     }
 }
 
-fun getAdmin(player: Player): Optional<Admin> {
-    if (adminsCache.containsKey(player)) return Optional.of(adminsCache.get(player))
+fun getAdmin(player: Player): Admin? {
+    if (adminsCache.containsKey(player)) return adminsCache.get(player)
     logExpectedCacheMiss(player, "adminsCache")
 
     val a = executeQuery(
@@ -87,7 +88,9 @@ fun getAdmin(player: Player): Optional<Admin> {
         { stmt: PreparedStatement -> stmt.setString(1, player.uuid()) },
         { rs: ResultSet -> getAdmin(rs) }
     )
-    a.ifPresent(Consumer { admin: Admin -> adminsCache.put(player, admin) })
+    a?.let { admin: Admin ->
+        adminsCache.put(player, admin)
+    }
     return a
 }
 
@@ -109,14 +112,13 @@ fun getAdmin(rs: ResultSet): Admin {
 
 fun ban(pid: Int, aid: Int, reason: String?, unban: Long): Boolean {
     return executeUpdate(
-        "INSERT INTO bans (player_id, admin_id, reason, unban_time) VALUES (?, ?, ?, ?)",
-        StatementSetter { stmt: PreparedStatement ->
-            stmt.setInt(1, pid)
-            stmt.setInt(2, aid)
-            stmt.setString(3, reason)
-            stmt.setTimestamp(4, getTimestamp(unban))
-        }
-    )
+        "INSERT INTO bans (player_id, admin_id, reason, unban_time) VALUES (?, ?, ?, ?)"
+    ) { stmt: PreparedStatement ->
+        stmt.setInt(1, pid)
+        stmt.setInt(2, aid)
+        stmt.setString(3, reason)
+        stmt.setTimestamp(4, getTimestamp(unban))
+    }
 }
 
 fun ban(pid: Int, admin: Player, reason: String?, unban: Long): Boolean {
@@ -167,7 +169,7 @@ fun getTimestamp(seconds: Long): Timestamp? {
     return Timestamp(System.currentTimeMillis() + millis)
 }
 
-fun getBan(id: Int): Optional<Ban> {
+fun getBan(id: Int): Ban? {
     return executeQuery(
         "SELECT * FROM bans WHERE id = ?",
         { stmt: PreparedStatement -> stmt.setInt(1, id) },
@@ -175,7 +177,7 @@ fun getBan(id: Int): Optional<Ban> {
     )
 }
 
-fun getBan(player: Player): Optional<Ban> {
+fun getBan(player: Player): Ban? {
     return executeQuery(
         """
 SELECT b.*
@@ -232,11 +234,11 @@ fun getBan(rs: ResultSet): Ban {
 
 // region Log
 
-fun putLog(type: String?, message: String?) {
+fun putLog(type: String, message: String) {
     PVars.logsBuffer.add(Log(null, type, message))
 }
 
-fun putLog(pid: Int?, type: String?, message: String?) {
+fun putLog(pid: Int, type: String, message: String) {
     PVars.logsBuffer.add(Log(pid, type, message))
 }
 
@@ -247,18 +249,14 @@ fun putLog(action: PlayerAction, pd: PlayerData) {
     val tile = action.tile ?: return
     if (tile.block().isAir) return
 
-    when (type) {
-        Administration.ActionType.breakBlock -> message =
-            Strings.format("Player break block @ at @ @", tile.block().name, tile.x, tile.y)
+    message = when (type) {
+        Administration.ActionType.breakBlock -> Strings.format("Player break block @ at @ @", tile.block().name, tile.x, tile.y)
 
-        Administration.ActionType.placeBlock -> message =
-            Strings.format("Player placed block @ at @ @", action.block, tile.x, tile.y)
+        Administration.ActionType.placeBlock -> Strings.format("Player placed block @ at @ @", action.block, tile.x, tile.y)
 
-        Administration.ActionType.rotate -> message =
-            Strings.format("Player rotated block @ at @ @", tile.block().name, tile.x, tile.y)
+        Administration.ActionType.rotate -> Strings.format("Player rotated block @ at @ @", tile.block().name, tile.x, tile.y)
 
-        Administration.ActionType.configure -> message =
-            Strings.format("Player configured block @ at @ @", tile.block().name, tile.x, tile.y)
+        Administration.ActionType.configure -> Strings.format("Player configured block @ at @ @", tile.block().name, tile.x, tile.y)
 
         else -> return
     }
@@ -270,7 +268,7 @@ fun putLog(action: PlayerAction, pd: PlayerData) {
 
 // region PlayerData
 
-fun deepSearchNames(player: Player): MutableList<String> {
+fun deepSearchNames(player: Player): List<String> {
     return executeQueryList(
         """
                 SELECT DISTINCT p.last_name
@@ -291,7 +289,7 @@ fun deepSearchNames(player: Player): MutableList<String> {
     )
 }
 
-fun deepSearch(player: Player): MutableList<PlayerData> {
+fun deepSearch(player: Player): List<PlayerData> {
     return executeQueryList(
         """
                 SELECT DISTINCT p.*
@@ -313,18 +311,17 @@ fun deepSearch(player: Player): MutableList<PlayerData> {
 }
 
 fun getPlayerById(id: Int): Optional<Player> {
-    val pdOpt = getPlayerData(id)
+    val pd = getPlayerData(id)
     var p: Player? = null
-    if (pdOpt.isPresent) {
-        val pd = pdOpt.get()
+    if (pd != null) {
         p = Groups.player.find { player: Player -> player.uuid() == pd.uuid }
     }
     return Optional.ofNullable<Player>(p)
 }
 
-fun getOrCreatePlayerData(p: Player): Optional<PlayerData> {
+fun getOrCreatePlayerData(p: Player): PlayerData? {
     if (playerDataCache.containsKey(p)) {
-        return Optional.of(playerDataCache.get(p))
+        return playerDataCache.get(p)
     }
 
     val pd = executeQuery(
@@ -374,11 +371,11 @@ fun getOrCreatePlayerData(p: Player): Optional<PlayerData> {
         },
         { rs: ResultSet -> getPlayerData(rs) }
     )
-    if (!playerDataCache.containsKey(p) && pd.isPresent) playerDataCache.put(p, pd.get())
+    if (!playerDataCache.containsKey(p) && pd != null) playerDataCache.put(p, pd)
     return pd
 }
 
-fun getPlayerData(id: Int): Optional<PlayerData> {
+fun getPlayerData(id: Int): PlayerData? {
     return executeQuery(
         "SELECT * FROM players WHERE id = ?",
         { stmt: PreparedStatement -> stmt.setInt(1, id) },
@@ -386,8 +383,8 @@ fun getPlayerData(id: Int): Optional<PlayerData> {
     )
 }
 
-fun getPlayerData(player: Player): Optional<PlayerData> {
-    if (playerDataCache.containsKey(player)) return Optional.of(playerDataCache.get(player))
+fun getPlayerData(player: Player): PlayerData? {
+    if (playerDataCache.containsKey(player)) return playerDataCache.get(player)
     logExpectedCacheMiss(player, "playerDataCache")
 
     return executeQuery(
@@ -400,7 +397,7 @@ fun getPlayerData(player: Player): Optional<PlayerData> {
 /**
  * no cache
  * */
-fun getPlayerData(uuid: String): Optional<PlayerData> {
+fun getPlayerData(uuid: String): PlayerData? {
     return executeQuery(
         "SELECT * FROM players WHERE uuid = ?",
         { stmt: PreparedStatement -> stmt.setString(1, uuid) },
@@ -408,8 +405,8 @@ fun getPlayerData(uuid: String): Optional<PlayerData> {
     )
 }
 
-fun getPlayerId(player: Player): Optional<Int> {
-    if (playerDataCache.containsKey(player)) return Optional.of<Int>(playerDataCache.get(player).id)
+fun getPlayerId(player: Player): Int? {
+    if (playerDataCache.containsKey(player)) return playerDataCache.get(player).id
     logExpectedCacheMiss(player, "playerDataCache(id)")
 
     return executeQuery(
@@ -421,7 +418,7 @@ fun getPlayerId(player: Player): Optional<Int> {
 /*
 * No caching!!!
 * */
-fun getPlayerId(uuid: String): Optional<Int> {
+fun getPlayerId(uuid: String): Int? {
     return executeQuery(
         "SELECT id FROM players WHERE uuid = ?",
         { stmt: PreparedStatement -> stmt.setString(1, uuid) },
@@ -514,17 +511,15 @@ fun getPlayerStats(rs: ResultSet): PlayerStats {
 
 // region mute
 
-fun getMute(player: Player): Optional<Mute> {
-    val idOpt = getPlayerId(player)
-    if(idOpt.isEmpty)
-        return Optional.empty<Mute>()
-    return getMute(idOpt.get())
+fun getMute(player: Player): Mute? {
+    val idOpt = getPlayerId(player) ?: return null
+    return getMute(idOpt)
 }
 
-fun getMute(pid: Int): Optional<Mute> {
+fun getMute(pid: Int): Mute? {
     val cached: Mute? = mutesCache.get(pid)
     if(cached != null)
-        return Optional.of(cached)
+        return cached
 
     val mute = executeQuery(
         "SELECT * FROM mutes WHERE player_id = ? AND active = TRUE AND unmute_time > NOW()",
@@ -532,8 +527,8 @@ fun getMute(pid: Int): Optional<Mute> {
         { rs: ResultSet -> getMute(rs) }
     )
 
-    if(mute.isPresent)
-        mutesCache.put(pid, mute.get())
+    if(mute != null)
+        mutesCache.put(pid, mute)
 
     return mute
 }
@@ -547,15 +542,14 @@ fun mutePlayer(target: Int, admin: Int, reason: String, unmute: Long): Boolean {
             INSERT INTO mutes VALUES (player_id, admin_id, reason, unmute_time)
             VALUES (?, ?, ?, ?)
             
-        """.trimIndent(),
-        { stmt: PreparedStatement ->
-            stmt.setInt(1, target)
-            stmt.setInt(2, admin)
-            stmt.setString(3, reason)
-            stmt.setTimestamp(4, getTimestamp(unmute))
-        }
+        """.trimIndent()
 
-    )
+    ) { stmt: PreparedStatement ->
+        stmt.setInt(1, target)
+        stmt.setInt(2, admin)
+        stmt.setString(3, reason)
+        stmt.setTimestamp(4, getTimestamp(unmute))
+    }
 }
 
 @Throws(SQLException::class)
@@ -593,7 +587,7 @@ fun getMapStats(rs: ResultSet): MapStats {
     )
 }
 
-fun getMapStats(id: Int): Optional<MapStats> {
+fun getMapStats(id: Int): MapStats? {
     return executeQuery(
         """
         SELECT
@@ -617,7 +611,7 @@ fun getMapStats(id: Int): Optional<MapStats> {
     )
 }
 
-fun createOrGetMapStats(name: String): Optional<MapStats> {
+fun createOrGetMapStats(name: String): MapStats? {
     return executeQuery(
         """
         WITH inserted AS (
@@ -690,22 +684,21 @@ fun updateMapStats(
             loses = ?,
             skips = ?
         WHERE name = ? AND server = ?
-        """.trimIndent(),
-        { stmt ->
-            stmt.setInt(1, minWave)
-            stmt.setInt(2, maxWave)
-            stmt.setInt(3, minPlaytime)
-            stmt.setInt(4, maxPlaytime)
-            stmt.setInt(5, wins)
-            stmt.setInt(6, loses)
-            stmt.setInt(7, skips)
-            stmt.setString(8, name)
-            stmt.setInt(9, serverId)
-        }
-    )
+        """.trimIndent()
+    ) { stmt ->
+        stmt.setInt(1, minWave)
+        stmt.setInt(2, maxWave)
+        stmt.setInt(3, minPlaytime)
+        stmt.setInt(4, maxPlaytime)
+        stmt.setInt(5, wins)
+        stmt.setInt(6, loses)
+        stmt.setInt(7, skips)
+        stmt.setString(8, name)
+        stmt.setInt(9, serverId)
+    }
 }
 
-fun getNextMap(excluded: String) : Optional<String> {
+fun getNextMap(excluded: String) : String? {
     return executeQuery(
         "SELECT name, loses + wins + skips AS rounds_total FROM maps " +
                 "WHERE name != ? AND server == ? " +

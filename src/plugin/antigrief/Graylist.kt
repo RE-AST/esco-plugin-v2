@@ -28,11 +28,9 @@ val ips = Seq<String>()
 val ipsBlock = Seq<String>()
 
 fun apply(p: Player, isp: String?, pd: PlayerData) {
-    if(pd.discordId == null) {
-        if(isps.contains(isp) || ips.contains(p.ip())) {
-            p.kick(Bundle.get("kick.graylisted", p.locale, PVars.discordLink), 0)
-            putLog(pd.id, "graylist", "Player graylisted by IP " + p.ip())
-        }
+    if(pd.discordId == null && (isps.contains(isp) || ips.contains(p.ip()))) {
+        p.kick(Bundle.get("kick.graylisted", p.locale, PVars.discordLink), 0)
+        putLog(pd.id, "graylist", "Player graylisted by IP " + p.ip())
     }
     /*if (!(isGraylisted(isp) && pd.discordId == null)) return
     p.kick(Bundle.get("kick.graylisted", p.locale, PVars.discordLink), 0)

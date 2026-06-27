@@ -63,15 +63,15 @@ fun loadEvents() {
         val player = e.player
 
         eventsScope.launch {
-            val pdataOpt = getOrCreatePlayerData(player)
-            if (pdataOpt.isEmpty) {
+            val pd = getOrCreatePlayerData(player)
+            if (pd == null) {
                 app.post {
                     player.kick("[scarlet]Failed to create player! The server database may not be available", 0)
                 }
                 return@launch
             }
-            val pd = pdataOpt.get()
-            pd.usid.ifPresent(Consumer { u: String ->
+            // val pd = pdataOpt.get()
+            pd.getUsid()?.let { u: String ->
                 if (u != player.usid()) {
                     putLog(pd.id, "system", "Possible account thief")
                     /*app.post {
@@ -82,7 +82,7 @@ fun loadEvents() {
                     }*/
                     sendLog("Possible account thief! Usid: ${player.usid()} Database: $u ID: ${pd.id}")
                 }
-            })
+            }
             if(PVars.gamemode != Gamemode.hub)
             isAnon(player.ip()) { resp: VPNApiResponse ->
                 if (resp.anon && pd.discordId == null) {
@@ -103,9 +103,9 @@ fun loadEvents() {
                 }
             }
 
-            val banOpt = getBan(player)
-            if (banOpt.isPresent) {
-                val ban = banOpt.get()
+            val ban = getBan(player)
+            if (ban != null) {
+                //val ban = banOpt.get()
                 app.post {
                     ban.kickPlayer(player)
                 }
@@ -117,15 +117,15 @@ fun loadEvents() {
                 return@launch
             }
 
-            if(pd.usid.isPresent && pd.usid.get() != player.usid()) {
+            if(pd.getUsid() != null && pd.getUsid() != player.usid()) {
                 player.sendMessage("Your authentication credentials are different. Please contact us on Discord. If you have admin rights, they will not be granted until the authentication credentials are updated.")
             } else {
-                getAdmin(player).ifPresent(Consumer { a: Admin ->
+                getAdmin(player)?.let { a: Admin ->
                     app.post {
                         if (a.perms.contains(Permission.admin) && !a.hidden) player.admin(true)
                         if (a.perms.size > 1) player.sendMessage("Your permissions " + Permission.seqToString(a.perms))
                     }
-                })
+                }
             }
             if (PVars.mapVote != null) PVars.mapVote.checkPass()
         }
@@ -135,14 +135,14 @@ fun loadEvents() {
         // full connect
         val player: Player = e.player
 
-        val pdOpt = getPlayerData(player)
-        if (pdOpt.isEmpty) {
+        val pd = getPlayerData(player)
+        if (pd == null) {
             app.post {
                 player.kick("[scarlet]Failed to create player, try re-join")
             }
             return@onAsync
         }
-        val pd = pdOpt.get()
+        //val pd = pdOpt.get()
         PlayerData.setJoinTime(player)
 
         //pd.setOriginalName(player.coloredName());
@@ -175,9 +175,9 @@ fun loadEvents() {
         val player = e.player
         if (player != null /* how? */) PVars.SSUsers.remove(player.id)
 
-        val pdOpt = getPlayerData(player!!)
-        if (pdOpt.isPresent) {
-            val pd = pdOpt.get()
+        val pd = getPlayerData(player!!)
+        if (pd != null) {
+            // val pd = pdOpt.get()
             Bundle.sendMessage("messages.leave", pd.id.toString(), player.coloredName())
             Log.info("[@] Player @ left [@]", pd.id, player.plainName(), player.uuid())
             sendLeaveMessage(player, pd.id)
@@ -213,9 +213,9 @@ fun loadEvents() {
         val player = e.player
         val message = e.message
 
-        getPlayerData(player).ifPresent(Consumer { pd: PlayerData? ->
+        getPlayerData(player)?.let { pd: PlayerData? ->
             putLog(pd!!.id, "event", "Player sent message $message")
-        })
+        }
         if (!message.startsWith("/")) {
             val content =
                 ("`" + player.plainName() + ": " + stripFoo(Strings.stripColors(message)) + "`").replace("@", "")
@@ -227,7 +227,7 @@ fun loadEvents() {
         Timer.schedule({
             KVars.startTime = System.currentTimeMillis()
             eventsScope.launch {
-                createOrGetMapStats(Vars.state.map.plainName()).ifPresent { stats ->
+                createOrGetMapStats(Vars.state.map.plainName())?.let { stats ->
                     app.post {
                         mapStats = stats
                     }
@@ -291,7 +291,7 @@ fun loadEvents() {
         var playerId: Int? = null
 
         e.author?.uuid?.let { uuid ->
-            getPlayerData(uuid).ifPresent { pd ->
+            getPlayerData(uuid)?.let { pd ->
                 playerId = pd.id
                 embed.setAuthor("[${pd.id}] ${pd.lastName}")
             }
@@ -328,7 +328,7 @@ fun loadEvents() {
         if (e.tile == null || e.unit == null) return@Cons
         val player = e.unit.player
 
-        if (player != null) getPlayerData(player).ifPresent(Consumer { s ->
+        if (player != null) getPlayerData(player)?.let { s ->
             if (e.breaking) {
                 s.adjBlocksBroken()
                 if (PEvents.antigriefCooldown.get() && s.blocksBroken >= 600 && s.blocksBuild < 5 && s.playtime < 600) {
@@ -338,7 +338,7 @@ fun loadEvents() {
                     PEvents.antigriefCooldown.reset()
                 }
             } else s.adjBlocksBuild()
-        })
+        }
 
         if (e.breaking) return@Cons
 
@@ -346,14 +346,14 @@ fun loadEvents() {
         val tile = e.tile
         val actorTeam = player?.team() ?: unit.team
         var name: String? = null
-        var pid: Optional<Int> = Optional.empty<Int>()
+        var pid: Int? = null
         val rotation = tile.build?.rotation ?: 0
         eventsScope.launch {
             if (player != null) {
                 name = player.coloredName()
                 pid = getPlayerId(player)
             }
-            History.write(tile, name, pid, HistoryType.buildBlock, tile.block(), unit.type(), actorTeam, rotation)
+            History.write(tile, name, Optional.ofNullable(pid), HistoryType.buildBlock, tile.block(), unit.type(), actorTeam, rotation)
         }
     })
 
@@ -364,13 +364,13 @@ fun loadEvents() {
         val tile = e.tile
         val actorTeam = player?.team() ?: unit.team
         var name: String? = null
-        var pid: Optional<Int> = Optional.empty<Int>()
+        var pid: Int? = null
         eventsScope.launch {
             if (player != null) {
                 name = player.coloredName()
                 pid = getPlayerId(player)
             }
-            History.write(tile, name, pid, HistoryType.breakBlock, tile.block(), unit.type(), actorTeam, 0)
+            History.write(tile, name, Optional.ofNullable(pid), HistoryType.breakBlock, tile.block(), unit.type(), actorTeam, 0)
         }
     })
 
@@ -379,13 +379,13 @@ fun loadEvents() {
         val player = e.unit.player
         val build = e.build
         var name: String? = null
-        var pid: Optional<Int> = Optional.empty<Int>()
+        var pid: Int? = null
         eventsScope.launch {
             if (player != null) {
                 name = player.coloredName()
                 pid = getPlayerId(player)
             }
-            History.write(build.tile, name, pid, HistoryType.rotate, build.block, null, player.team(), e.build.rotation)
+            History.write(build.tile, name, Optional.ofNullable(pid), HistoryType.rotate, build.block, null, player.team(), e.build.rotation)
         }
     })
 
@@ -395,7 +395,7 @@ fun loadEvents() {
         val build = e.tile
         val name = player.coloredName()
         eventsScope.launch {
-            History.write(build.tile, name, getPlayerId(player), HistoryType.configure, build.block, null, player.team(), build.rotation)
+            History.write(build.tile, name, Optional.ofNullable(getPlayerId(player)), HistoryType.configure, build.block, null, player.team(), build.rotation)
         }
     })
 
@@ -409,7 +409,7 @@ fun loadEvents() {
         // Groups.player.each(Cons { p: Player -> getPlayerData(p).ifPresent(Consumer { obj: PlayerStats? -> obj!!.adjWavesSurvived() }) })
         Groups.player.each { p ->
             eventsScope.launch {
-                getPlayerData(p).ifPresent { stats ->
+                getPlayerData(p)?.let { stats ->
                     app.post {
                         stats.adjWavesSurvived()
                     }
@@ -430,9 +430,9 @@ fun loadEvents() {
 }
 
 fun purgeData(p: Player) {
-    getPlayerId(p).ifPresent(Consumer { id: Int? ->
+    getPlayerId(p)?.let { id: Int? ->
         mutesCache.remove(id)
-    })
+    }
     Permission.cache.remove(p)
     playerDataCache.remove(p)
     adminsCache.remove(p)
